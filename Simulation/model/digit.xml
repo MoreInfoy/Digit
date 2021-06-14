@@ -90,11 +90,12 @@
                                 <body name="left_toe_pitch" pos="0.408 -0.04 0" quat="0.826576 0 0 0.562825">
                                     <inertial pos="-0.000141 2e-06 3e-06" quat="0.707107 0 0 0.707107" mass="0.043881" diaginertia="8e-06 5e-06 5e-06" />
                                     <joint name="toe_pitch_joint_left" pos="0 0 0" axis="0 0 1" limited="true" range="-0.785398 0.785398" />
-                                    <geom type="mesh" mesh="toe-pitch" />
+                                    <geom class="viz" type="mesh" mesh="toe-pitch" />
                                     <body name="left_toe_roll" pos="0 0 0" quat="0.707107 0 0.707107 0">
                                         <inertial pos="9e-06 -0.028084 -0.023204" quat="0.686347 0.170083 -0.170083 0.686347" mass="0.531283" diaginertia="0.00191487 0.00187 0.000544125" />
                                         <joint name="toe_roll_joint_left" pos="0 0 0" axis="0 0 1" limited="true" range="-0.6109 0.6109" />
-                                        <geom type="mesh" mesh="toe-roll" />
+                                        <geom class="viz" type="mesh" mesh="toe-roll" />
+                                        <geom type="box" size="0.040 0.01 0.118" euler="0.527 0 0" pos="0 -0.043 -0.027"/>
                                     </body>
                                 </body>
                             </body>
@@ -146,11 +147,12 @@
                                 <body name="right_toe_pitch" pos="0.408 0.04 0" quat="0.826576 0 0 -0.562825">
                                     <inertial pos="-0.000141 -2e-06 3e-06" quat="0.707107 0 0 0.707107" mass="0.043881" diaginertia="8e-06 5e-06 5e-06" />
                                     <joint name="toe_pitch_joint_right" pos="0 0 0" axis="0 0 1" limited="true" range="-0.785398 0.785398" />
-                                    <geom type="mesh" mesh="toe-pitch1" />
+                                    <geom class="viz" type="mesh" mesh="toe-pitch1" />
                                     <body name="right_toe_roll" pos="0 0 0" quat="0.707107 0 0.707107 0">
                                         <inertial pos="9e-06 0.028084 -0.023204" quat="0.686347 -0.170083 0.170083 0.686347" mass="0.531283" diaginertia="0.00191487 0.00187 0.000544125" />
                                         <joint name="toe_roll_joint_right" pos="0 0 0" axis="0 0 1" limited="true" range="-0.6109 0.6109" />
-                                        <geom type="mesh" mesh="toe-roll1" />
+                                        <geom class="viz" type="mesh" mesh="toe-roll1" />
+                                        <geom type="box" size="0.040 0.01 0.118" euler="-0.527 0 0" pos="0 0.043 -0.027"/>
                                     </body>
                                 </body>
                             </body>
