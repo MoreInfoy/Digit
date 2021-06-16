@@ -2,7 +2,9 @@
 // Created by nimpng on 6/13/21.
 //
 
+#include "StateAndCommand.h"
 #include "SharedMessages.h"
+#include "Manager.h"
 #include "EigenTypes.h"
 #include <csignal>
 
@@ -26,6 +28,9 @@ int main() {
     }
     shared_memory().init();
 
+    Manager manager(shared_memory().robotToUser);
+    manager.init();
+
     Poplar::Vec qdes(ROBOT_NU);
     qdes << 0.325, 0, 0, 0, 0, -0.102, -0.07,
             0, 0.987, 0, 0,
@@ -34,11 +39,12 @@ int main() {
 
     while (!exitrequest) {
         if (shared_memory().waitForRobotWithTimeout(1, 0)) {
-            Poplar::Vec qj, qjdot;
-            qj = shared_memory().robotToUser.q.tail(ROBOT_NU);
-            qjdot = shared_memory().robotToUser.qdot.tail(ROBOT_NU);
-            shared_memory().userToRobot.tau = 1000 * (qdes - qj) - 10.5 * qjdot;
+
+            auto &qpos = shared_memory().robotToUser.jointsState.qpos;
+            auto &qvel = shared_memory().robotToUser.jointsState.qvel;
+            shared_memory().userToRobot.tau = 1000 * (qdes - qpos) - 10.5 * qvel;
             shared_memory().userDone();
+            manager.run();
         }
 
     }

@@ -18,6 +18,7 @@
 #include <chrono>
 
 #include "SharedMessages.h"
+#include "StateAndCommand.h"
 
 #include <iostream>
 
@@ -1787,8 +1788,16 @@ void getRobotState(void)
         printf("nv = %d\n", m->nv);
         throw std::runtime_error("[Simulate::getRobotState] m->nv != ROBOT_NV");
     }
-    std::memcpy(shared_memory().robotToUser.q.data(), d->qpos, m->nq * sizeof(mjtNum));
-    std::memcpy(shared_memory().robotToUser.qdot.data(), d->qvel, m->nv * sizeof(mjtNum));
+    shared_memory().robotToUser.floatingBaseState.pos << d->qpos[0], d->qpos[1], d->qpos[2];
+    shared_memory().robotToUser.floatingBaseState.quat.x() = d->qpos[4];
+    shared_memory().robotToUser.floatingBaseState.quat.y() = d->qpos[5];
+    shared_memory().robotToUser.floatingBaseState.quat.z() = d->qpos[6];
+    shared_memory().robotToUser.floatingBaseState.quat.w() = d->qpos[3];
+    shared_memory().robotToUser.floatingBaseState.vel << d->qvel[0], d->qvel[1], d->qvel[2];
+    shared_memory().robotToUser.floatingBaseState.omega << d->qvel[3], d->qvel[4], d->qvel[5];
+
+    std::memcpy(shared_memory().robotToUser.jointsState.qpos.data(), d->qpos+7, m->nu * sizeof(mjtNum));
+    std::memcpy(shared_memory().robotToUser.jointsState.qvel.data(), d->qvel+6, m->nu * sizeof(mjtNum));
     /*printEigenDVec(shared_memory().robotToUser.q, "qpos");
     printEigenDVec(shared_memory().robotToUser.qdot, "qdot");*/
 }

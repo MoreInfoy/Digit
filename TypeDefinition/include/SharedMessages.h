@@ -12,21 +12,7 @@
 #include "SharedMemory.h"
 #include "Configuration.h"
 #include <vector>
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Dense>
 
-using namespace Eigen;
-
-struct RobotState
-{
-    Vector<RealNum, ROBOT_NV + 1> q;
-    Vector<RealNum, ROBOT_NV> qdot;
-};
-
-struct UserCmd
-{
-    Vector<RealNum, ROBOT_NU> tau;
-};
 
 /*!
  * All the data shared between the robot and the simulator
