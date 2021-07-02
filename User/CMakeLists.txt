@@ -8,4 +8,4 @@ add_executable(User ${user_source})
 
 include_directories(include)
 
-target_link_libraries(User rt pthread)
+target_link_libraries(User rt pthread TaskSpaceControl)

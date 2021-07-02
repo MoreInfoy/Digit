@@ -7,4 +7,6 @@
 #define RealNum double
 #define MJKEY "@THIS_COM@/Simulation/lib/mjkey.txt"
 
+#define URDF "@THIS_COM@/Simulation/model/digit_model.urdf"
+
 #endif

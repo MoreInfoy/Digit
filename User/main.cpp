@@ -33,8 +33,8 @@ int main() {
 
     Poplar::Vec qdes(ROBOT_NU);
     qdes << 0.325, 0, 0, 0, 0, -0.102, -0.07,
-            0, 0.987, 0, 0,
             -0.325, 0, 0, 0, 0, 0.102, 0.07,
+            0, 0.987, 0, 0,
             0, -0.987, 0, 0;
 
     while (!exitrequest) {
@@ -42,11 +42,10 @@ int main() {
 
             auto &qpos = shared_memory().robotToUser.jointsState.qpos;
             auto &qvel = shared_memory().robotToUser.jointsState.qvel;
-            shared_memory().userToRobot.tau = 1000 * (qdes - qpos) - 10.5 * qvel;
+            shared_memory().userToRobot.tau = manager.output();
             shared_memory().userDone();
             manager.run();
         }
-
     }
     if (shared_memory.is_created())
         shared_memory.detach();

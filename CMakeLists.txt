@@ -21,15 +21,17 @@ endif()
 include_directories(${THIS_COM}/TypeDefinition/include)
 include_directories(${CMAKE_BINARY_DIR})
 include_directories(/usr/include/eigen3)
-include_directories(SYSTEM ${THIS_COM}/third_party/ParamHandler)
 include_directories(SYSTEM ${THIS_COM}/third_party/qpOASES/include)
 include_directories(SYSTEM ${THIS_COM}/third_party/eiquadprog/include)
-include_directories(SYSTEM ${THIS_COM}/third_party/tsid/include)
+include_directories(SYSTEM ${THIS_COM}/third_party/Task-Space-Control/include)
+include_directories(${THIS_COM}/third_party/RobotWrapper/include)
+
+link_directories(${CMAKE_BINARY_DIR})
 
 link_directories(${CMAKE_BINARY_DIR})
 link_directories(${THIS_COM}/Simulation/lib/)
 
-add_subdirectory(ThirdParty)
+add_subdirectory(third_party)
 add_subdirectory(Simulation)
 add_subdirectory(User)
 

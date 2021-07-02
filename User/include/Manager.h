@@ -5,7 +5,7 @@
 #ifndef POPLARDIGIT_MANAGER_H
 #define POPLARDIGIT_MANAGER_H
 
-#include "Controller/Controller.h"
+#include "Controller/TSC.h"
 #include "GaitScheduler/GaitScheduler.h"
 #include "Planner/Planner.h"
 
@@ -13,11 +13,18 @@ class Manager {
 public:
     explicit Manager(const RobotState &state);
 
+    ~Manager();
+
     void init();
 
     void run();
 
     Poplar::Vec output();
+
+private:
+    const RobotState &_state;
+    TSC_IMPL* tsc;
+
 };
 
 

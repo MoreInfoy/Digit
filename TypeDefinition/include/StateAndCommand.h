@@ -14,8 +14,8 @@
 using namespace Eigen;
 
 struct JointsState {
-    Vector<RealNum, ROBOT_NU> qpos;
-    Vector<RealNum, ROBOT_NU> qvel;
+    Matrix<RealNum, ROBOT_NU, 1> qpos;
+    Matrix<RealNum, ROBOT_NU, 1> qvel;
 };
 
 struct FloatingBaseState {
@@ -34,10 +34,11 @@ struct Reference {
 
 struct JointsCmd {
     // TODO:
+    Matrix<RealNum, ROBOT_NU, 1> tau_ff;
 };
 
 struct UserCmd {
-    Vector<RealNum, ROBOT_NU> tau;
+    Matrix<RealNum, ROBOT_NU, 1> tau;
 };
 
 #endif //POPLARDIGIT_STATEANDCOMMAND_H

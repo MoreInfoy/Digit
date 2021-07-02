@@ -26,8 +26,8 @@
 
 double q_init[] = {0, 0, 0.9, 1, 0, 0, 0,
                    0.325, 0, 0, 0, 0, -0.102, -0.07,
-                   0, 0.987, 0, 0,
                    -0.325, 0, 0, 0, 0, 0.102, 0.07,
+                   0, 0.987, 0, 0,
                    0, -0.987, 0, 0};
 //-------------------------------- global -----------------------------------------------
 
@@ -65,8 +65,7 @@ mjuiState uistate;
 mjUI ui0, ui1;
 
 // UI settings not contained in MuJoCo structures
-struct
-{
+struct {
     // file
     int exitrequest = 0;
 
@@ -102,8 +101,7 @@ struct
 } settings;
 
 // section ids
-enum
-{
+enum {
     // left ui
     SECT_FILE = 0,
     SECT_OPTION,
@@ -122,100 +120,100 @@ enum
 
 // file section of UI
 const mjuiDef defFile[] =
-    {
-        {mjITEM_SECTION, "File", 1, NULL, "AF"},
-        {mjITEM_BUTTON, "Save xml", 2, NULL, ""},
-        {mjITEM_BUTTON, "Save mjb", 2, NULL, ""},
-        {mjITEM_BUTTON, "Print model", 2, NULL, "CM"},
-        {mjITEM_BUTTON, "Print data", 2, NULL, "CD"},
-        {mjITEM_BUTTON, "Quit", 1, NULL, "CQ"},
-        {mjITEM_END}};
+        {
+                {mjITEM_SECTION, "File",        1, NULL, "AF"},
+                {mjITEM_BUTTON,  "Save xml",    2, NULL, ""},
+                {mjITEM_BUTTON,  "Save mjb",    2, NULL, ""},
+                {mjITEM_BUTTON,  "Print model", 2, NULL, "CM"},
+                {mjITEM_BUTTON,  "Print data",  2, NULL, "CD"},
+                {mjITEM_BUTTON,  "Quit",        1, NULL, "CQ"},
+                {mjITEM_END}};
 
 // option section of UI
 const mjuiDef defOption[] =
-    {
-        {mjITEM_SECTION, "Option", 1, NULL, "AO"},
-        {mjITEM_SELECT, "Spacing", 1, &settings.spacing, "Tight\nWide"},
-        {mjITEM_SELECT, "Color", 1, &settings.color, "Default\nOrange\nWhite\nBlack"},
-        {mjITEM_SELECT, "Font", 1, &settings.font, "50 %\n100 %\n150 %\n200 %\n250 %\n300 %"},
-        {mjITEM_CHECKINT, "Left UI (Tab)", 1, &settings.ui0, " #258"},
-        {mjITEM_CHECKINT, "Right UI", 1, &settings.ui1, "S#258"},
-        {mjITEM_CHECKINT, "Help", 2, &settings.help, " #290"},
-        {mjITEM_CHECKINT, "Info", 2, &settings.info, " #291"},
-        {mjITEM_CHECKINT, "Profiler", 2, &settings.profiler, " #292"},
-        {mjITEM_CHECKINT, "Sensor", 2, &settings.sensor, " #293"},
+        {
+                {mjITEM_SECTION, "Option", 1, NULL, "AO"},
+                {mjITEM_SELECT, "Spacing", 1, &settings.spacing, "Tight\nWide"},
+                {mjITEM_SELECT, "Color", 1, &settings.color, "Default\nOrange\nWhite\nBlack"},
+                {mjITEM_SELECT, "Font", 1, &settings.font, "50 %\n100 %\n150 %\n200 %\n250 %\n300 %"},
+                {mjITEM_CHECKINT, "Left UI (Tab)", 1, &settings.ui0, " #258"},
+                {mjITEM_CHECKINT, "Right UI", 1, &settings.ui1, "S#258"},
+                {mjITEM_CHECKINT, "Help", 2, &settings.help, " #290"},
+                {mjITEM_CHECKINT, "Info", 2, &settings.info, " #291"},
+                {mjITEM_CHECKINT, "Profiler", 2, &settings.profiler, " #292"},
+                {mjITEM_CHECKINT, "Sensor", 2, &settings.sensor, " #293"},
 #ifdef __APPLE__
-        {mjITEM_CHECKINT, "Fullscreen", 0, &settings.fullscreen, " #294"},
+                {mjITEM_CHECKINT, "Fullscreen", 0, &settings.fullscreen, " #294"},
 #else
-        {mjITEM_CHECKINT, "Fullscreen", 1, &settings.fullscreen, " #294"},
+                {mjITEM_CHECKINT, "Fullscreen", 1, &settings.fullscreen, " #294"},
 #endif
-        {mjITEM_CHECKINT, "Vertical Sync", 1, &settings.vsync, " #295"},
-        {mjITEM_CHECKINT, "Busy Wait", 1, &settings.busywait, " #296"},
-        {mjITEM_END}};
+                {mjITEM_CHECKINT, "Vertical Sync", 1, &settings.vsync, " #295"},
+                {mjITEM_CHECKINT, "Busy Wait", 1, &settings.busywait, " #296"},
+                {mjITEM_END}};
 
 // simulation section of UI
 const mjuiDef defSimulation[] =
-    {
-        {mjITEM_SECTION, "Simulation", 1, NULL, "AS"},
-        {mjITEM_RADIO, "", 2, &settings.run, "Pause\nRun"},
-        {mjITEM_BUTTON, "Reset", 2, NULL, " #259"},
-        {mjITEM_BUTTON, "Reload", 2, NULL, "CL"},
-        {mjITEM_BUTTON, "Align", 2, NULL, "CA"},
-        {mjITEM_BUTTON, "Copy pose", 2, NULL, "CC"},
-        {mjITEM_SLIDERINT, "Key", 3, &settings.key, "0 0"},
-        {mjITEM_BUTTON, "Reset to key", 3},
-        {mjITEM_BUTTON, "Set key", 3},
-        {mjITEM_END}};
+        {
+                {mjITEM_SECTION,   "Simulation",   1, NULL,          "AS"},
+                {mjITEM_RADIO,     "",             2, &settings.run, "Pause\nRun"},
+                {mjITEM_BUTTON,    "Reset",        2, NULL,          " #259"},
+                {mjITEM_BUTTON,    "Reload",       2, NULL,          "CL"},
+                {mjITEM_BUTTON,    "Align",        2, NULL,          "CA"},
+                {mjITEM_BUTTON,    "Copy pose",    2, NULL,          "CC"},
+                {mjITEM_SLIDERINT, "Key",          3, &settings.key, "0 0"},
+                {mjITEM_BUTTON,    "Reset to key", 3},
+                {mjITEM_BUTTON,    "Set key",      3},
+                {mjITEM_END}};
 
 // watch section of UI
 const mjuiDef defWatch[] =
-    {
-        {mjITEM_SECTION, "Watch", 0, NULL, "AW"},
-        {mjITEM_EDITTXT, "Field", 2, settings.field, "qpos"},
-        {mjITEM_EDITINT, "Index", 2, &settings.index, "1"},
-        {mjITEM_STATIC, "Value", 2, NULL, " "},
-        {mjITEM_END}};
+        {
+                {mjITEM_SECTION, "Watch", 0, NULL,            "AW"},
+                {mjITEM_EDITTXT, "Field", 2, settings.field,  "qpos"},
+                {mjITEM_EDITINT, "Index", 2, &settings.index, "1"},
+                {mjITEM_STATIC,  "Value", 2, NULL,            " "},
+                {mjITEM_END}};
 
 // help strings
 const char help_content[] =
-    "Alt mouse button\n"
-    "UI right hold\n"
-    "UI title double-click\n"
-    "Space\n"
-    "Esc\n"
-    "Right arrow\n"
-    "Left arrow\n"
-    "Down arrow\n"
-    "Up arrow\n"
-    "Page Up\n"
-    "Double-click\n"
-    "Right double-click\n"
-    "Ctrl Right double-click\n"
-    "Scroll, middle drag\n"
-    "Left drag\n"
-    "[Shift] right drag\n"
-    "Ctrl [Shift] drag\n"
-    "Ctrl [Shift] right drag";
+        "Alt mouse button\n"
+        "UI right hold\n"
+        "UI title double-click\n"
+        "Space\n"
+        "Esc\n"
+        "Right arrow\n"
+        "Left arrow\n"
+        "Down arrow\n"
+        "Up arrow\n"
+        "Page Up\n"
+        "Double-click\n"
+        "Right double-click\n"
+        "Ctrl Right double-click\n"
+        "Scroll, middle drag\n"
+        "Left drag\n"
+        "[Shift] right drag\n"
+        "Ctrl [Shift] drag\n"
+        "Ctrl [Shift] right drag";
 
 const char help_title[] =
-    "Swap left-right\n"
-    "Show UI shortcuts\n"
-    "Expand/collapse all  \n"
-    "Pause\n"
-    "Free camera\n"
-    "Step forward\n"
-    "Step back\n"
-    "Step forward 100\n"
-    "Step back 100\n"
-    "Select parent\n"
-    "Select\n"
-    "Center\n"
-    "Track camera\n"
-    "Zoom\n"
-    "View rotate\n"
-    "View translate\n"
-    "Object rotate\n"
-    "Object translate";
+        "Swap left-right\n"
+        "Show UI shortcuts\n"
+        "Expand/collapse all  \n"
+        "Pause\n"
+        "Free camera\n"
+        "Step forward\n"
+        "Step back\n"
+        "Step forward 100\n"
+        "Step back 100\n"
+        "Select parent\n"
+        "Select\n"
+        "Center\n"
+        "Track camera\n"
+        "Zoom\n"
+        "View rotate\n"
+        "View translate\n"
+        "Object rotate\n"
+        "Object translate";
 
 // info strings
 char info_title[1000];
@@ -224,8 +222,7 @@ char info_content[1000];
 //----------------------- profiler, sensor, info, watch ---------------------------------
 
 // init profiler figures
-void profilerinit(void)
-{
+void profilerinit(void) {
     int i, n;
 
     // set figures to default
@@ -313,91 +310,83 @@ void profilerinit(void)
 
     // init x axis on history figures (do not show yet)
     for (n = 0; n < 6; n++)
-        for (i = 0; i < mjMAXLINEPNT; i++)
-        {
-            figtimer.linedata[n][2 * i] = (float)-i;
-            figsize.linedata[n][2 * i] = (float)-i;
+        for (i = 0; i < mjMAXLINEPNT; i++) {
+            figtimer.linedata[n][2 * i] = (float) -i;
+            figsize.linedata[n][2 * i] = (float) -i;
         }
 }
 
 // update profiler figures
-void profilerupdate(void)
-{
+void profilerupdate(void) {
     int i, n;
 
     // update constraint figure
     figconstraint.linepnt[0] = mjMIN(mjMIN(d->solver_iter, mjNSOLVER), mjMAXLINEPNT);
     for (i = 1; i < 5; i++)
         figconstraint.linepnt[i] = figconstraint.linepnt[0];
-    if (m->opt.solver == mjSOL_PGS)
-    {
+    if (m->opt.solver == mjSOL_PGS) {
         figconstraint.linepnt[3] = 0;
         figconstraint.linepnt[4] = 0;
     }
     if (m->opt.solver == mjSOL_CG)
         figconstraint.linepnt[4] = 0;
-    for (i = 0; i < figconstraint.linepnt[0]; i++)
-    {
+    for (i = 0; i < figconstraint.linepnt[0]; i++) {
         // x
-        figconstraint.linedata[0][2 * i] = (float)i;
-        figconstraint.linedata[1][2 * i] = (float)i;
-        figconstraint.linedata[2][2 * i] = (float)i;
-        figconstraint.linedata[3][2 * i] = (float)i;
-        figconstraint.linedata[4][2 * i] = (float)i;
+        figconstraint.linedata[0][2 * i] = (float) i;
+        figconstraint.linedata[1][2 * i] = (float) i;
+        figconstraint.linedata[2][2 * i] = (float) i;
+        figconstraint.linedata[3][2 * i] = (float) i;
+        figconstraint.linedata[4][2 * i] = (float) i;
 
         // y
-        figconstraint.linedata[0][2 * i + 1] = (float)d->nefc;
-        figconstraint.linedata[1][2 * i + 1] = (float)d->solver[i].nactive;
-        figconstraint.linedata[2][2 * i + 1] = (float)d->solver[i].nchange;
-        figconstraint.linedata[3][2 * i + 1] = (float)d->solver[i].neval;
-        figconstraint.linedata[4][2 * i + 1] = (float)d->solver[i].nupdate;
+        figconstraint.linedata[0][2 * i + 1] = (float) d->nefc;
+        figconstraint.linedata[1][2 * i + 1] = (float) d->solver[i].nactive;
+        figconstraint.linedata[2][2 * i + 1] = (float) d->solver[i].nchange;
+        figconstraint.linedata[3][2 * i + 1] = (float) d->solver[i].neval;
+        figconstraint.linedata[4][2 * i + 1] = (float) d->solver[i].nupdate;
     }
 
     // update cost figure
     figcost.linepnt[0] = mjMIN(mjMIN(d->solver_iter, mjNSOLVER), mjMAXLINEPNT);
     for (i = 1; i < 3; i++)
         figcost.linepnt[i] = figcost.linepnt[0];
-    if (m->opt.solver == mjSOL_PGS)
-    {
+    if (m->opt.solver == mjSOL_PGS) {
         figcost.linepnt[1] = 0;
         figcost.linepnt[2] = 0;
     }
 
-    for (i = 0; i < figcost.linepnt[0]; i++)
-    {
+    for (i = 0; i < figcost.linepnt[0]; i++) {
         // x
-        figcost.linedata[0][2 * i] = (float)i;
-        figcost.linedata[1][2 * i] = (float)i;
-        figcost.linedata[2][2 * i] = (float)i;
+        figcost.linedata[0][2 * i] = (float) i;
+        figcost.linedata[1][2 * i] = (float) i;
+        figcost.linedata[2][2 * i] = (float) i;
 
         // y
-        figcost.linedata[0][2 * i + 1] = (float)mju_log10(mju_max(mjMINVAL, d->solver[i].improvement));
-        figcost.linedata[1][2 * i + 1] = (float)mju_log10(mju_max(mjMINVAL, d->solver[i].gradient));
-        figcost.linedata[2][2 * i + 1] = (float)mju_log10(mju_max(mjMINVAL, d->solver[i].lineslope));
+        figcost.linedata[0][2 * i + 1] = (float) mju_log10(mju_max(mjMINVAL, d->solver[i].improvement));
+        figcost.linedata[1][2 * i + 1] = (float) mju_log10(mju_max(mjMINVAL, d->solver[i].gradient));
+        figcost.linedata[2][2 * i + 1] = (float) mju_log10(mju_max(mjMINVAL, d->solver[i].lineslope));
     }
 
     // get timers: total, collision, prepare, solve, other
     mjtNum total = d->timer[mjTIMER_STEP].duration;
     int number = d->timer[mjTIMER_STEP].number;
-    if (!number)
-    {
+    if (!number) {
         total = d->timer[mjTIMER_FORWARD].duration;
         number = d->timer[mjTIMER_FORWARD].number;
     }
     number = mjMAX(1, number);
     float tdata[5] = {
-        (float)(total / number),
-        (float)(d->timer[mjTIMER_POS_COLLISION].duration / number),
-        (float)(d->timer[mjTIMER_POS_MAKE].duration / number) +
-            (float)(d->timer[mjTIMER_POS_PROJECT].duration / number),
-        (float)(d->timer[mjTIMER_CONSTRAINT].duration / number),
-        0};
+            (float) (total / number),
+            (float) (d->timer[mjTIMER_POS_COLLISION].duration / number),
+            (float) (d->timer[mjTIMER_POS_MAKE].duration / number) +
+            (float) (d->timer[mjTIMER_POS_PROJECT].duration / number),
+            (float) (d->timer[mjTIMER_CONSTRAINT].duration / number),
+            0};
     tdata[4] = tdata[0] - tdata[1] - tdata[2] - tdata[3];
 
     // update figtimer
     int pnt = mjMIN(201, figtimer.linepnt[0] + 1);
-    for (n = 0; n < 5; n++)
-    {
+    for (n = 0; n < 5; n++) {
         // shift data
         for (i = pnt - 1; i > 0; i--)
             figtimer.linedata[n][2 * i + 1] = figtimer.linedata[n][2 * i - 1];
@@ -409,17 +398,16 @@ void profilerupdate(void)
 
     // get sizes: nv, nbody, nefc, sqrt(nnz), ncont, iter
     float sdata[6] = {
-        (float)m->nv,
-        (float)m->nbody,
-        (float)d->nefc,
-        (float)mju_sqrt((mjtNum)d->solver_nnz),
-        (float)d->ncon,
-        (float)d->solver_iter};
+            (float) m->nv,
+            (float) m->nbody,
+            (float) d->nefc,
+            (float) mju_sqrt((mjtNum) d->solver_nnz),
+            (float) d->ncon,
+            (float) d->solver_iter};
 
     // update figsize
     pnt = mjMIN(201, figsize.linepnt[0] + 1);
-    for (n = 0; n < 6; n++)
-    {
+    for (n = 0; n < 6; n++) {
         // shift data
         for (i = pnt - 1; i > 0; i--)
             figsize.linedata[n][2 * i + 1] = figsize.linedata[n][2 * i - 1];
@@ -431,13 +419,12 @@ void profilerupdate(void)
 }
 
 // show profiler figures
-void profilershow(mjrRect rect)
-{
+void profilershow(mjrRect rect) {
     mjrRect viewport = {
-        rect.left + rect.width - rect.width / 4,
-        rect.bottom,
-        rect.width / 4,
-        rect.height / 4};
+            rect.left + rect.width - rect.width / 4,
+            rect.bottom,
+            rect.width / 4,
+            rect.height / 4};
     mjr_figure(viewport, &figtimer, &con);
     viewport.bottom += rect.height / 4;
     mjr_figure(viewport, &figsize, &con);
@@ -448,8 +435,7 @@ void profilershow(mjrRect rect)
 }
 
 // init sensor figure
-void sensorinit(void)
-{
+void sensorinit(void) {
     // set figure to default
     mjv_defaultFigure(&figsensor);
     figsensor.figurergba[3] = 0.5f;
@@ -477,8 +463,7 @@ void sensorinit(void)
 }
 
 // update sensor figure
-void sensorupdate(void)
-{
+void sensorupdate(void) {
     static const int maxline = 10;
 
     // clear linepnt
@@ -489,8 +474,7 @@ void sensorupdate(void)
     int lineid = 0;
 
     // loop over sensors
-    for (int n = 0; n < m->nsensor; n++)
-    {
+    for (int n = 0; n < m->nsensor; n++) {
         // go to next line if type is different
         if (n > 0 && m->sensor_type[n] != m->sensor_type[n - 1])
             lineid = mjMIN(lineid + 1, maxline - 1);
@@ -504,19 +488,18 @@ void sensorupdate(void)
         int p = figsensor.linepnt[lineid];
 
         // fill in data for this sensor
-        for (int i = 0; i < dim; i++)
-        {
+        for (int i = 0; i < dim; i++) {
             // check size
             if ((p + 2 * i) >= mjMAXLINEPNT / 2)
                 break;
 
             // x
-            figsensor.linedata[lineid][2 * p + 4 * i] = (float)(adr + i);
-            figsensor.linedata[lineid][2 * p + 4 * i + 2] = (float)(adr + i);
+            figsensor.linedata[lineid][2 * p + 4 * i] = (float) (adr + i);
+            figsensor.linedata[lineid][2 * p + 4 * i + 2] = (float) (adr + i);
 
             // y
             figsensor.linedata[lineid][2 * p + 4 * i + 1] = 0;
-            figsensor.linedata[lineid][2 * p + 4 * i + 3] = (float)(d->sensordata[adr + i] / cutoff);
+            figsensor.linedata[lineid][2 * p + 4 * i + 3] = (float) (d->sensordata[adr + i] / cutoff);
         }
 
         // update linepnt
@@ -526,29 +509,26 @@ void sensorupdate(void)
 }
 
 // show sensor figure
-void sensorshow(mjrRect rect)
-{
+void sensorshow(mjrRect rect) {
     // constant width with and without profiler
     int width = settings.profiler ? rect.width / 3 : rect.width / 4;
 
     // render figure on the right
     mjrRect viewport = {
-        rect.left + rect.width - width,
-        rect.bottom,
-        width,
-        rect.height / 3};
+            rect.left + rect.width - width,
+            rect.bottom,
+            width,
+            rect.height / 3};
     mjr_figure(viewport, &figsensor, &con);
 }
 
 // prepare info text
-void infotext(char *title, char *content, double interval)
-{
+void infotext(char *title, char *content, double interval) {
     char tmp[20];
 
     // compute solver error
     mjtNum solerr = 0;
-    if (d->solver_iter)
-    {
+    if (d->solver_iter) {
         int ind = mjMIN(d->solver_iter - 1, mjNSOLVER - 1);
         solerr = mju_min(d->solver[ind].improvement, d->solver[ind].gradient);
         if (solerr == 0)
@@ -561,24 +541,23 @@ void infotext(char *title, char *content, double interval)
     sprintf(content, "%-20.3f\n%d  (%d con)\n%.3f\n%.1f  (%d it)\n%.0f\n%.3f\n%.3f\n%.3f",
             d->time,
             d->nefc, d->ncon,
-            settings.run ? d->timer[mjTIMER_STEP].duration / mjMAX(1, d->timer[mjTIMER_STEP].number) : d->timer[mjTIMER_FORWARD].duration / mjMAX(1, d->timer[mjTIMER_FORWARD].number),
+            settings.run ? d->timer[mjTIMER_STEP].duration / mjMAX(1, d->timer[mjTIMER_STEP].number) :
+            d->timer[mjTIMER_FORWARD].duration / mjMAX(1, d->timer[mjTIMER_FORWARD].number),
             solerr, d->solver_iter,
             1 / interval,
-            d->maxuse_stack / (double)d->nstack,
-            d->maxuse_con / (double)m->nconmax,
-            d->maxuse_efc / (double)m->njmax);
+            d->maxuse_stack / (double) d->nstack,
+            d->maxuse_con / (double) m->nconmax,
+            d->maxuse_efc / (double) m->njmax);
 
     // add Energy if enabled
-    if (mjENABLED(mjENBL_ENERGY))
-    {
+    if (mjENABLED(mjENBL_ENERGY)) {
         sprintf(tmp, "\n%.3f", d->energy[0] + d->energy[1]);
         strcat(content, tmp);
         strcat(title, "\nEnergy");
     }
 
     // add FwdInv if enabled
-    if (mjENABLED(mjENBL_FWDINV))
-    {
+    if (mjENABLED(mjENBL_FWDINV)) {
         sprintf(tmp, "\n%.1f %.1f",
                 mju_log10(mju_max(mjMINVAL, d->solver_fwdinv[0])),
                 mju_log10(mju_max(mjMINVAL, d->solver_fwdinv[1])));
@@ -588,14 +567,12 @@ void infotext(char *title, char *content, double interval)
 }
 
 // sprintf forwarding, to avoid compiler warning in x-macro
-void printfield(char *str, void *ptr)
-{
-    sprintf(str, "%g", *(mjtNum *)ptr);
+void printfield(char *str, void *ptr) {
+    sprintf(str, "%g", *(mjtNum *) ptr);
 }
 
 // update watch
-void watch(void)
-{
+void watch(void) {
     // clear
     ui0.sect[SECT_WATCH].item[2].multi.nelem = 1;
     strcpy(ui0.sect[SECT_WATCH].item[2].multi.name[0], "invalid field");
@@ -624,65 +601,62 @@ void watch(void)
 //-------------------------------- UI construction --------------------------------------
 
 // make physics section of UI
-void makephysics(int oldstate)
-{
+void makephysics(int oldstate) {
     int i;
 
     mjuiDef defPhysics[] =
-        {
-            {mjITEM_SECTION, "Physics", oldstate, NULL, "AP"},
-            {mjITEM_SELECT, "Integrator", 2, &(m->opt.integrator), "Euler\nRK4"},
-            {mjITEM_SELECT, "Collision", 2, &(m->opt.collision), "All\nPair\nDynamic"},
-            {mjITEM_SELECT, "Cone", 2, &(m->opt.cone), "Pyramidal\nElliptic"},
-            {mjITEM_SELECT, "Jacobian", 2, &(m->opt.jacobian), "Dense\nSparse\nAuto"},
-            {mjITEM_SELECT, "Solver", 2, &(m->opt.solver), "PGS\nCG\nNewton"},
-            {mjITEM_SEPARATOR, "Algorithmic Parameters", 1},
-            {mjITEM_EDITNUM, "Timestep", 2, &(m->opt.timestep), "1 0 1"},
-            {mjITEM_EDITINT, "Iterations", 2, &(m->opt.iterations), "1 0 1000"},
-            {mjITEM_EDITNUM, "Tolerance", 2, &(m->opt.tolerance), "1 0 1"},
-            {mjITEM_EDITINT, "Noslip Iter", 2, &(m->opt.noslip_iterations), "1 0 1000"},
-            {mjITEM_EDITNUM, "Noslip Tol", 2, &(m->opt.noslip_tolerance), "1 0 1"},
-            {mjITEM_EDITINT, "MRR Iter", 2, &(m->opt.mpr_iterations), "1 0 1000"},
-            {mjITEM_EDITNUM, "MPR Tol", 2, &(m->opt.mpr_tolerance), "1 0 1"},
-            {mjITEM_EDITNUM, "API Rate", 2, &(m->opt.apirate), "1 0 1000"},
-            {mjITEM_SEPARATOR, "Physical Parameters", 1},
-            {mjITEM_EDITNUM, "Gravity", 2, m->opt.gravity, "3"},
-            {mjITEM_EDITNUM, "Wind", 2, m->opt.wind, "3"},
-            {mjITEM_EDITNUM, "Magnetic", 2, m->opt.magnetic, "3"},
-            {mjITEM_EDITNUM, "Density", 2, &(m->opt.density), "1"},
-            {mjITEM_EDITNUM, "Viscosity", 2, &(m->opt.viscosity), "1"},
-            {mjITEM_EDITNUM, "Imp Ratio", 2, &(m->opt.impratio), "1"},
-            {mjITEM_SEPARATOR, "Disable Flags", 1},
-            {mjITEM_END}};
+            {
+                    {mjITEM_SECTION,   "Physics",                oldstate, NULL,                 "AP"},
+                    {mjITEM_SELECT,    "Integrator",             2, &(m->opt.integrator),        "Euler\nRK4"},
+                    {mjITEM_SELECT,    "Collision",              2, &(m->opt.collision),         "All\nPair\nDynamic"},
+                    {mjITEM_SELECT,    "Cone",                   2, &(m->opt.cone),              "Pyramidal\nElliptic"},
+                    {mjITEM_SELECT,    "Jacobian",               2, &(m->opt.jacobian),          "Dense\nSparse\nAuto"},
+                    {mjITEM_SELECT,    "Solver",                 2, &(m->opt.solver),            "PGS\nCG\nNewton"},
+                    {mjITEM_SEPARATOR, "Algorithmic Parameters", 1},
+                    {mjITEM_EDITNUM,   "Timestep",               2, &(m->opt.timestep),          "1 0 1"},
+                    {mjITEM_EDITINT,   "Iterations",             2, &(m->opt.iterations),        "1 0 1000"},
+                    {mjITEM_EDITNUM,   "Tolerance",              2, &(m->opt.tolerance),         "1 0 1"},
+                    {mjITEM_EDITINT,   "Noslip Iter",            2, &(m->opt.noslip_iterations), "1 0 1000"},
+                    {mjITEM_EDITNUM,   "Noslip Tol",             2, &(m->opt.noslip_tolerance),  "1 0 1"},
+                    {mjITEM_EDITINT,   "MRR Iter",               2, &(m->opt.mpr_iterations),    "1 0 1000"},
+                    {mjITEM_EDITNUM,   "MPR Tol",                2, &(m->opt.mpr_tolerance),     "1 0 1"},
+                    {mjITEM_EDITNUM,   "API Rate",               2, &(m->opt.apirate),           "1 0 1000"},
+                    {mjITEM_SEPARATOR, "Physical Parameters",    1},
+                    {mjITEM_EDITNUM,   "Gravity",                2, m->opt.gravity,              "3"},
+                    {mjITEM_EDITNUM,   "Wind",                   2, m->opt.wind,                 "3"},
+                    {mjITEM_EDITNUM,   "Magnetic",               2, m->opt.magnetic,             "3"},
+                    {mjITEM_EDITNUM,   "Density",                2, &(m->opt.density),           "1"},
+                    {mjITEM_EDITNUM,   "Viscosity",              2, &(m->opt.viscosity),         "1"},
+                    {mjITEM_EDITNUM,   "Imp Ratio",              2, &(m->opt.impratio),          "1"},
+                    {mjITEM_SEPARATOR, "Disable Flags",          1},
+                    {mjITEM_END}};
     mjuiDef defEnableFlags[] =
-        {
-            {mjITEM_SEPARATOR, "Enable Flags", 1},
-            {mjITEM_END}};
+            {
+                    {mjITEM_SEPARATOR, "Enable Flags", 1},
+                    {mjITEM_END}};
     mjuiDef defOverride[] =
-        {
-            {mjITEM_SEPARATOR, "Contact Override", 1},
-            {mjITEM_EDITNUM, "Margin", 2, &(m->opt.o_margin), "1"},
-            {mjITEM_EDITNUM, "Sol Imp", 2, &(m->opt.o_solimp), "5"},
-            {mjITEM_EDITNUM, "Sol Ref", 2, &(m->opt.o_solref), "2"},
-            {mjITEM_END}};
+            {
+                    {mjITEM_SEPARATOR, "Contact Override", 1},
+                    {mjITEM_EDITNUM,   "Margin",           2, &(m->opt.o_margin), "1"},
+                    {mjITEM_EDITNUM,   "Sol Imp",          2, &(m->opt.o_solimp), "5"},
+                    {mjITEM_EDITNUM,   "Sol Ref",          2, &(m->opt.o_solref), "2"},
+                    {mjITEM_END}};
 
     // add physics
     mjui_add(&ui0, defPhysics);
 
     // add flags programmatically
     mjuiDef defFlag[] =
-        {
-            {mjITEM_CHECKINT, "", 2, NULL, ""},
-            {mjITEM_END}};
-    for (i = 0; i < mjNDISABLE; i++)
-    {
+            {
+                    {mjITEM_CHECKINT, "", 2, NULL, ""},
+                    {mjITEM_END}};
+    for (i = 0; i < mjNDISABLE; i++) {
         strcpy(defFlag[0].name, mjDISABLESTRING[i]);
         defFlag[0].pdata = settings.disable + i;
         mjui_add(&ui0, defFlag);
     }
     mjui_add(&ui0, defEnableFlags);
-    for (i = 0; i < mjNENABLE; i++)
-    {
+    for (i = 0; i < mjNENABLE; i++) {
         strcpy(defFlag[0].name, mjENABLESTRING[i]);
         defFlag[0].pdata = settings.enable + i;
         mjui_add(&ui0, defFlag);
@@ -693,28 +667,26 @@ void makephysics(int oldstate)
 }
 
 // make rendering section of UI
-void makerendering(int oldstate)
-{
+void makerendering(int oldstate) {
     int i, j;
 
     mjuiDef defRendering[] =
-        {
-            {mjITEM_SECTION, "Rendering", oldstate, NULL, "AR"},
-            {mjITEM_SELECT, "Camera", 2, &(settings.camera), "Free\nTracking"},
-            {mjITEM_SELECT, "Label", 2, &(vopt.label),
-             "None\nBody\nJoint\nGeom\nSite\nCamera\nLight\nTendon\nActuator\nConstraint\nSkin\nSelection\nSel Pnt\nForce"},
-            {mjITEM_SELECT, "Frame", 2, &(vopt.frame),
-             "None\nBody\nGeom\nSite\nCamera\nLight\nWorld"},
-            {mjITEM_SEPARATOR, "Model Elements", 1},
-            {mjITEM_END}};
+            {
+                    {mjITEM_SECTION,   "Rendering",      oldstate, NULL,        "AR"},
+                    {mjITEM_SELECT,    "Camera",         2, &(settings.camera), "Free\nTracking"},
+                    {mjITEM_SELECT,    "Label",          2, &(vopt.label),
+                                                                                "None\nBody\nJoint\nGeom\nSite\nCamera\nLight\nTendon\nActuator\nConstraint\nSkin\nSelection\nSel Pnt\nForce"},
+                    {mjITEM_SELECT,    "Frame",          2, &(vopt.frame),
+                                                                                "None\nBody\nGeom\nSite\nCamera\nLight\nWorld"},
+                    {mjITEM_SEPARATOR, "Model Elements", 1},
+                    {mjITEM_END}};
     mjuiDef defOpenGL[] =
-        {
-            {mjITEM_SEPARATOR, "OpenGL Effects", 1},
-            {mjITEM_END}};
+            {
+                    {mjITEM_SEPARATOR, "OpenGL Effects", 1},
+                    {mjITEM_END}};
 
     // add model cameras, up to UI limit
-    for (i = 0; i < mjMIN(m->ncam, mjMAXUIMULTI - 2); i++)
-    {
+    for (i = 0; i < mjMIN(m->ncam, mjMAXUIMULTI - 2); i++) {
         // prepare name
         char camname[mjMAXUITEXT] = "\n";
         if (m->names[m->name_camadr[i]])
@@ -735,16 +707,14 @@ void makerendering(int oldstate)
 
     // add flags programmatically
     mjuiDef defFlag[] =
-        {
-            {mjITEM_CHECKBYTE, "", 2, NULL, ""},
-            {mjITEM_END}};
-    for (i = 0; i < mjNVISFLAG; i++)
-    {
+            {
+                    {mjITEM_CHECKBYTE, "", 2, NULL, ""},
+                    {mjITEM_END}};
+    for (i = 0; i < mjNVISFLAG; i++) {
         // set name, remove "&"
         strcpy(defFlag[0].name, mjVISSTRING[i][0]);
         for (j = 0; j < strlen(mjVISSTRING[i][0]); j++)
-            if (mjVISSTRING[i][0][j] == '&')
-            {
+            if (mjVISSTRING[i][0][j] == '&') {
                 strcpy(defFlag[0].name + j, mjVISSTRING[i][0] + j + 1);
                 break;
             }
@@ -755,8 +725,7 @@ void makerendering(int oldstate)
         mjui_add(&ui0, defFlag);
     }
     mjui_add(&ui0, defOpenGL);
-    for (i = 0; i < mjNRNDFLAG; i++)
-    {
+    for (i = 0; i < mjNRNDFLAG; i++) {
         strcpy(defFlag[0].name, mjRNDSTRING[i][0]);
         sprintf(defFlag[0].other, " %s", mjRNDSTRING[i][2]);
         defFlag[0].pdata = scn.flags + i;
@@ -765,47 +734,46 @@ void makerendering(int oldstate)
 }
 
 // make group section of UI
-void makegroup(int oldstate)
-{
+void makegroup(int oldstate) {
     mjuiDef defGroup[] =
-        {
-            {mjITEM_SECTION, "Group enable", oldstate, NULL, "AG"},
-            {mjITEM_SEPARATOR, "Geom groups", 1},
-            {mjITEM_CHECKBYTE, "Geom 0", 2, vopt.geomgroup, " 0"},
-            {mjITEM_CHECKBYTE, "Geom 1", 2, vopt.geomgroup + 1, " 1"},
-            {mjITEM_CHECKBYTE, "Geom 2", 2, vopt.geomgroup + 2, " 2"},
-            {mjITEM_CHECKBYTE, "Geom 3", 2, vopt.geomgroup + 3, " 3"},
-            {mjITEM_CHECKBYTE, "Geom 4", 2, vopt.geomgroup + 4, " 4"},
-            {mjITEM_CHECKBYTE, "Geom 5", 2, vopt.geomgroup + 5, " 5"},
-            {mjITEM_SEPARATOR, "Site groups", 1},
-            {mjITEM_CHECKBYTE, "Site 0", 2, vopt.sitegroup, "S0"},
-            {mjITEM_CHECKBYTE, "Site 1", 2, vopt.sitegroup + 1, "S1"},
-            {mjITEM_CHECKBYTE, "Site 2", 2, vopt.sitegroup + 2, "S2"},
-            {mjITEM_CHECKBYTE, "Site 3", 2, vopt.sitegroup + 3, "S3"},
-            {mjITEM_CHECKBYTE, "Site 4", 2, vopt.sitegroup + 4, "S4"},
-            {mjITEM_CHECKBYTE, "Site 5", 2, vopt.sitegroup + 5, "S5"},
-            {mjITEM_SEPARATOR, "Joint groups", 1},
-            {mjITEM_CHECKBYTE, "Joint 0", 2, vopt.jointgroup, ""},
-            {mjITEM_CHECKBYTE, "Joint 1", 2, vopt.jointgroup + 1, ""},
-            {mjITEM_CHECKBYTE, "Joint 2", 2, vopt.jointgroup + 2, ""},
-            {mjITEM_CHECKBYTE, "Joint 3", 2, vopt.jointgroup + 3, ""},
-            {mjITEM_CHECKBYTE, "Joint 4", 2, vopt.jointgroup + 4, ""},
-            {mjITEM_CHECKBYTE, "Joint 5", 2, vopt.jointgroup + 5, ""},
-            {mjITEM_SEPARATOR, "Tendon groups", 1},
-            {mjITEM_CHECKBYTE, "Tendon 0", 2, vopt.tendongroup, ""},
-            {mjITEM_CHECKBYTE, "Tendon 1", 2, vopt.tendongroup + 1, ""},
-            {mjITEM_CHECKBYTE, "Tendon 2", 2, vopt.tendongroup + 2, ""},
-            {mjITEM_CHECKBYTE, "Tendon 3", 2, vopt.tendongroup + 3, ""},
-            {mjITEM_CHECKBYTE, "Tendon 4", 2, vopt.tendongroup + 4, ""},
-            {mjITEM_CHECKBYTE, "Tendon 5", 2, vopt.tendongroup + 5, ""},
-            {mjITEM_SEPARATOR, "Actuator groups", 1},
-            {mjITEM_CHECKBYTE, "Actuator 0", 2, vopt.actuatorgroup, ""},
-            {mjITEM_CHECKBYTE, "Actuator 1", 2, vopt.actuatorgroup + 1, ""},
-            {mjITEM_CHECKBYTE, "Actuator 2", 2, vopt.actuatorgroup + 2, ""},
-            {mjITEM_CHECKBYTE, "Actuator 3", 2, vopt.actuatorgroup + 3, ""},
-            {mjITEM_CHECKBYTE, "Actuator 4", 2, vopt.actuatorgroup + 4, ""},
-            {mjITEM_CHECKBYTE, "Actuator 5", 2, vopt.actuatorgroup + 5, ""},
-            {mjITEM_END}};
+            {
+                    {mjITEM_SECTION,   "Group enable",    oldstate, NULL,            "AG"},
+                    {mjITEM_SEPARATOR, "Geom groups",     1},
+                    {mjITEM_CHECKBYTE, "Geom 0",          2, vopt.geomgroup,         " 0"},
+                    {mjITEM_CHECKBYTE, "Geom 1",          2, vopt.geomgroup + 1,     " 1"},
+                    {mjITEM_CHECKBYTE, "Geom 2",          2, vopt.geomgroup + 2,     " 2"},
+                    {mjITEM_CHECKBYTE, "Geom 3",          2, vopt.geomgroup + 3,     " 3"},
+                    {mjITEM_CHECKBYTE, "Geom 4",          2, vopt.geomgroup + 4,     " 4"},
+                    {mjITEM_CHECKBYTE, "Geom 5",          2, vopt.geomgroup + 5,     " 5"},
+                    {mjITEM_SEPARATOR, "Site groups",     1},
+                    {mjITEM_CHECKBYTE, "Site 0",          2, vopt.sitegroup,         "S0"},
+                    {mjITEM_CHECKBYTE, "Site 1",          2, vopt.sitegroup + 1,     "S1"},
+                    {mjITEM_CHECKBYTE, "Site 2",          2, vopt.sitegroup + 2,     "S2"},
+                    {mjITEM_CHECKBYTE, "Site 3",          2, vopt.sitegroup + 3,     "S3"},
+                    {mjITEM_CHECKBYTE, "Site 4",          2, vopt.sitegroup + 4,     "S4"},
+                    {mjITEM_CHECKBYTE, "Site 5",          2, vopt.sitegroup + 5,     "S5"},
+                    {mjITEM_SEPARATOR, "Joint groups",    1},
+                    {mjITEM_CHECKBYTE, "Joint 0",         2, vopt.jointgroup,        ""},
+                    {mjITEM_CHECKBYTE, "Joint 1",         2, vopt.jointgroup + 1,    ""},
+                    {mjITEM_CHECKBYTE, "Joint 2",         2, vopt.jointgroup + 2,    ""},
+                    {mjITEM_CHECKBYTE, "Joint 3",         2, vopt.jointgroup + 3,    ""},
+                    {mjITEM_CHECKBYTE, "Joint 4",         2, vopt.jointgroup + 4,    ""},
+                    {mjITEM_CHECKBYTE, "Joint 5",         2, vopt.jointgroup + 5,    ""},
+                    {mjITEM_SEPARATOR, "Tendon groups",   1},
+                    {mjITEM_CHECKBYTE, "Tendon 0",        2, vopt.tendongroup,       ""},
+                    {mjITEM_CHECKBYTE, "Tendon 1",        2, vopt.tendongroup + 1,   ""},
+                    {mjITEM_CHECKBYTE, "Tendon 2",        2, vopt.tendongroup + 2,   ""},
+                    {mjITEM_CHECKBYTE, "Tendon 3",        2, vopt.tendongroup + 3,   ""},
+                    {mjITEM_CHECKBYTE, "Tendon 4",        2, vopt.tendongroup + 4,   ""},
+                    {mjITEM_CHECKBYTE, "Tendon 5",        2, vopt.tendongroup + 5,   ""},
+                    {mjITEM_SEPARATOR, "Actuator groups", 1},
+                    {mjITEM_CHECKBYTE, "Actuator 0",      2, vopt.actuatorgroup,     ""},
+                    {mjITEM_CHECKBYTE, "Actuator 1",      2, vopt.actuatorgroup + 1, ""},
+                    {mjITEM_CHECKBYTE, "Actuator 2",      2, vopt.actuatorgroup + 2, ""},
+                    {mjITEM_CHECKBYTE, "Actuator 3",      2, vopt.actuatorgroup + 3, ""},
+                    {mjITEM_CHECKBYTE, "Actuator 4",      2, vopt.actuatorgroup + 4, ""},
+                    {mjITEM_CHECKBYTE, "Actuator 5",      2, vopt.actuatorgroup + 5, ""},
+                    {mjITEM_END}};
 
     // set gemo group state
     vopt.geomgroup[0] = 1;
@@ -814,18 +782,17 @@ void makegroup(int oldstate)
 }
 
 // make joint section of UI
-void makejoint(int oldstate)
-{
+void makejoint(int oldstate) {
     int i;
 
     mjuiDef defJoint[] =
-        {
-            {mjITEM_SECTION, "Joint", oldstate, NULL, "AJ"},
-            {mjITEM_END}};
+            {
+                    {mjITEM_SECTION, "Joint", oldstate, NULL, "AJ"},
+                    {mjITEM_END}};
     mjuiDef defSlider[] =
-        {
-            {mjITEM_SLIDERNUM, "", 2, NULL, "0 1"},
-            {mjITEM_END}};
+            {
+                    {mjITEM_SLIDERNUM, "", 2, NULL, "0 1"},
+                    {mjITEM_END}};
 
     // add section
     mjui_add(&ui1, defJoint);
@@ -834,8 +801,7 @@ void makejoint(int oldstate)
     // add scalar joints, exit if UI limit reached
     int itemcnt = 0;
     for (i = 0; i < m->njnt && itemcnt < mjMAXUIITEM; i++)
-        if ((m->jnt_type[i] == mjJNT_HINGE || m->jnt_type[i] == mjJNT_SLIDE))
-        {
+        if ((m->jnt_type[i] == mjJNT_HINGE || m->jnt_type[i] == mjJNT_SLIDE)) {
             // skip if joint group is disabled
             if (!vopt.jointgroup[mjMAX(0, mjMIN(mjNGROUP - 1, m->jnt_group[i]))])
                 continue;
@@ -864,19 +830,18 @@ void makejoint(int oldstate)
 }
 
 // make control section of UI
-void makecontrol(int oldstate)
-{
+void makecontrol(int oldstate) {
     int i;
 
     mjuiDef defControl[] =
-        {
-            {mjITEM_SECTION, "Control", oldstate, NULL, "AC"},
-            {mjITEM_BUTTON, "Clear all", 2},
-            {mjITEM_END}};
+            {
+                    {mjITEM_SECTION, "Control",   oldstate, NULL, "AC"},
+                    {mjITEM_BUTTON,  "Clear all", 2},
+                    {mjITEM_END}};
     mjuiDef defSlider[] =
-        {
-            {mjITEM_SLIDERNUM, "", 2, NULL, "0 1"},
-            {mjITEM_END}};
+            {
+                    {mjITEM_SLIDERNUM, "", 2, NULL, "0 1"},
+                    {mjITEM_END}};
 
     // add section
     mjui_add(&ui1, defControl);
@@ -884,8 +849,7 @@ void makecontrol(int oldstate)
 
     // add controls, exit if UI limit reached (Clear button already added)
     int itemcnt = 1;
-    for (i = 0; i < m->nu && itemcnt < mjMAXUIITEM; i++)
-    {
+    for (i = 0; i < m->nu && itemcnt < mjMAXUIITEM; i++) {
         // skip if actuator group is disabled
         if (!vopt.actuatorgroup[mjMAX(0, mjMIN(mjNGROUP - 1, m->actuator_group[i]))])
             continue;
@@ -912,14 +876,12 @@ void makecontrol(int oldstate)
 }
 
 // make model-dependent UI sections
-void makesections(void)
-{
+void makesections(void) {
     int i;
 
     // get section open-close state, UI 0
     int oldstate0[NSECT0];
-    for (i = 0; i < NSECT0; i++)
-    {
+    for (i = 0; i < NSECT0; i++) {
         oldstate0[i] = 0;
         if (ui0.nsect > i)
             oldstate0[i] = ui0.sect[i].state;
@@ -927,8 +889,7 @@ void makesections(void)
 
     // get section open-close state, UI 1
     int oldstate1[NSECT1];
-    for (i = 0; i < NSECT1; i++)
-    {
+    for (i = 0; i < NSECT1; i++) {
         oldstate1[i] = 0;
         if (ui1.nsect > i)
             oldstate1[i] = ui1.sect[i].state;
@@ -949,8 +910,7 @@ void makesections(void)
 //-------------------------------- utility functions ------------------------------------
 
 // align and scale view
-void alignscale(void)
-{
+void alignscale(void) {
     // autoscale
     cam.lookat[0] = m->stat.center[0];
     cam.lookat[1] = m->stat.center[1];
@@ -965,14 +925,12 @@ void alignscale(void)
 }
 
 // copy qpos to clipboard as key
-void copykey(void)
-{
+void copykey(void) {
     char clipboard[5000] = "<key qpos='";
     char buf[200];
 
     // prepare string
-    for (int i = 0; i < m->nq; i++)
-    {
+    for (int i = 0; i < m->nq; i++) {
         sprintf(buf, i == m->nq - 1 ? "%g" : "%g ", d->qpos[i]);
         strcat(clipboard, buf);
     }
@@ -983,24 +941,20 @@ void copykey(void)
 }
 
 // millisecond timer, for MuJoCo built-in profiler
-mjtNum timer(void)
-{
-    return (mjtNum)(1000 * glfwGetTime());
+mjtNum timer(void) {
+    return (mjtNum) (1000 * glfwGetTime());
 }
 
 // clear all times
-void cleartimers(void)
-{
-    for (int i = 0; i < mjNTIMER; i++)
-    {
+void cleartimers(void) {
+    for (int i = 0; i < mjNTIMER; i++) {
         d->timer[i].duration = 0;
         d->timer[i].number = 0;
     }
 }
 
 // update UI 0 when MuJoCo structures change (except for joint sliders)
-void updatesettings(void)
-{
+void updatesettings(void) {
     int i;
 
     // physics flags
@@ -1022,19 +976,16 @@ void updatesettings(void)
 }
 
 // drop file callback
-void drop(GLFWwindow *window, int count, const char **paths)
-{
+void drop(GLFWwindow *window, int count, const char **paths) {
     // make sure list is non-empty
-    if (count > 0)
-    {
+    if (count > 0) {
         mju_strncpy(filename, paths[0], 1000);
         settings.loadrequest = 1;
     }
 }
 
 // load mjb or xml model
-void loadmodel(void)
-{
+void loadmodel(void) {
     // clear request
     settings.loadrequest = 0;
 
@@ -1045,23 +996,19 @@ void loadmodel(void)
     // load and compile
     char error[500] = "";
     mjModel *mnew = 0;
-    if (strlen(filename) > 4 && !strcmp(filename + strlen(filename) - 4, ".mjb"))
-    {
+    if (strlen(filename) > 4 && !strcmp(filename + strlen(filename) - 4, ".mjb")) {
         mnew = mj_loadModel(filename, NULL);
         if (!mnew)
             strcpy(error, "could not load binary model");
-    }
-    else
+    } else
         mnew = mj_loadXML(filename, NULL, error, 500);
-    if (!mnew)
-    {
+    if (!mnew) {
         printf("%s\n", error);
         return;
     }
 
     // compiler warning: print and pause
-    if (error[0])
-    {
+    if (error[0]) {
         // mj_forward() below will print the warning message
         printf("Model compiled, but simulation warning (paused):\n  %s\n\n",
                error);
@@ -1078,15 +1025,12 @@ void loadmodel(void)
 #ifdef SET_INIT_QPOS
     std::memcpy(d->qpos, q_init, m->nq * sizeof(mjtNum));
 #endif
-    if (shared_memory.is_created())
-    {
+    if (shared_memory.is_created()) {
         //            shared_memory.closeNew();
         //            shared_memory.createNew(SHAREDMEMORY_CONTROLLER, true);
         //TODO: write some meesage in shared memory
         shared_memory.attach(SHAREDMEMORY_NAME);
-    }
-    else
-    {
+    } else {
         shared_memory.createNew(SHAREDMEMORY_NAME, true);
         //TODO: write some meesage in shared memory
     }
@@ -1095,8 +1039,7 @@ void loadmodel(void)
     gear.resize(m->nu);
     tau_user.resize(m->nu);
     tau_user.setZero();
-    for (int i = 0; i < m->nu; i++)
-    {
+    for (int i = 0; i < m->nu; i++) {
         gear(i) = m->actuator_gear[6 * i];
     }
 
@@ -1118,8 +1061,7 @@ void loadmodel(void)
     mjv_updateScene(m, d, &vopt, &pert, &cam, mjCAT_ALL, &scn);
 
     // set window title to model name
-    if (window && m->names)
-    {
+    if (window && m->names) {
         char title[200] = "Simulate : ";
         strcat(title, m->names);
         glfwSetWindowTitle(window, title);
@@ -1142,27 +1084,24 @@ void loadmodel(void)
 //--------------------------------- UI hooks (for uitools.c) ----------------------------
 
 // determine enable/disable item state given category
-int uiPredicate(int category, void *userdata)
-{
-    switch (category)
-    {
-    case 2: // require model
-        return (m != NULL);
+int uiPredicate(int category, void *userdata) {
+    switch (category) {
+        case 2: // require model
+            return (m != NULL);
 
-    case 3: // require model and nkey
-        return (m && m->nkey);
+        case 3: // require model and nkey
+            return (m && m->nkey);
 
-    case 4: // require model and paused
-        return (m && !settings.run);
+        case 4: // require model and paused
+            return (m && !settings.run);
 
-    default:
-        return 1;
+        default:
+            return 1;
     }
 }
 
 // set window layout
-void uiLayout(mjuiState *state)
-{
+void uiLayout(mjuiState *state) {
     mjrRect *rect = state->rect;
 
     // set number of rectangles
@@ -1193,93 +1132,85 @@ void uiLayout(mjuiState *state)
 }
 
 // handle UI event
-void uiEvent(mjuiState *state)
-{
+void uiEvent(mjuiState *state) {
     int i;
     char err[200];
 
     // call UI 0 if event is directed to it
     if ((state->dragrect == ui0.rectid) ||
         (state->dragrect == 0 && state->mouserect == ui0.rectid) ||
-        state->type == mjEVENT_KEY)
-    {
+        state->type == mjEVENT_KEY) {
         // process UI event
         mjuiItem *it = mjui_event(&ui0, state, &con);
 
         // file section
-        if (it && it->sectionid == SECT_FILE)
-        {
-            switch (it->itemid)
-            {
-            case 0: // Save xml
-                if (!mj_saveLastXML("mjmodel.xml", m, err, 200))
-                    printf("Save XML error: %s", err);
-                break;
+        if (it && it->sectionid == SECT_FILE) {
+            switch (it->itemid) {
+                case 0: // Save xml
+                    if (!mj_saveLastXML("mjmodel.xml", m, err, 200))
+                        printf("Save XML error: %s", err);
+                    break;
 
-            case 1: // Save mjb
-                mj_saveModel(m, "mjmodel.mjb", NULL, 0);
-                break;
+                case 1: // Save mjb
+                    mj_saveModel(m, "mjmodel.mjb", NULL, 0);
+                    break;
 
-            case 2: // Print model
-                mj_printModel(m, "MJMODEL.TXT");
-                break;
+                case 2: // Print model
+                    mj_printModel(m, "MJMODEL.TXT");
+                    break;
 
-            case 3: // Print data
-                mj_printData(m, d, "MJDATA.TXT");
-                break;
+                case 3: // Print data
+                    mj_printData(m, d, "MJDATA.TXT");
+                    break;
 
-            case 4: // Quit
-                settings.exitrequest = 1;
-                break;
+                case 4: // Quit
+                    settings.exitrequest = 1;
+                    break;
             }
         }
 
-        // option section
-        else if (it && it->sectionid == SECT_OPTION)
-        {
-            switch (it->itemid)
-            {
-            case 0: // Spacing
-                ui0.spacing = mjui_themeSpacing(settings.spacing);
-                ui1.spacing = mjui_themeSpacing(settings.spacing);
-                break;
+            // option section
+        else if (it && it->sectionid == SECT_OPTION) {
+            switch (it->itemid) {
+                case 0: // Spacing
+                    ui0.spacing = mjui_themeSpacing(settings.spacing);
+                    ui1.spacing = mjui_themeSpacing(settings.spacing);
+                    break;
 
-            case 1: // Color
-                ui0.color = mjui_themeColor(settings.color);
-                ui1.color = mjui_themeColor(settings.color);
-                break;
+                case 1: // Color
+                    ui0.color = mjui_themeColor(settings.color);
+                    ui1.color = mjui_themeColor(settings.color);
+                    break;
 
-            case 2: // Font
-                mjr_changeFont(50 * (settings.font + 1), &con);
-                break;
+                case 2: // Font
+                    mjr_changeFont(50 * (settings.font + 1), &con);
+                    break;
 
-            case 9: // Full screen
-                if (glfwGetWindowMonitor(window))
-                {
-                    // restore window from saved data
-                    glfwSetWindowMonitor(window, NULL, windowpos[0], windowpos[1],
-                                         windowsize[0], windowsize[1], 0);
-                }
+                case 9: // Full screen
+                    if (glfwGetWindowMonitor(window)) {
+                        // restore window from saved data
+                        glfwSetWindowMonitor(window, NULL, windowpos[0], windowpos[1],
+                                             windowsize[0], windowsize[1], 0);
+                    }
 
-                // currently windowed: switch to full screen
-                else
-                {
-                    // save window data
-                    glfwGetWindowPos(window, windowpos, windowpos + 1);
-                    glfwGetWindowSize(window, windowsize, windowsize + 1);
+                        // currently windowed: switch to full screen
+                    else {
+                        // save window data
+                        glfwGetWindowPos(window, windowpos, windowpos + 1);
+                        glfwGetWindowSize(window, windowsize, windowsize + 1);
 
-                    // switch
-                    glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0,
-                                         vmode.width, vmode.height, vmode.refreshRate);
-                }
+                        // switch
+                        glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0,
+                                             vmode.width, vmode.height, vmode.refreshRate);
+                    }
 
-                // reinstante vsync, just in case
-                glfwSwapInterval(settings.vsync);
-                break;
+                    // reinstante vsync, just in case
+                    glfwSwapInterval(settings.vsync);
+                    break;
 
-            case 10: // Vertical sync
-                glfwSwapInterval(settings.vsync);
-                break;
+                case 10: // Vertical sync
+                    glfwSwapInterval(settings.vsync);
+                    break;
             }
 
             // modify UI
@@ -1287,64 +1218,60 @@ void uiEvent(mjuiState *state)
             uiModify(window, &ui1, state, &con);
         }
 
-        // simulation section
-        else if (it && it->sectionid == SECT_SIMULATION)
-        {
-            switch (it->itemid)
-            {
-            case 1: // Reset
-                if (m)
-                {
-                    mj_resetData(m, d);
+            // simulation section
+        else if (it && it->sectionid == SECT_SIMULATION) {
+            switch (it->itemid) {
+                case 1: // Reset
+                    if (m) {
+                        mj_resetData(m, d);
 #ifdef SET_INIT_QPOS
-                    std::memcpy(d->qpos, q_init, m->nq * sizeof(mjtNum));
+                        std::memcpy(d->qpos, q_init, m->nq * sizeof(mjtNum));
 #endif
+                        mj_forward(m, d);
+                        profilerupdate();
+                        sensorupdate();
+                        updatesettings();
+                    }
+                    break;
+
+                case 2: // Reload
+                    settings.loadrequest = 1;
+                    break;
+
+                case 3: // Align
+                    alignscale();
+                    updatesettings();
+                    break;
+
+                case 4: // Copy pose
+                    copykey();
+                    break;
+
+                case 5: // Adjust key
+                case 6: // Reset to key
+                    i = settings.key;
+                    d->time = m->key_time[i];
+                    mju_copy(d->qpos, m->key_qpos + i * m->nq, m->nq);
+                    mju_copy(d->qvel, m->key_qvel + i * m->nv, m->nv);
+                    mju_copy(d->act, m->key_act + i * m->na, m->na);
                     mj_forward(m, d);
                     profilerupdate();
                     sensorupdate();
                     updatesettings();
-                }
-                break;
+                    break;
 
-            case 2: // Reload
-                settings.loadrequest = 1;
-                break;
-
-            case 3: // Align
-                alignscale();
-                updatesettings();
-                break;
-
-            case 4: // Copy pose
-                copykey();
-                break;
-
-            case 5: // Adjust key
-            case 6: // Reset to key
-                i = settings.key;
-                d->time = m->key_time[i];
-                mju_copy(d->qpos, m->key_qpos + i * m->nq, m->nq);
-                mju_copy(d->qvel, m->key_qvel + i * m->nv, m->nv);
-                mju_copy(d->act, m->key_act + i * m->na, m->na);
-                mj_forward(m, d);
-                profilerupdate();
-                sensorupdate();
-                updatesettings();
-                break;
-
-            case 7: // Set key
-                i = settings.key;
-                m->key_time[i] = d->time;
-                mju_copy(m->key_qpos + i * m->nq, d->qpos, m->nq);
-                mju_copy(m->key_qvel + i * m->nv, d->qvel, m->nv);
-                mju_copy(m->key_act + i * m->na, d->act, m->na);
-                break;
+                case 7: // Set key
+                    i = settings.key;
+                    m->key_time[i] = d->time;
+                    mju_copy(m->key_qpos + i * m->nq, d->qpos, m->nq);
+                    mju_copy(m->key_qvel + i * m->nv, d->qvel, m->nv);
+                    mju_copy(m->key_act + i * m->na, d->act, m->na);
+                    break;
             }
         }
 
-        // physics section
-        else if (it && it->sectionid == SECT_PHYSICS)
-        {
+            // physics section
+        else if (it && it->sectionid == SECT_PHYSICS) {
             // update disable flags in mjOption
             m->opt.disableflags = 0;
             for (i = 0; i < mjNDISABLE; i++)
@@ -1358,40 +1285,31 @@ void uiEvent(mjuiState *state)
                     m->opt.enableflags |= (1 << i);
         }
 
-        // rendering section
-        else if (it && it->sectionid == SECT_RENDERING)
-        {
+            // rendering section
+        else if (it && it->sectionid == SECT_RENDERING) {
             // set camera in mjvCamera
             if (settings.camera == 0)
                 cam.type = mjCAMERA_FREE;
-            else if (settings.camera == 1)
-            {
-                if (pert.select > 0)
-                {
+            else if (settings.camera == 1) {
+                if (pert.select > 0) {
                     cam.type = mjCAMERA_TRACKING;
                     cam.trackbodyid = pert.select;
                     cam.fixedcamid = -1;
-                }
-                else
-                {
+                } else {
                     cam.type = mjCAMERA_FREE;
                     settings.camera = 0;
                     mjui_update(SECT_RENDERING, -1, &ui0, &uistate, &con);
                 }
-            }
-            else
-            {
+            } else {
                 cam.type = mjCAMERA_FIXED;
                 cam.fixedcamid = settings.camera - 2;
             }
         }
 
-        // group section
-        else if (it && it->sectionid == SECT_GROUP)
-        {
+            // group section
+        else if (it && it->sectionid == SECT_GROUP) {
             // remake joint section if joint group changed
-            if (it->name[0] == 'J' && it->name[1] == 'o')
-            {
+            if (it->name[0] == 'J' && it->name[1] == 'o') {
                 ui1.nsect = SECT_JOINT;
                 makejoint(ui1.sect[SECT_JOINT].state);
                 ui1.nsect = NSECT1;
@@ -1399,8 +1317,7 @@ void uiEvent(mjuiState *state)
             }
 
             // remake control section if actuator group changed
-            if (it->name[0] == 'A' && it->name[1] == 'c')
-            {
+            if (it->name[0] == 'A' && it->name[1] == 'c') {
                 ui1.nsect = SECT_CONTROL;
                 makecontrol(ui1.sect[SECT_CONTROL].state);
                 ui1.nsect = NSECT1;
@@ -1416,17 +1333,14 @@ void uiEvent(mjuiState *state)
     // call UI 1 if event is directed to it
     if ((state->dragrect == ui1.rectid) ||
         (state->dragrect == 0 && state->mouserect == ui1.rectid) ||
-        state->type == mjEVENT_KEY)
-    {
+        state->type == mjEVENT_KEY) {
         // process UI event
         mjuiItem *it = mjui_event(&ui1, state, &con);
 
         // control section
-        if (it && it->sectionid == SECT_CONTROL)
-        {
+        if (it && it->sectionid == SECT_CONTROL) {
             // clear controls
-            if (it->itemid == 0)
-            {
+            if (it->itemid == 0) {
                 mju_zero(d->ctrl, m->nu);
                 mjui_update(SECT_CONTROL, -1, &ui1, &uistate, &con);
             }
@@ -1438,95 +1352,86 @@ void uiEvent(mjuiState *state)
     }
 
     // shortcut not handled by UI
-    if (state->type == mjEVENT_KEY && state->key != 0)
-    {
-        switch (state->key)
-        {
-        case ' ': // Mode
-            if (m)
-            {
-                settings.run = 1 - settings.run;
-                pert.active = 0;
-                mjui_update(-1, -1, &ui0, state, &con);
-            }
-            break;
-
-        case mjKEY_RIGHT: // step forward
-            if (m && !settings.run)
-            {
-                cleartimers();
-                mj_step(m, d);
-                profilerupdate();
-                sensorupdate();
-                updatesettings();
-            }
-            break;
-
-        case mjKEY_LEFT: // step back
-            if (m && !settings.run)
-            {
-                m->opt.timestep = -m->opt.timestep;
-                cleartimers();
-                mj_step(m, d);
-                m->opt.timestep = -m->opt.timestep;
-                profilerupdate();
-                sensorupdate();
-                updatesettings();
-            }
-            break;
-
-        case mjKEY_DOWN: // step forward 100
-            if (m && !settings.run)
-            {
-                cleartimers();
-                for (i = 0; i < 100; i++)
-                    mj_step(m, d);
-                profilerupdate();
-                sensorupdate();
-                updatesettings();
-            }
-            break;
-
-        case mjKEY_UP: // step back 100
-            if (m && !settings.run)
-            {
-                m->opt.timestep = -m->opt.timestep;
-                cleartimers();
-                for (i = 0; i < 100; i++)
-                    mj_step(m, d);
-                m->opt.timestep = -m->opt.timestep;
-                profilerupdate();
-                sensorupdate();
-                updatesettings();
-            }
-            break;
-
-        case mjKEY_PAGE_UP: // select parent body
-            if (m && pert.select > 0)
-            {
-                pert.select = m->body_parentid[pert.select];
-                pert.skinselect = -1;
-
-                // stop perturbation if world reached
-                if (pert.select <= 0)
+    if (state->type == mjEVENT_KEY && state->key != 0) {
+        switch (state->key) {
+            case ' ': // Mode
+                if (m) {
+                    settings.run = 1 - settings.run;
                     pert.active = 0;
-            }
+                    mjui_update(-1, -1, &ui0, state, &con);
+                }
+                break;
 
-            break;
+            case mjKEY_RIGHT: // step forward
+                if (m && !settings.run) {
+                    cleartimers();
+                    mj_step(m, d);
+                    profilerupdate();
+                    sensorupdate();
+                    updatesettings();
+                }
+                break;
 
-        case mjKEY_ESCAPE: // free camera
-            cam.type = mjCAMERA_FREE;
-            settings.camera = 0;
-            mjui_update(SECT_RENDERING, -1, &ui0, &uistate, &con);
-            break;
+            case mjKEY_LEFT: // step back
+                if (m && !settings.run) {
+                    m->opt.timestep = -m->opt.timestep;
+                    cleartimers();
+                    mj_step(m, d);
+                    m->opt.timestep = -m->opt.timestep;
+                    profilerupdate();
+                    sensorupdate();
+                    updatesettings();
+                }
+                break;
+
+            case mjKEY_DOWN: // step forward 100
+                if (m && !settings.run) {
+                    cleartimers();
+                    for (i = 0; i < 100; i++)
+                        mj_step(m, d);
+                    profilerupdate();
+                    sensorupdate();
+                    updatesettings();
+                }
+                break;
+
+            case mjKEY_UP: // step back 100
+                if (m && !settings.run) {
+                    m->opt.timestep = -m->opt.timestep;
+                    cleartimers();
+                    for (i = 0; i < 100; i++)
+                        mj_step(m, d);
+                    m->opt.timestep = -m->opt.timestep;
+                    profilerupdate();
+                    sensorupdate();
+                    updatesettings();
+                }
+                break;
+
+            case mjKEY_PAGE_UP: // select parent body
+                if (m && pert.select > 0) {
+                    pert.select = m->body_parentid[pert.select];
+                    pert.skinselect = -1;
+
+                    // stop perturbation if world reached
+                    if (pert.select <= 0)
+                        pert.active = 0;
+                }
+
+                break;
+
+            case mjKEY_ESCAPE: // free camera
+                cam.type = mjCAMERA_FREE;
+                settings.camera = 0;
+                mjui_update(SECT_RENDERING, -1, &ui0, &uistate, &con);
+                break;
         }
 
         return;
     }
 
     // 3D scroll
-    if (state->type == mjEVENT_SCROLL && state->mouserect == 3 && m)
-    {
+    if (state->type == mjEVENT_SCROLL && state->mouserect == 3 && m) {
         // emulate vertical mouse motion = 5% of window height
         mjv_moveCamera(m, mjMOUSE_ZOOM, 0, -0.05 * state->sy, &scn, &cam);
 
@@ -1534,12 +1439,10 @@ void uiEvent(mjuiState *state)
     }
 
     // 3D press
-    if (state->type == mjEVENT_PRESS && state->mouserect == 3 && m)
-    {
+    if (state->type == mjEVENT_PRESS && state->mouserect == 3 && m) {
         // set perturbation
         int newperturb = 0;
-        if (state->control && pert.select > 0)
-        {
+        if (state->control && pert.select > 0) {
             // right: translate;  left: rotate
             if (state->right)
                 newperturb = mjPERT_TRANSLATE;
@@ -1553,8 +1456,7 @@ void uiEvent(mjuiState *state)
         pert.active = newperturb;
 
         // handle double-click
-        if (state->doubleclick)
-        {
+        if (state->doubleclick) {
             // determine selection mode
             int selmode;
             if (state->button == mjBUTTON_LEFT)
@@ -1569,21 +1471,19 @@ void uiEvent(mjuiState *state)
             mjtNum selpnt[3];
             int selgeom, selskin;
             int selbody = mjv_select(m, d, &vopt,
-                                     (mjtNum)r.width / (mjtNum)r.height,
-                                     (mjtNum)(state->x - r.left) / (mjtNum)r.width,
-                                     (mjtNum)(state->y - r.bottom) / (mjtNum)r.height,
+                                     (mjtNum) r.width / (mjtNum) r.height,
+                                     (mjtNum) (state->x - r.left) / (mjtNum) r.width,
+                                     (mjtNum) (state->y - r.bottom) / (mjtNum) r.height,
                                      &scn, selpnt, &selgeom, &selskin);
 
             // set lookat point, start tracking is requested
-            if (selmode == 2 || selmode == 3)
-            {
+            if (selmode == 2 || selmode == 3) {
                 // copy selpnt if anything clicked
                 if (selbody >= 0)
                     mju_copy3(cam.lookat, selpnt);
 
                 // switch to tracking camera if dynamic body clicked
-                if (selmode == 3 && selbody > 0)
-                {
+                if (selmode == 3 && selbody > 0) {
                     // mujoco camera
                     cam.type = mjCAMERA_TRACKING;
                     cam.trackbodyid = selbody;
@@ -1595,11 +1495,9 @@ void uiEvent(mjuiState *state)
                 }
             }
 
-            // set body selection
-            else
-            {
-                if (selbody >= 0)
-                {
+                // set body selection
+            else {
+                if (selbody >= 0) {
                     // record selection
                     pert.select = selbody;
                     pert.skinselect = selskin;
@@ -1608,9 +1506,7 @@ void uiEvent(mjuiState *state)
                     mjtNum tmp[3];
                     mju_sub3(tmp, selpnt, d->xpos + 3 * pert.select);
                     mju_mulMatTVec(pert.localpos, d->xmat + 9 * pert.select, tmp, 3, 3);
-                }
-                else
-                {
+                } else {
                     pert.select = 0;
                     pert.skinselect = -1;
                 }
@@ -1624,8 +1520,7 @@ void uiEvent(mjuiState *state)
     }
 
     // 3D release
-    if (state->type == mjEVENT_RELEASE && state->dragrect == 3 && m)
-    {
+    if (state->type == mjEVENT_RELEASE && state->dragrect == 3 && m) {
         // stop perturbation
         pert.active = 0;
 
@@ -1633,8 +1528,7 @@ void uiEvent(mjuiState *state)
     }
 
     // 3D move
-    if (state->type == mjEVENT_MOVE && state->dragrect == 3 && m)
-    {
+    if (state->type == mjEVENT_MOVE && state->dragrect == 3 && m) {
         // determine action based on mouse button
         mjtMouse action;
         if (state->right)
@@ -1663,8 +1557,7 @@ void uiEvent(mjuiState *state)
 std::mutex mtx;
 
 // prepare to render
-void prepare(void)
-{
+void prepare(void) {
     // data for FPS calculation
     static double lastupdatetm = 0;
 
@@ -1682,8 +1575,7 @@ void prepare(void)
     mjv_updateScene(m, d, &vopt, &pert, &cam, mjCAT_ALL, &scn);
 
     // update watch
-    if (settings.ui0 && ui0.sect[SECT_WATCH].state)
-    {
+    if (settings.ui0 && ui0.sect[SECT_WATCH].state) {
         watch();
         mjui_update(SECT_WATCH, -1, &ui0, &uistate, &con);
     }
@@ -1709,8 +1601,7 @@ void prepare(void)
 }
 
 // render im main thread (while simulating in background thread)
-void render(GLFWwindow *window)
-{
+void render(GLFWwindow *window) {
     // get 3D rectangle and reduced for profiler
     mjrRect rect = uistate.rect[3];
     mjrRect smallrect = rect;
@@ -1718,8 +1609,7 @@ void render(GLFWwindow *window)
         smallrect.width = rect.width - rect.width / 4;
 
     // no model
-    if (!m)
-    {
+    if (!m) {
         // blank screen
         mjr_rectangle(rect, 0.2f, 0.3f, 0.4f, 1);
 
@@ -1781,10 +1671,8 @@ void render(GLFWwindow *window)
 }
 
 // get robot state
-void getRobotState(void)
-{
-    if (m->nv != ROBOT_NV)
-    {
+void getRobotState(void) {
+    if (m->nv != ROBOT_NV) {
         printf("nv = %d\n", m->nv);
         throw std::runtime_error("[Simulate::getRobotState] m->nv != ROBOT_NV");
     }
@@ -1796,22 +1684,40 @@ void getRobotState(void)
     shared_memory().robotToUser.floatingBaseState.vel << d->qvel[0], d->qvel[1], d->qvel[2];
     shared_memory().robotToUser.floatingBaseState.omega << d->qvel[3], d->qvel[4], d->qvel[5];
 
-    std::memcpy(shared_memory().robotToUser.jointsState.qpos.data(), d->qpos+7, m->nu * sizeof(mjtNum));
-    std::memcpy(shared_memory().robotToUser.jointsState.qvel.data(), d->qvel+6, m->nu * sizeof(mjtNum));
+    std::memcpy(shared_memory().robotToUser.jointsState.qpos.data(), d->qpos + 7, m->nu * sizeof(mjtNum));
+    std::memcpy(shared_memory().robotToUser.jointsState.qvel.data(), d->qvel + 6, m->nu * sizeof(mjtNum));
     /*printEigenDVec(shared_memory().robotToUser.q, "qpos");
-    printEigenDVec(shared_memory().robotToUser.qdot, "qdot");*/
+    printEigenDVec(shared_memory().robotToUser.qdot, "qdot");
+    for (int i = 0; i < d->ncon; i++) {
+        printf("---------------------c%d--------------------\n", i);
+        Poplar::Vec3 pos, pos_ankle, pos_r;
+        Poplar::Mat3 rot, c_frame;
+        pos << d->contact[i].pos[0], d->contact[i].pos[1], d->contact[i].pos[2];
+        mju_copy(rot.data(), d->xmat + 9 * mj_name2id(m, mjOBJ_BODY, "left_toe_roll"), 9);
+        mju_copy(c_frame.data(), d->contact[i].frame, 9);
+        mju_copy(pos_ankle.data(), d->xpos + 3 * mj_name2id(m, mjOBJ_BODY, "left_toe_roll"), 3);
+        pos_r = rot.transpose() * (pos - pos_ankle);
+        mju_printMat(rot.data(), 3, 3);
+        mju_printMat(pos.data(), 1, 3);
+        mju_printMat(pos_ankle.data(), 1, 3);
+        mju_printMat(pos_r.data(), 1, 3);
+        Poplar::Vec quat(4);
+        mju_mat2Quat(quat.data(), rot.data());
+        mju_printMat(quat.data(), 1, 4);
+        std::cout << rot.eulerAngles(2,1,0).transpose() << std::endl;
+        printf("-----------------------------------------\n");
+    }
+     */
 }
 
 // simulate in background thread (while rendering in main thread)
-void simulate(void)
-{
+void simulate(void) {
     // cpu-sim syncronization point
     double cpusync = 0;
     mjtNum simsync = 0;
 
     // run until asked to exit
-    while (!settings.exitrequest)
-    {
+    while (!settings.exitrequest) {
         // sleep for 1 ms or yield, to let main thread run
         //  yield results in busy wait - which has better timing but kills battery life
         if (settings.run && settings.busywait)
@@ -1823,20 +1729,17 @@ void simulate(void)
         mtx.lock();
 
         // run only if model is present
-        if (m)
-        {
+        if (m) {
             // record start time
             double startwalltm = glfwGetTime();
 
             // running
-            if (settings.run)
-            {
+            if (settings.run) {
                 // record cpu time at start of iteration
                 double tmstart = glfwGetTime();
                 // out-of-sync (for any reason)
                 if (d->time < simsync || tmstart < cpusync || cpusync == 0 ||
-                    mju_abs((d->time - simsync) - (tmstart - cpusync)) > syncmisalign)
-                {
+                    mju_abs((d->time - simsync) - (tmstart - cpusync)) > syncmisalign) {
                     // re-sync
                     cpusync = tmstart;
                     simsync = d->time;
@@ -1851,20 +1754,14 @@ void simulate(void)
                     getRobotState();
                     shared_memory().robotDone();
 
-                    if (shared_memory().waitForUserWithTimeout(0, 1e6))
-                    {
-                        if (m->nu != ROBOT_NU)
-                        {
+                    if (shared_memory().waitForUserWithTimeout(0, 1e8)) {
+                        if (m->nu != ROBOT_NU) {
                             throw std::runtime_error("m->nu != ROBOT_NU");
-                        }
-                        else
-                        {
+                        } else {
                             std::memcpy(tau_user.data(), shared_memory().userToRobot.tau.data(),
                                         m->nu * sizeof(mjtNum));
                         }
-                    }
-                    else
-                    {
+                    } else {
                         std::cout << "[" << glfwGetTime() << "]"
                                   << "wait for user but time out, use last joints tau cmds" << std::endl;
                     }
@@ -1881,13 +1778,11 @@ void simulate(void)
                     // printf("[%f] out-of-sync\n", d->time);
                 }
 
-                // in-sync
-                else
-                {
+                    // in-sync
+                else {
                     // step while simtime lags behind cputime, and within safefactor
                     while ((d->time - simsync) < (glfwGetTime() - cpusync) &&
-                           (glfwGetTime() - tmstart) < refreshfactor / vmode.refreshRate)
-                    {
+                           (glfwGetTime() - tmstart) < refreshfactor / vmode.refreshRate) {
                         // clear old perturbations, apply new
                         mju_zero(d->xfrc_applied, 6 * m->nbody);
                         mjv_applyPerturbPose(m, d, &pert, 0); // move mocap bodies only
@@ -1899,20 +1794,14 @@ void simulate(void)
                         getRobotState();
                         shared_memory().robotDone();
 
-                        if (shared_memory().waitForUserWithTimeout(0, 1e6))
-                        {
-                            if (m->nu != ROBOT_NU)
-                            {
+                        if (shared_memory().waitForUserWithTimeout(0, 1e8)) {
+                            if (m->nu != ROBOT_NU) {
                                 throw std::runtime_error("m->nu != ROBOT_NU");
-                            }
-                            else
-                            {
+                            } else {
                                 std::memcpy(tau_user.data(), shared_memory().userToRobot.tau.data(),
                                             m->nu * sizeof(mjtNum));
                             }
-                        }
-                        else
-                        {
+                        } else {
                             std::cout << "[" << glfwGetTime() << "]"
                                       << "wait for user but time out, use last joints tau cmds" << std::endl;
                         }
@@ -1934,9 +1823,8 @@ void simulate(void)
                 }
             }
 
-            // paused
-            else
-            {
+                // paused
+            else {
                 // apply pose perturbation
                 mjv_applyPerturbPose(m, d, &pert, 1); // move mocap and dynamic bodies
 
@@ -1955,8 +1843,7 @@ void simulate(void)
 //-------------------------------- init and main ----------------------------------------
 
 // initalize everything
-void init()
-{
+void init() {
     // print version, check compatibility
     printf("MuJoCo Pro version %.2lf\n", 0.01 * mj_version());
     if (mjVERSION_HEADER != mj_version())
@@ -1980,8 +1867,7 @@ void init()
     // create window
     window = glfwCreateWindow((2 * vmode.width) / 3, (2 * vmode.height) / 3,
                               "Simulate", NULL, NULL);
-    if (!window)
-    {
+    if (!window) {
         glfwTerminate();
         mju_error("could not create window");
     }

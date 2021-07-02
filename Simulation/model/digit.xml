@@ -103,26 +103,7 @@
                     </body>
                 </body>
             </body>
-            <body name="left_shoulder_roll" pos="-0.001 0.12 0.4" quat="0.704416 -0.0616285 -0.704416 0.0616285">
-                <inertial pos="9e-06 -0.003158 0.023405" quat="0.797183 0.0222446 -0.0335247 0.602396" mass="0.535396" diaginertia="0.0007569 0.000700085 0.000295016" />
-                <joint name="shoulder_roll_joint_left" pos="0 0 0" axis="0 0 1" limited="true" range="-1.309 1.309" />
-                <geom type="mesh" mesh="arm-L1" />
-                <body name="left_shoulder_pitch" pos="-0.00317 -0.011055 0.0555" quat="0.609264 0.684584 0.177045 -0.358884">
-                    <inertial pos="-4.2e-05 -0.061882 -0.073788" quat="0.544822 0.838549 0.00141069 -0.00163215" mass="1.44036" diaginertia="0.00676101 0.00668785 0.00117714" />
-                    <joint name="shoulder_pitch_joint_left" pos="0 0 0" axis="0 0 -1" limited="true" range="-2.5307 2.5307" />
-                    <geom class="viz" type="mesh" mesh="arm-L2" />
-                    <body name="left_shoulder_yaw" pos="0 -0.165 -0.1" quat="0.707107 0.707107 0 0">
-                        <inertial pos="-3e-05 -0.001937 0.11407" quat="0.716816 0.000904824 -0.000769054 0.697261" mass="1.06539" diaginertia="0.00700306 0.00696697 0.000672964" />
-                        <joint name="shoulder_yaw_joint_left" pos="0 0 0" axis="0 0 1" limited="true" range="-1.7453 1.7453" />
-                        <geom type="mesh" mesh="arm-L3" />
-                        <body name="left_elbow" pos="0 -0.0385 0.185" quat="0.69352 0.69352 -0.13795 0.13795">
-                            <inertial pos="0.107996 -0.000521 -0.017765" quat="0.665675 -0.242143 -0.242674 0.662837" mass="0.550582" diaginertia="0.00374044 0.00374044 0.00374044" />
-                            <joint name="elbow_joint_left" pos="0 0 0" axis="0 0 1" limited="true" range="-1.3526 1.3526" />
-                            <geom type="mesh" mesh="arm-L4" />
-                        </body>
-                    </body>
-                </body>
-            </body>
+
             <body name="right_hip_roll" pos="-0.001 -0.091 0" quat="0.694697 -0.131892 -0.694697 0.131892">
                 <inertial pos="-0.001967 -0.000244 0.031435" quat="0.715394 -0.0143848 -0.0219238 0.698229" mass="0.915088" diaginertia="0.00114812 0.00101759 0.00076529" />
                 <joint name="hip_abduction_right" pos="0 0 0" axis="0 0 1" limited="true" range="-1.0472 1.0472" />
@@ -160,6 +141,28 @@
                     </body>
                 </body>
             </body>
+
+            <body name="left_shoulder_roll" pos="-0.001 0.12 0.4" quat="0.704416 -0.0616285 -0.704416 0.0616285">
+                <inertial pos="9e-06 -0.003158 0.023405" quat="0.797183 0.0222446 -0.0335247 0.602396" mass="0.535396" diaginertia="0.0007569 0.000700085 0.000295016" />
+                <joint name="shoulder_roll_joint_left" pos="0 0 0" axis="0 0 1" limited="true" range="-1.309 1.309" />
+                <geom type="mesh" mesh="arm-L1" />
+                <body name="left_shoulder_pitch" pos="-0.00317 -0.011055 0.0555" quat="0.609264 0.684584 0.177045 -0.358884">
+                    <inertial pos="-4.2e-05 -0.061882 -0.073788" quat="0.544822 0.838549 0.00141069 -0.00163215" mass="1.44036" diaginertia="0.00676101 0.00668785 0.00117714" />
+                    <joint name="shoulder_pitch_joint_left" pos="0 0 0" axis="0 0 -1" limited="true" range="-2.5307 2.5307" />
+                    <geom class="viz" type="mesh" mesh="arm-L2" />
+                    <body name="left_shoulder_yaw" pos="0 -0.165 -0.1" quat="0.707107 0.707107 0 0">
+                        <inertial pos="-3e-05 -0.001937 0.11407" quat="0.716816 0.000904824 -0.000769054 0.697261" mass="1.06539" diaginertia="0.00700306 0.00696697 0.000672964" />
+                        <joint name="shoulder_yaw_joint_left" pos="0 0 0" axis="0 0 1" limited="true" range="-1.7453 1.7453" />
+                        <geom type="mesh" mesh="arm-L3" />
+                        <body name="left_elbow" pos="0 -0.0385 0.185" quat="0.69352 0.69352 -0.13795 0.13795">
+                            <inertial pos="0.107996 -0.000521 -0.017765" quat="0.665675 -0.242143 -0.242674 0.662837" mass="0.550582" diaginertia="0.00374044 0.00374044 0.00374044" />
+                            <joint name="elbow_joint_left" pos="0 0 0" axis="0 0 1" limited="true" range="-1.3526 1.3526" />
+                            <geom type="mesh" mesh="arm-L4" />
+                        </body>
+                    </body>
+                </body>
+            </body>
+
             <body name="right_shoulder_roll" pos="-0.001 -0.12 0.4" quat="0.704416 0.0616285 -0.704416 -0.0616285">
                 <inertial pos="9e-06 0.003158 0.023405" quat="0.602396 -0.0335247 0.0222446 0.797183" mass="0.535396" diaginertia="0.0007569 0.000700085 0.000295016" />
                 <joint name="shoulder_roll_joint_right" pos="0 0 0" axis="0 0 1" limited="true" range="-1.309 1.309" />
@@ -191,10 +194,6 @@
         <motor name="shin_to_tarsus_left" joint="shin_to_tarsus_left" gear="16" ctrlrange="-12.5 12.5"/>
         <motor name="toe_pitch_joint_left" joint="toe_pitch_joint_left" gear="50" ctrlrange="-0.9 0.9"/>
         <motor name="toe_roll_joint_left" joint="toe_roll_joint_left" gear="50" ctrlrange="-0.9 0.9"/>
-        <motor name="shoulder_roll_joint_left" joint="shoulder_roll_joint_left" gear="25" ctrlrange="-1.4 1.4"/>
-        <motor name="shoulder_pitch_joint_left" joint="shoulder_pitch_joint_left" gear="25" ctrlrange="-1.4 1.4"/>
-        <motor name="shoulder_yaw_joint_left" joint="shoulder_yaw_joint_left" gear="25" ctrlrange="-1.4 1.4"/>
-        <motor name="elbow_joint_left" joint="elbow_joint_left" gear="25" ctrlrange="-1.4 1.4"/>
 
         <motor name="hip_abduction_right" joint="hip_abduction_right" gear="25" ctrlrange="-1.4 1.4"/>
         <motor name="hip_rotation_right" joint="hip_rotation_right" gear="25" ctrlrange="-1.4 1.4"/>
@@ -203,6 +202,12 @@
         <motor name="shin_to_tarsus_right" joint="shin_to_tarsus_right" gear="16" ctrlrange="-12.5 12.5"/>
         <motor name="toe_pitch_joint_right" joint="toe_pitch_joint_right" gear="50" ctrlrange="-0.9 0.9"/>
         <motor name="toe_roll_joint_right" joint="toe_roll_joint_right" gear="50" ctrlrange="-0.9 0.9"/>
+
+        <motor name="shoulder_roll_joint_left" joint="shoulder_roll_joint_left" gear="25" ctrlrange="-1.4 1.4"/>
+        <motor name="shoulder_pitch_joint_left" joint="shoulder_pitch_joint_left" gear="25" ctrlrange="-1.4 1.4"/>
+        <motor name="shoulder_yaw_joint_left" joint="shoulder_yaw_joint_left" gear="25" ctrlrange="-1.4 1.4"/>
+        <motor name="elbow_joint_left" joint="elbow_joint_left" gear="25" ctrlrange="-1.4 1.4"/>
+
         <motor name="shoulder_roll_joint_right" joint="shoulder_roll_joint_right" gear="25" ctrlrange="-1.4 1.4"/>
         <motor name="shoulder_pitch_joint_right" joint="shoulder_pitch_joint_right" gear="25" ctrlrange="-1.4 1.4"/>
         <motor name="shoulder_yaw_joint_right" joint="shoulder_yaw_joint_right" gear="25" ctrlrange="-1.4 1.4"/>
