@@ -16,9 +16,9 @@
 
 using namespace TSC;
 
-class TSC_IMPL {
+class TSC_IMPL_TEST {
 public:
-    TSC_IMPL(string urdf_file) : _robot(urdf_file) {
+    TSC_IMPL_TEST(string urdf_file) : _robot(urdf_file) {
         mt = new SE3MotionTask(_robot, "pelvis");
         mt->Kp() = 100 * Mat6::Identity();
         mt->Kd() = 2 * mt->Kp().cwiseSqrt();
@@ -85,7 +85,7 @@ public:
         //    tsc.removeLinearConstraint(ccstr.name());
     }
 
-    ~TSC_IMPL() {
+    ~TSC_IMPL_TEST() {
         delete mt;
         delete com;
         delete rt;
@@ -155,7 +155,7 @@ int main() {
     contact_virtual_link.emplace_back("contact6");
     contact_virtual_link.emplace_back("contact7");
     contact_virtual_link.emplace_back("contact8");
-    TSC_IMPL tsc_impl(urdf);
+    TSC_IMPL_TEST tsc_impl(urdf);
     tsc_impl.setContactVirtualLink(contact_virtual_link);
 
     // contact mask

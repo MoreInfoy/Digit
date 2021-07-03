@@ -39,12 +39,12 @@ int main() {
 
     while (!exitrequest) {
         if (shared_memory().waitForRobotWithTimeout(1, 0)) {
-
+            manager.run();
             auto &qpos = shared_memory().robotToUser.jointsState.qpos;
             auto &qvel = shared_memory().robotToUser.jointsState.qvel;
             shared_memory().userToRobot.tau = manager.output();
+//            shared_memory().userToRobot.tau = 1000 * (qdes - qpos) - 5 * qvel;
             shared_memory().userDone();
-            manager.run();
         }
     }
     if (shared_memory.is_created())

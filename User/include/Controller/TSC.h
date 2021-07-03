@@ -70,7 +70,7 @@ private:
     TaskSpaceControl *tsc;
 
     JointsCmd _jointsCmd;
-
+    size_t _iter;
 };
 
 

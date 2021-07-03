@@ -1764,14 +1764,17 @@ void simulate(void) {
                     } else {
                         std::cout << "[" << glfwGetTime() << "]"
                                   << "wait for user but time out, use last joints tau cmds" << std::endl;
+                        shared_memory().waitForRobot();
                     }
 
                     ArrayXd tau = 1 / gear * tau_user;
                     std::memcpy(d->ctrl, tau.data(), m->nu * sizeof(mjtNum));
-                    std::cout << "[" << glfwGetTime() << "]"
-                              << "tau: " << tau.transpose() << std::endl;
-                    std::cout << "[" << glfwGetTime() << "]"
-                              << "gear: " << gear.transpose() << std::endl;
+//                    std::cout << "[" << glfwGetTime() << "]"
+//                              << "user_cmd: " << shared_memory().userToRobot.tau.transpose() << std::endl;
+//                    std::cout << "[" << glfwGetTime() << "]"
+//                              << "tau: " << tau.transpose() << std::endl;
+//                    std::cout << "[" << glfwGetTime() << "]"
+//                              << "gear: " << gear.transpose() << std::endl;
 
                     mj_step2(m, d);
 
@@ -1804,14 +1807,17 @@ void simulate(void) {
                         } else {
                             std::cout << "[" << glfwGetTime() << "]"
                                       << "wait for user but time out, use last joints tau cmds" << std::endl;
+                            shared_memory().waitForRobot();
                         }
 
                         ArrayXd tau = 1 / gear * tau_user;
                         std::memcpy(d->ctrl, tau.data(), m->nu * sizeof(mjtNum));
-                        std::cout << "[" << glfwGetTime() << "]"
-                                  << "tau: " << tau.transpose() << std::endl;
-                        std::cout << "[" << glfwGetTime() << "]"
-                                  << "gear: " << gear.transpose() << std::endl;
+//                        std::cout << "[" << glfwGetTime() << "]"
+//                                  << "user_cmd: " << shared_memory().userToRobot.tau.transpose() << std::endl;
+//                        std::cout << "[" << glfwGetTime() << "]"
+//                                  << "tau: " << tau.transpose() << std::endl;
+//                        std::cout << "[" << glfwGetTime() << "]"
+//                                  << "gear: " << gear.transpose() << std::endl;
 
                         mj_step2(m, d);
 
