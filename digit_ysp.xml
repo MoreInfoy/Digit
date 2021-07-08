@@ -1,0 +1,298 @@
+<mujoco model="digit">
+    <compiler angle="radian" meshdir="./meshes_new/" />
+    <size njmax="500" nconmax="100" />
+
+    <default>
+        <site type="sphere" size="0.005"/>
+        <joint damping="0.1" armature="0.01" type="hinge" pos="0 0 0"/>
+        <geom contype="1" conaffinity="1" friction="0.7 0.3 0.3" margin="0.00" group="0" rgba="0.75 0.75 0.75 0.5"/>
+        <motor ctrllimited="false"/>
+        <light castshadow="false" diffuse="1 1 1"/>
+        <camera fovy="60"/>
+        <default class="viz">
+            <geom contype="0" conaffinity="0" group="1" type="mesh" rgba="0.75 0.75 0.75 0.5" material="matgeom"/>
+        </default>
+    </default>
+    <visual>
+        <rgba com="0.502 1.0 0 1.0" contactpoint="0.5 0.1 0.8 0.4" contactforce="0.2 0.98 0.2 0.8"/>
+        <scale com="0.2" forcewidth="0.05" contactwidth="0.10" contactheight="0.04"/>
+        <!--        <map fogstart="2" fogend="4"/>-->
+        <!--        <map stiffness="700" shadowscale="0.5" fogstart="10" fogend="15" zfar="40" haze="0.3"/>-->
+    </visual>
+
+    <asset>
+        <mesh name="torso" file="torso.stl" />
+        <mesh name="left-waist-cap" file="left-waist-cap.stl" scale="1 -1 1" />
+        <mesh name="hip-yaw-housing" file="hip-yaw-housing.stl" />
+        <mesh name="hip-pitch-housing" file="hip-pitch-housing.stl" />
+        <mesh name="hip-pitch" file="hip-pitch.stl" />
+        <mesh name="achilles-rod" file="achilles-rod.stl" />
+        <mesh name="knee" file="knee.stl" />
+        <mesh name="shin" file="shin.stl" />
+        <mesh name="tarsus" file="tarsus.stl" />
+        <mesh name="heel-spring" file="heel-spring.stl" />
+        <mesh name="toe-output-ll" file="toe-output-ll.stl" />
+        <mesh name="toe-A-rod" file="toe-A-rod.stl" />
+        <mesh name="toe-output-lr" file="toe-output-lr.stl" />
+        <mesh name="toe-B-rod" file="toe-B-rod.stl" />
+        <mesh name="toe-pitch" file="toe-pitch.stl" />
+        <mesh name="toe-roll" file="toe-roll.stl" />
+        <mesh name="left-shoulder-cap" file="left-shoulder-cap.stl" />
+        <mesh name="arm-L1" file="arm-L1.stl" />
+        <mesh name="arm-L2" file="arm-L2.stl" />
+        <mesh name="arm-L3" file="arm-L3.stl" />
+        <mesh name="arm-L4" file="arm-L4.stl" />
+        <mesh name="right-waist-cap" file="right-waist-cap.stl" />
+        <mesh name="hip-yaw-housing1" file="hip-yaw-housing.stl" scale="1 -1 1" />
+        <mesh name="hip-pitch-housing1" file="hip-pitch-housing.stl" scale="1 -1 1" />
+        <mesh name="hip-pitch1" file="hip-pitch.stl" scale="1 -1 1" />
+        <mesh name="achilles-rod1" file="achilles-rod.stl" scale="1 -1 1" />
+        <mesh name="knee1" file="knee.stl" scale="1 -1 1" />
+        <mesh name="shin1" file="shin.stl" scale="1 -1 1" />
+        <mesh name="tarsus1" file="tarsus.stl" scale="1 -1 1" />
+        <mesh name="heel-spring1" file="heel-spring.stl" scale="1 -1 1" />
+        <mesh name="toe-output-rl" file="toe-output-rl.stl" scale="1 -1 1" />
+        <mesh name="toe-A-rod1" file="toe-A-rod.stl" scale="1 -1 1" />
+        <mesh name="toe-output-rr" file="toe-output-rr.stl" scale="1 -1 1" />
+        <mesh name="toe-B-rod1" file="toe-B-rod.stl" scale="1 -1 1" />
+        <mesh name="toe-pitch1" file="toe-pitch.stl" scale="1 -1 1" />
+        <mesh name="toe-roll1" file="toe-roll.stl" scale="1 -1 1" />
+        <mesh name="right-shoulder-cap" file="right-shoulder-cap.stl" scale="1 -1 1" />
+        <mesh name="arm-L11" file="arm-L1.stl" scale="1 -1 1" />
+        <mesh name="arm-L21" file="arm-L2.stl" scale="1 -1 1" />
+        <mesh name="arm-L31" file="arm-L3.stl" scale="1 -1 1" />
+        <mesh name="arm-L41" file="arm-L4.stl" scale="1 -1 1" />
+
+        <texture type='skybox' builtin='gradient' width='512' height='512' rgb1="1.0 1.0 1.0" rgb2="1.0 1.0 1.0"/>
+        <texture name='plane' type='2d' builtin='flat' rgb1='1 1 1' rgb2='1 1 1' width='512' height='512' mark="cross" markrgb="0 0 0"/>
+        <material name='plane' reflectance='0.0' texture='plane' texrepeat='3 3' texuniform='true'/>
+        <material name="matgeom" reflectance='0.0'/>
+
+    </asset>
+
+    <option collision="all" timestep="0.001" tolerance="1e-16" solver="Newton" integrator="RK4"/>
+
+    <worldbody>
+        <geom name='floor' pos='0 0 0' size='0 0 1' type='plane' material='plane' condim='3' conaffinity="1" contype="1" rgba="1 1 1 1"/>
+        <light directional="true" diffuse=".8 .8 .8" pos="0 0 10" dir="0 0 -10"/>
+
+        <body name="torso" pos="0 0 2">
+            <inertial pos="-0.00148645 0.000175054 0.252154" quat="0.999974 8.03746e-05 -0.00708699 -0.000904934" mass="17.17" diaginertia="0.492749 0.439332 0.127268" />
+            <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="torso" />
+            <geom pos="-0.001 0.09 0" quat="0.000281544 -0.707107 -0.000281544 0.707107" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="left-waist-cap" />
+            <geom pos="0.001 0.12 0.4" quat="0.704416 -0.0616285 -0.704416 0.0616285" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="left-shoulder-cap" />
+            <geom pos="-0.001 -0.09 0" quat="0.000281544 0.707107 -0.000281544 -0.707107" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="right-waist-cap" />
+            <geom pos="0.001 -0.12 0.4" quat="0.704416 0.0616285 -0.704416 -0.0616285" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="right-shoulder-cap" />
+            <body name="left_hip_roll" pos="-0.001 0.091 0" quat="0.694697 0.131892 -0.694697 -0.131892">
+                <inertial pos="-0.001967 0.000244 0.031435" quat="0.698229 -0.0219238 -0.0143848 0.715394" mass="0.915088" diaginertia="0.00114812 0.00101759 0.00076529" />
+                <joint name="left-hip-roll_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-1.0472 1.0472" />
+                <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="hip-yaw-housing" />
+                <body name="left_hip_yaw" pos="-0.0505 0 0.044" quat="0.707107 0 -0.707107 0">
+                    <inertial pos="1e-05 -0.001945 0.042033" quat="0.705887 0.0152563 -0.0169853 0.707957" mass="0.818753" diaginertia="0.00193142 0.001627 0.000767577" />
+                    <joint name="left_hip_yaw_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-0.698132 0.698132" />
+                    <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="hip-pitch-housing" />
+                    <body name="left_hip_pitch" pos="0 0.004 0.068" quat="0.270598 0.270598 -0.653281 0.653281">
+                        <inertial pos="0.060537 0.000521 -0.038857" quat="0.0892178 0.703019 0.0953661 0.699078" mass="6.24428" diaginertia="0.0340064 0.033299 0.0115307" />
+                        <joint name="left_hip_pitch_joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-1.0472 1.5708" />
+                        <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="hip-pitch" />
+                        <body name="left_achillies_rod" pos="0 0 0.046" quat="0.752692 0.0265893 0.0238029 -0.657405">
+                            <inertial pos="0.2506 0 0" quat="0.5 0.5 0.5 0.5" mass="0.178148" diaginertia="0.004501 0.004501 3e-06" />
+                            <joint name="left_achillies_rod_joint" type="ball" limited="false" damping="0.010000"/>
+                            <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="achilles-rod" />
+                            <geom size="0.01" pos="0.501194 -1.28948e-05 -5.20307e-06" contype="0" conaffinity="0" group="1" rgba="0.6 0.1 0.9 0.7" />
+                        </body>
+                        <body name="left_knee" pos="0.12 0 0.0045" quat="0.707107 0 0 -0.707107">
+                            <inertial pos="0.045641 0.042154 0.001657" quat="-0.167216 0.690239 0.176024 0.681634" mass="1.22708" diaginertia="0.00702026 0.00607564 0.00166411" />
+                            <joint name="left_knee_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-1.2392 0.8727" />
+                            <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="knee" />
+                            <body name="left_shin" pos="0.060677 0.047406 0">
+                                <inertial pos="0.174265 0.010265 0.00107" quat="0.0280548 0.710242 -0.00805869 0.703352" mass="0.895793" diaginertia="0.022795 0.0225481 0.00106995" />
+                                <joint name="left_shin_joint" type='hinge' axis='0 0 1' limited='false' stiffness='6000'/>
+                                <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="shin" />
+                                <body name="left_tarsus" pos="0.434759 0.02 0" quat="0.622515 0 0 0.782608">
+                                    <inertial pos="0.100777 -0.029183 0.000678" quat="0.0775034 0.707626 0.0502274 0.700526" mass="1.32286" diaginertia="0.016504 0.0164306 0.000907334" />
+                                    <joint name="left_tarsus_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-0.8779 1.2497" />
+                                    <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="tarsus" />
+                                    <body name="left_heel_spring" pos="-0.01766 -0.029456 0.00104" quat="0.209352 0.0109031 -0.0375468 0.977058">
+                                        <inertial pos="0.049086 0.004739 -4.5e-05" quat="0.504912 0.505969 0.494741 0.494257" mass="0.230018" diaginertia="0.000740328 0.000701002 5.46701e-05" />
+                                        <joint name="left_heel_spring_joint" type='hinge' axis='0 0 1' range='-6 6' limited='true' stiffness='4375'/>
+                                        <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="heel-spring" />
+                                        <geom size="0.015" pos="0.113789 -0.011056 0" contype="0" conaffinity="0" group="1" rgba="0 0.7 0 0.7" />
+                                    </body>
+                                    <body name="left_toe_A" pos="0.059 -0.034 -0.0276" quat="-1.61254e-08 0.694909 -0.719097 1.66867e-08">
+                                        <inertial pos="0.005161 1e-06 -0.002248" quat="0 0.675331 0 0.737515" mass="0.139557" diaginertia="7.43528e-05 5.8e-05 2.86472e-05" />
+                                        <joint name="left_toe_A_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-0.912807 1.26449" />
+                                        <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="toe-output-ll" />
+                                        <body name="left_toe_A_rod" pos="0.057 0 -0.008" quat="0.697893 -0.0113021 0.0151583 -0.715953">
+                                            <inertial pos="0.171071 0 0" quat="0.5 0.5 0.5 0.5" mass="0.090983" diaginertia="0.001182 0.001182 1e-06" />
+                                            <joint name="left_toe_A_rod_joint" type="ball" limited="false" damping="0.010000"/>
+                                            <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="toe-A-rod" />
+                                            <geom size="0.01" pos="0.340004 1.61352e-05 -8.14295e-06" contype="0" conaffinity="0" group="1" rgba="0.6 0.1 0.9 0.7" />
+                                        </body>
+                                    </body>
+                                    <body name="left_toe_B" pos="0.111 -0.034 0.0276" quat="0.694918 0 0 -0.719089">
+                                        <inertial pos="0.005161 1e-06 -0.002248" quat="0 0.675331 0 0.737515" mass="0.139557" diaginertia="7.43528e-05 5.8e-05 2.86472e-05" />
+                                        <joint name="left_toe_B_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-0.912807 1.26449" />
+                                        <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="toe-output-lr" />
+                                        <body name="left_toe_B_rod" pos="0.057 0 -0.008" quat="0.69825 -0.0205714 -0.0173998 0.715347">
+                                            <inertial pos="0.142991 0 0" quat="0.5 0.5 0.5 0.5" mass="0.079507" diaginertia="0.000768 0.000768 1e-06" />
+                                            <joint name="left_toe_B_rod_joint" type="ball" limited="false" damping="0.010000"/>
+                                            <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="toe-B-rod" />
+                                            <geom size="0.01" pos="0.288005 -9.72801e-06 -2.23467e-05" contype="0" conaffinity="0" group="1" rgba="0.6 0.1 0.9 0.7" />
+                                        </body>
+                                    </body>
+                                    <body name="left_toe_pitch" pos="0.408 -0.04 0" quat="0.826576 0 0 0.562825">
+                                        <inertial pos="-0.000141 2e-06 3e-06" quat="0.707107 0 0 0.707107" mass="0.043881" diaginertia="8e-06 5e-06 5e-06" />
+                                        <joint name="left_toe_pitch_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-0.785398 0.785398" />
+                                        <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="toe-pitch" />
+                                        <body name="left_toe_roll" pos="0 0 0" quat="0.707107 0 0.707107 0">
+                                            <inertial pos="9e-06 -0.028084 -0.023204" quat="0.686347 0.170083 -0.170083 0.686347" mass="0.531283" diaginertia="0.00191487 0.00187 0.000544125" />
+                                            <joint name="left_toe_roll_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-0.6109 0.6109" />
+                                            <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="toe-roll" />
+                                            <geom size="0.015" pos="0.0179 -0.009551 -0.054164" contype="0" conaffinity="0" group="1" rgba="0 0.7 0 0.7" />
+                                            <geom size="0.015" pos="-0.0181 -0.009551 -0.054164" contype="0" conaffinity="0" group="1" rgba="0 0.7 0 0.7" />
+                                            <geom size="0.015" pos="-0.0400001 -0.110857 0.0700382" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7" />
+                                            <geom size="0.015" pos="0.0399998 -0.110827 0.0700559" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7" />
+                                            <geom size="0.015" pos="-0.0400003 0.00799069 -0.133852" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7" />
+                                            <geom size="0.015" pos="0.0399997 0.00802097 -0.133834" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7" />
+                                        </body>
+                                    </body>
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+            <body name="left_shoulder_roll" pos="-0.001 0.12 0.4" quat="0.704416 -0.0616285 -0.704416 0.0616285">
+                <inertial pos="9e-06 -0.003158 0.023405" quat="0.797183 0.0222446 -0.0335247 0.602396" mass="0.535396" diaginertia="0.0007569 0.000700085 0.000295016" />
+                <joint name="left_shoulder_roll_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-1.309 1.309" />
+                <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="arm-L1" />
+                <body name="left_shoulder_pitch" pos="-0.00017 -0.011055 0.0555" quat="0.653281 0.653281 0.270598 -0.270598">
+                    <inertial pos="-4.2e-05 -0.061882 -0.073788" quat="0.544822 0.838549 0.00141069 -0.00163215" mass="1.44036" diaginertia="0.00676101 0.00668785 0.00117714" />
+                    <joint name="left_shoulder_pitch_joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-2.5307 2.5307" />
+                    <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="arm-L2" />
+                    <body name="left_shoulder_yaw" pos="0 -0.165 -0.1" quat="0.707107 0.707107 0 0">
+                        <inertial pos="-3e-05 -0.001937 0.11407" quat="0.716816 0.000904824 -0.000769054 0.697261" mass="1.06539" diaginertia="0.00700306 0.00696697 0.000672964" />
+                        <joint name="shoulder_yaw_joint_left" pos="0 0 0" axis="0 0 1" limited="true" range="-1.7453 1.7453" />
+                        <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="arm-L3" />
+                        <body name="left_elbow" pos="0 -0.0385 0.185" quat="0.69352 0.69352 -0.13795 0.13795">
+                            <inertial pos="0.107996 -0.000521 -0.017765" quat="0.0155295 0.758388 0.0205611 0.651294" mass="0.550582" diaginertia="0.00965176 0.00956386 0.000261375" />
+                            <joint name="left_elbow_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-1.3526 1.3526" />
+                            <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="arm-L4" />
+                        </body>
+                    </body>
+                </body>
+            </body>
+            <body name="right_hip_roll" pos="-0.001 -0.091 0" quat="0.694697 -0.131892 -0.694697 0.131892">
+                <inertial pos="-0.001967 -0.000244 0.031435" quat="0.715394 -0.0143848 -0.0219238 0.698229" mass="0.915088" diaginertia="0.00114812 0.00101759 0.00076529" />
+                <joint name="right-hip-roll_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-1.0472 1.0472" />
+                <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="hip-yaw-housing1" />
+                <body name="right_hip_yaw" pos="-0.0505 0 0.044" quat="0.707107 0 -0.707107 0">
+                    <inertial pos="1e-05 0.001945 0.042033" quat="0.707957 -0.0169853 0.0152563 0.705887" mass="0.818753" diaginertia="0.00193142 0.001627 0.000767577" />
+                    <joint name="right_hip_yaw_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-0.698132 0.698132" />
+                    <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="hip-pitch-housing1" />
+                    <body name="right_hip_pitch" pos="0 -0.004 0.068" quat="0.270598 -0.270598 -0.653281 -0.653281">
+                        <inertial pos="0.060537 -0.000521 -0.038857" quat="-0.0892178 0.703019 -0.0953661 0.699078" mass="6.24428" diaginertia="0.0340064 0.033299 0.0115307" />
+                        <joint name="right_hip_pitch_joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-1.0472 1.5708" />
+                        <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="hip-pitch1" />
+                        <body name="right_achillies_rod" pos="0 0 0.046" quat="0.752692 -0.0265893 0.0238029 0.657405">
+                            <inertial pos="0.2506 0 0" quat="0.5 0.5 0.5 0.5" mass="0.178148" diaginertia="0.004501 0.004501 3e-06" />
+                            <joint name="right_achillies_rod_joint" type="ball" limited="false" damping="0.010000"/>
+                            <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="achilles-rod1" />
+                            <geom size="0.01" pos="0.501194 -1.28948e-05 -5.20307e-06" contype="0" conaffinity="0" group="1" rgba="0.6 0.1 0.9 0.7" />
+                        </body>
+                        <body name="right_knee" pos="0.12 0 0.0045" quat="0.707107 0 0 0.707107">
+                            <inertial pos="0.045641 -0.042154 0.001657" quat="0.167216 0.690239 -0.176024 0.681634" mass="1.22708" diaginertia="0.00702026 0.00607564 0.00166411" />
+                            <joint name="right_knee_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-0.8727 1.2392" />
+                            <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="knee1" />
+                            <body name="right_shin" pos="0.060677 -0.047406 0">
+                                <inertial pos="0.174265 -0.010265 0.00107" quat="-0.0280548 0.710242 0.00805869 0.703352" mass="0.895793" diaginertia="0.022795 0.0225481 0.00106995" />
+                                <joint name="right_shin_joint" type='hinge' axis='0 0 1' limited='false' stiffness='6000' />
+                                <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="shin1" />
+                                <body name="right_tarsus" pos="0.434759 -0.02 0" quat="0.622515 0 0 -0.782608">
+                                    <inertial pos="0.100777 0.029183 0.000678" quat="-0.0775034 0.707626 -0.0502274 0.700526" mass="1.32286" diaginertia="0.016504 0.0164306 0.000907334" />
+                                    <joint name="right_tarsus_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-1.2497 0.8779" />
+                                    <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="tarsus1" />
+                                    <body name="right_heel_spring" pos="-0.01766 0.029456 0.00104" quat="0.209352 -0.0109031 -0.0375468 -0.977058">
+                                        <inertial pos="0.049086 -0.004739 -4.5e-05" quat="0.494257 0.494741 0.505969 0.504912" mass="0.230018" diaginertia="0.000740328 0.000701002 5.46701e-05" />
+                                        <joint name="right_heel_spring_joint" type='hinge' axis='0 0 1' range='-6 6' limited='true' stiffness='4375'/>
+                                        <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="heel-spring1" />
+                                        <geom size="0.015" pos="0.113789 0.011056 0" contype="0" conaffinity="0" group="1" rgba="0 0.7 0 0.7" />
+                                    </body>
+                                    <body name="right_toe_A" pos="0.059 0.034 -0.0276" quat="-1.61254e-08 -0.694909 -0.719097 -1.66867e-08">
+                                        <inertial pos="0.005161 -1e-06 -0.002248" quat="0 0.675331 0 0.737515" mass="0.139557" diaginertia="7.43528e-05 5.8e-05 2.86472e-05" />
+                                        <joint name="right_toe_A_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-1.26449 0.912807" />
+                                        <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="toe-output-rl" />
+                                        <body name="right_toe_A_rod" pos="0.057 0 -0.008" quat="0.697893 0.0113021 0.0151583 0.715953">
+                                            <inertial pos="0.171071 0 0" quat="0.5 0.5 0.5 0.5" mass="0.090983" diaginertia="0.001182 0.001182 1e-06" />
+                                            <joint name="right_toe_A_rod_joint" type="ball" limited="false" damping="0.010000"/>
+                                            <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="toe-A-rod1" />
+                                            <geom size="0.01" pos="0.340004 1.61352e-05 -8.14295e-06" contype="0" conaffinity="0" group="1" rgba="0.6 0.1 0.9 0.7" />
+                                        </body>
+                                    </body>
+                                    <body name="right_toe_B" pos="0.111 0.034 0.0276" quat="0.694918 0 0 0.719089">
+                                        <inertial pos="0.005161 -1e-06 -0.002248" quat="0 0.675331 0 0.737515" mass="0.139557" diaginertia="7.43528e-05 5.8e-05 2.86472e-05" />
+                                        <joint name="right_toe_B_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-0.912807 1.26449" />
+                                        <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="toe-output-rr" />
+                                        <body name="right_toe_B_rod" pos="0.057 0 -0.008" quat="0.69825 0.0205714 -0.0173998 -0.715347">
+                                            <inertial pos="0.142991 0 0" quat="0.5 0.5 0.5 0.5" mass="0.079507" diaginertia="0.000768 0.000768 1e-06" />
+                                            <joint name="right_toe_B_rod_joint" type="ball" limited="false" damping="0.010000"/>
+                                            <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="toe-B-rod1" />
+                                            <geom size="0.01" pos="0.288005 -9.72801e-06 -2.23467e-05" contype="0" conaffinity="0" group="1" rgba="0.6 0.1 0.9 0.7" />
+                                        </body>
+                                    </body>
+                                    <body name="right_toe_pitch" pos="0.408 0.04 0" quat="0.826576 0 0 -0.562825">
+                                        <inertial pos="-0.000141 -2e-06 3e-06" quat="0.707107 0 0 0.707107" mass="0.043881" diaginertia="8e-06 5e-06 5e-06" />
+                                        <joint name="right_toe_pitch_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-0.785398 0.785398" />
+                                        <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="toe-pitch1" />
+                                        <body name="right_toe_roll" pos="0 0 0" quat="0.707107 0 0.707107 0">
+                                            <inertial pos="9e-06 0.028084 -0.023204" quat="0.686347 -0.170083 0.170083 0.686347" mass="0.531283" diaginertia="0.00191487 0.00187 0.000544125" />
+                                            <joint name="right_toe_roll_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-0.6109 0.6109" />
+                                            <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="toe-roll1" />
+                                            <geom size="0.015" pos="0.0179 0.009551 -0.054164" contype="0" conaffinity="0" group="1" rgba="0 0.7 0 0.7" />
+                                            <geom size="0.015" pos="-0.0181 0.009551 -0.054164" contype="0" conaffinity="0" group="1" rgba="0 0.7 0 0.7" />
+                                            <geom size="0.015" pos="0.0399994 0.11063 0.0701703" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7" />
+                                            <geom size="0.015" pos="-0.0400001 0.11085 0.0700422" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7" />
+                                            <geom size="0.015" pos="0.0399997 -0.00801787 -0.133836" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7" />
+                                            <geom size="0.015" pos="-0.0400003 -0.00798741 -0.133854" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7" />
+                                        </body>
+                                    </body>
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+            <body name="right_shoulder_roll" pos="-0.001 -0.12 0.4" quat="0.704416 0.0616285 -0.704416 -0.0616285">
+                <inertial pos="9e-06 -0.003158 0.023405" quat="0.602396 -0.0335247 0.0222446 0.797183" mass="0.535396" diaginertia="0.0007569 0.000700085 0.000295016" />
+                <joint name="right_shoulder_roll_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-1.309 1.309" />
+                <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="arm-L11" />
+                <body name="right_shoulder_pitch" pos="-0.00017 0.011055 0.0555" quat="0.653281 -0.653281 0.270598 0.270598">
+                    <inertial pos="-4.2e-05 0.061882 -0.073788" quat="0.838549 0.544822 0.00163215 -0.00141069" mass="1.44036" diaginertia="0.00676101 0.00668785 0.00117714" />
+                    <joint name="right_shoulder_pitch_joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-2.5307 2.5307" />
+                    <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="arm-L21" />
+                    <body name="right_shoulder_yaw" pos="0 0.165 -0.1" quat="0.707107 -0.707107 0 0">
+                        <inertial pos="-3e-05 -0.001937 0.11407" quat="0.697261 -0.000769054 0.000904824 0.716816" mass="1.06539" diaginertia="0.00700306 0.00696697 0.000672964" />
+                        <joint name="shoulder_yaw_joint_right" pos="0 0 0" axis="0 0 1" limited="true" range="-1.7453 1.7453" />
+                        <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="arm-L31" />
+                        <body name="right_elbow" pos="0 0.0385 0.185" quat="0.69352 -0.69352 -0.13795 -0.13795">
+                            <inertial pos="0.107996 0.000521 -0.017765" quat="-0.0155295 0.758388 -0.0205611 0.651294" mass="0.550582" diaginertia="0.00965176 0.00956386 0.000261375" />
+                            <joint name="right_elbow_joint" pos="0 0 0" axis="0 0 1" limited="true" range="-1.3526 1.3526" />
+                            <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="arm-L41" />
+                        </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+    </worldbody>
+
+    <equality>
+        <connect name='left_toe_A_rod' body1='left_toe_roll' body2='left_toe_A_rod' anchor='0.0179 -0.009551 -0.054164'/>
+        <connect name='left_toe_B_rod' body1='left_toe_roll' body2='left_toe_B_rod' anchor='-0.0181 -0.009551 -0.054164'/>
+        <connect name='left_achillies_rod' body1='left_heel_spring' body2='left_achillies_rod' anchor='0.113789 -0.011056 0'/>
+        <connect name='right_toe_A_rod' body1='right_toe_roll' body2='right_toe_A_rod' anchor='0.0179 0.009551 -0.054164'/>
+        <connect name='right_toe_B_rod' body1='right_toe_roll' body2='right_toe_B_rod' anchor='-0.0181 0.009551 -0.054164'/>
+        <connect name='right_achillies_rod' body1='right_heel_spring' body2='right_achillies_rod' anchor='0.113789 0.011056 0'/>
+    </equality>
+
+</mujoco>
