@@ -19,7 +19,9 @@ public:
 
     void setContactVirtualLink(const vector<string> &names);
 
-    void computeAllData(ConstRefVec qpos, ConstRefVec qvel, const VecXi &mask = VecXi::Zero(1));
+    void setConnectVirtualLink(const pair<string, string> &link_pairs);
+
+    void computeAllData(ConstRefVec qpos, ConstRefVec qvel, const VecXi &mask = VecXi::Zero(0));
 
     Vec3 CoM_pos();
 
@@ -63,6 +65,8 @@ public:
 
     int nc();
 
+    int ncf(); // n-DoFs constraints force
+
     const VecXi &contactMask();
 
     ConstRefMat contactJacobia();
@@ -72,6 +76,8 @@ public:
     ConstRefVec qpos();
 
     ConstRefVec qvel();
+
+    bool isFixedBase();
 
 private:
     void computeContactJacobia();
@@ -87,6 +93,7 @@ private:
     Vec _qvel;
     bool _isFixedBase;
     vector<string> _contactPoint_virtual_link;
+    pair<string, string> _connect_point_pairs;
     VecXi _mask;
     Mat _Jc;
     Vec _contactPointsBiasAcc;

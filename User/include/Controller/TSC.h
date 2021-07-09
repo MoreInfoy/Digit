@@ -59,6 +59,8 @@ private:
     Vec _lb, _ub;
     VecInt _mask;
     SE3MotionTask *mt_waist;
+    SE3MotionTask *rf;
+    SE3MotionTask *lf;
     CoMMotionTask *com;
     RegularizationTask *rt;
     JointsNominalTask *jointsNominalTask;

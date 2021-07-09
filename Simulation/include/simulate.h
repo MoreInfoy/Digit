@@ -9,7 +9,7 @@
 
 #include "mjxmacro.h"
 #include "uitools.h"
-#include "Configuration.h"
+#include "ConfigurationTSC.h"
 #include "stdio.h"
 #include "string.h"
 
@@ -24,11 +24,16 @@
 
 #define SET_INIT_QPOS
 
-double q_init[] = {0, 0, 0.9, 1, 0, 0, 0,
-                   0.325, 0, 0, 0, 0, -0.102, -0.07,
+double q_init[] = {0.325, 0, 0, 0, 0, -0.102, -0.07,
                    -0.325, 0, 0, 0, 0, 0.102, 0.07,
                    0, 0.987, 0, 0,
                    0, -0.987, 0, 0};
+
+/*double q_init[] = {0, 0, 0.9, 1, 0, 0, 0,
+                   0.325, 0, 0, 0, 0, -0.102, -0.07,
+                   -0.325, 0, 0, 0, 0, 0.102, 0.07,
+                   0, 0.987, 0, 0,
+                   0, -0.987, 0, 0};*/
 //-------------------------------- global -----------------------------------------------
 
 // constants
@@ -1676,16 +1681,27 @@ void getRobotState(void) {
         printf("nv = %d\n", m->nv);
         throw std::runtime_error("[Simulate::getRobotState] m->nv != ROBOT_NV");
     }
-    shared_memory().robotToUser.floatingBaseState.pos << d->qpos[0], d->qpos[1], d->qpos[2];
-    shared_memory().robotToUser.floatingBaseState.quat.x() = d->qpos[4];
-    shared_memory().robotToUser.floatingBaseState.quat.y() = d->qpos[5];
-    shared_memory().robotToUser.floatingBaseState.quat.z() = d->qpos[6];
-    shared_memory().robotToUser.floatingBaseState.quat.w() = d->qpos[3];
-    shared_memory().robotToUser.floatingBaseState.vel << d->qvel[0], d->qvel[1], d->qvel[2];
-    shared_memory().robotToUser.floatingBaseState.omega << d->qvel[3], d->qvel[4], d->qvel[5];
 
-    std::memcpy(shared_memory().robotToUser.jointsState.qpos.data(), d->qpos + 7, m->nu * sizeof(mjtNum));
-    std::memcpy(shared_memory().robotToUser.jointsState.qvel.data(), d->qvel + 6, m->nu * sizeof(mjtNum));
+    if (m->nq == m->nv) {
+        shared_memory().robotToUser.floatingBaseState.pos.setZero();
+        shared_memory().robotToUser.floatingBaseState.quat.setIdentity();
+        shared_memory().robotToUser.floatingBaseState.vel.setZero();
+        shared_memory().robotToUser.floatingBaseState.omega.setZero();
+        std::memcpy(shared_memory().robotToUser.jointsState.qpos.data(), d->qpos, m->nu * sizeof(mjtNum));
+        std::memcpy(shared_memory().robotToUser.jointsState.qvel.data(), d->qvel, m->nu * sizeof(mjtNum));
+    } else {
+        shared_memory().robotToUser.floatingBaseState.pos << d->qpos[0], d->qpos[1], d->qpos[2];
+        shared_memory().robotToUser.floatingBaseState.quat.x() = d->qpos[4];
+        shared_memory().robotToUser.floatingBaseState.quat.y() = d->qpos[5];
+        shared_memory().robotToUser.floatingBaseState.quat.z() = d->qpos[6];
+        shared_memory().robotToUser.floatingBaseState.quat.w() = d->qpos[3];
+        shared_memory().robotToUser.floatingBaseState.vel << d->qvel[0], d->qvel[1], d->qvel[2];
+        shared_memory().robotToUser.floatingBaseState.omega << d->qvel[3], d->qvel[4], d->qvel[5];
+
+        std::memcpy(shared_memory().robotToUser.jointsState.qpos.data(), d->qpos + 7, m->nu * sizeof(mjtNum));
+        std::memcpy(shared_memory().robotToUser.jointsState.qvel.data(), d->qvel + 6, m->nu * sizeof(mjtNum));
+    }
+
     /*printEigenDVec(shared_memory().robotToUser.q, "qpos");
     printEigenDVec(shared_memory().robotToUser.qdot, "qdot");
     for (int i = 0; i < d->ncon; i++) {

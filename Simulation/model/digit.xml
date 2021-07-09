@@ -62,10 +62,10 @@
               rgba="1 1 1 1"/>
         <light directional="true" diffuse=".8 .8 .8" pos="0 0 10" dir="0 0 -10"/>
 
-        <body name="torso" pos="0 0 0">
+        <body name="torso" pos="0 0 1.2">
             <inertial pos="-0.00148645 0.000175054 0.252154" quat="0.999974 8.03644e-05 -0.00708658 -0.000905009"
                       mass="17.17" diaginertia="0.492749 0.439332 0.127268"/>
-            <joint type="free" limited='false' damping="0" stiffness="0" armature="0"/>
+<!--            <joint type="free" limited='false' damping="0" stiffness="0" armature="0"/>-->
             <geom class="viz" mesh="torso"/>
             <geom type="mesh" mesh="torso"/>
             <geom class="viz" pos="0.001 0.12 0.4" quat="0.704416 -0.0616285 -0.704416 0.0616285"

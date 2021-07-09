@@ -5,7 +5,7 @@
 #ifndef TASK_SPACE_CONTROL_CONSTRAINTS_H
 #define TASK_SPACE_CONTROL_CONSTRAINTS_H
 
-#include "Configuration.h"
+#include "ConfigurationTSC.h"
 #include "TypeDefinition.h"
 #include "RobotWrapper/RobotWrapper.h"
 

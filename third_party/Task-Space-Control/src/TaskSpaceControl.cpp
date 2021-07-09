@@ -74,10 +74,19 @@ void TaskSpaceControl::solve() {
     c_ub.resize(nDims_cstrs);
     c_ub.setZero();
 
-    Ce.resize(nDims_cstrs_eq + 6, _u_dims);
-    Ce.setZero();
-    ce.resize(nDims_cstrs_eq + 6);
-    ce.setZero();
+    if (_robot.isFixedBase()) {
+        Ce.resize(nDims_cstrs_eq, _u_dims);
+        Ce.setZero();
+        ce.resize(nDims_cstrs_eq);
+        ce.setZero();
+    } else {
+        Ce.resize(nDims_cstrs_eq + 6, _u_dims);
+        Ce.setZero();
+        ce.resize(nDims_cstrs_eq + 6);
+        ce.setZero();
+        Ce.bottomRows(6) << _robot.M().topRows(6), -_robot.contactJacobia().leftCols(6).transpose();
+        ce.tail(6) = -_robot.nonLinearEffects().head(6);
+    }
 
     size_t start_row = 0;
     size_t start_row_eq = 0;
@@ -94,8 +103,6 @@ void TaskSpaceControl::solve() {
         }
     }
 
-    Ce.bottomRows(6) << _robot.M().topRows(6), -_robot.contactJacobia().leftCols(6).transpose();
-    ce.tail(6) = -_robot.nonLinearEffects().head(6);
 
 #ifdef USE_QPOASES
     Eigen::Matrix<RealNum, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> Cin(nDims_cstrs + nDims_cstrs_eq + 6, _u_dims);

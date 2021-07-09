@@ -6,7 +6,7 @@
 #define TASK_SPACE_CONTROL_TASKSPACECONTROL_H
 
 
-#include "Configuration.h"
+#include "ConfigurationTSC.h"
 #include "TypeDefinition.h"
 #include "Task/Task.h"
 #include "Constraints/LinearConstraints.h"

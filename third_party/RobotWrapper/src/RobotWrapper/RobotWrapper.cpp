@@ -209,6 +209,10 @@ Vec6 RobotWrapper::momentumTimeVariation() {
     return pinocchio::computeCentroidalMomentumTimeVariation(_model, _data).toVector();
 }
 
+bool RobotWrapper::isFixedBase() {
+    return _isFixedBase;
+}
+
 
 
 
