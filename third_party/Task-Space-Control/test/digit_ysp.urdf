@@ -56,7 +56,7 @@
         </collision>
     </link>
 
-    <joint name="left_hip_roll_joint" type="revolute">
+    <joint name="left-hip-roll_joint" type="revolute">
         <origin rpy="1.57079632679 -1.1955506 -1.57079632679" xyz="-0.001 0.091 0"/>
         <axis xyz="0 0 1"/>
         <parent link="torso"/>
@@ -751,7 +751,7 @@
         </collision>
     </link>
 
-    <joint name="right_hip_roll_joint" type="revolute">
+    <joint name="right-hip-roll_joint" type="revolute">
         <origin rpy="-1.57079632679 -1.1955506 1.57079632679" xyz="-0.001 -0.091 0"/>
         <axis xyz="0 0 1"/>
         <parent link="torso"/>

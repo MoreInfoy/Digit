@@ -29,8 +29,6 @@ namespace TSC {
 
         void addLinearConstraint(LinearConstraints *constraints);
 
-        void addQaccBound(ConstVecRef lb, ConstVecRef ub);
-
         void removeLinearConstraint(string name);
 
         size_t getInputDims();

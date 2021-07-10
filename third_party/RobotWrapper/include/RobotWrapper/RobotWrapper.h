@@ -19,7 +19,9 @@ public:
 
     void setContactVirtualLink(const vector<string> &names);
 
-    void setConnectVirtualLink(const pair<string, string> &link_pairs);
+    void setConnectVirtualLink(const vector<pair<string, string>> &link_pairs);
+
+    void setConstraintForceSubspace(ConstRefMat T, ConstRefMat T_dot); // in local frame
 
     void computeAllData(ConstRefVec qpos, ConstRefVec qvel, const VecXi &mask = VecXi::Zero(0));
 
@@ -65,13 +67,19 @@ public:
 
     int nc();
 
-    int ncf(); // n-DoFs constraints force
+    int ncf(); // ncf = Cols(T)
 
     const VecXi &contactMask();
 
     ConstRefMat contactJacobia();
 
     ConstRefVec activeContactPointBiasAcc();
+
+    ConstRefMat constraintForceJacobia();
+
+    ConstRefVec connectPointBiasAcc();
+
+    ConstRefMat connectPointRelativeJacobia();
 
     ConstRefVec qpos();
 
@@ -82,7 +90,11 @@ public:
 private:
     void computeContactJacobia();
 
+    void computeConstraintForceJacobia();
+
     void computeActiveContactPointBiasAcc();
+
+    void computeConnectPointBiasAcc(); // call this function after computeConstraintForceJacobia() because _T is updated in lateral one
 
     pin::FrameIndex getFrameID(string frame_name);
 
@@ -93,10 +105,11 @@ private:
     Vec _qvel;
     bool _isFixedBase;
     vector<string> _contactPoint_virtual_link;
-    pair<string, string> _connect_point_pairs;
+    vector<pair<string, string>> _connect_point_pairs;
+    Mat _T, _T_dot, _Jps;
     VecXi _mask;
-    Mat _Jc;
-    Vec _contactPointsBiasAcc;
+    Mat _Jc, _K;
+    Vec _contactPointsBiasAcc, _connectPointsBiasAcc;
 };
 
 

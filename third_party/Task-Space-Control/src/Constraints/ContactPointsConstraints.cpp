@@ -12,7 +12,7 @@ TSC::ContactPointsConstraints::ContactPointsConstraints(RobotWrapper &robot, str
 }
 
 void ContactPointsConstraints::update() {
-    int input_dims = robot().nv() + 3 * robot().nc();
+    int input_dims = robot().nv() + 3 * robot().nc() + robot().ncf();
     Mat S;
     S.resize(robot().nv(), input_dims);
     S.setZero();

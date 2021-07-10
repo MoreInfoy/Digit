@@ -18,7 +18,7 @@ TSC::JointsNominalTask::JointsNominalTask(RobotWrapper &robot, string name) : Ta
 }
 
 void JointsNominalTask::update() {
-    int u_dims = robot().nv() + 3 * robot().nc();
+    int u_dims = robot().nv() + 3 * robot().nc()+ robot().ncf();
     Mat S(robot().na(), u_dims);
     S.setZero();
     S.middleCols(robot().nv()-robot().na(), robot().na()).setIdentity();

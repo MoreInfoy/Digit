@@ -19,21 +19,25 @@
 
 #include "SharedMessages.h"
 #include "StateAndCommand.h"
+#include "Configuration.h"
 
 #include <iostream>
 
 #define SET_INIT_QPOS
 
+#ifdef FIXED_BASE
 double q_init[] = {0.325, 0, 0, 0, 0, -0.102, -0.07,
                    -0.325, 0, 0, 0, 0, 0.102, 0.07,
                    0, 0.987, 0, 0,
                    0, -0.987, 0, 0};
-
-/*double q_init[] = {0, 0, 0.9, 1, 0, 0, 0,
+#else
+double q_init[] = {0, 0, 0.9, 1, 0, 0, 0,
                    0.325, 0, 0, 0, 0, -0.102, -0.07,
                    -0.325, 0, 0, 0, 0, 0.102, 0.07,
                    0, 0.987, 0, 0,
-                   0, -0.987, 0, 0};*/
+                   0, -0.987, 0, 0};
+#endif
+
 //-------------------------------- global -----------------------------------------------
 
 // constants

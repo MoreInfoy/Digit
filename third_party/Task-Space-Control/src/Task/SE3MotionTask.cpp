@@ -18,7 +18,7 @@ SE3MotionTask::SE3MotionTask(RobotWrapper &robot, string name) : Task(robot, nam
 
 void SE3MotionTask::update()
 {
-    int input_dims = robot().nv() + 3 * robot().nc();
+    int input_dims = robot().nv() + 3 * robot().nc() + robot().ncf();
     Mat S;
     S.resize(robot().nv(), input_dims);
     S.setZero();

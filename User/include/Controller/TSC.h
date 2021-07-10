@@ -13,6 +13,7 @@
 #include "Constraints/ContactPointsConstraints.h"
 #include "Constraints/ContactForceConstraints.h"
 #include "Constraints/ActuatorLimit.h"
+#include "Constraints/ClosedChainsConstraints.h"
 #include "Task/CoMMotionTask.h"
 #include "Constraints/QaccBound.h"
 #include "Task/JointsNominalTask.h"
@@ -67,6 +68,7 @@ private:
     AngularMomentumTask *angularMomentumTask;
     ContactPointsConstraints *cpcstr;
     ContactForceConstraints *cfcstr;
+    ClosedChainsConstraints *closedChainsConstraints;
     ActuatorLimit *actuatorLimit;
     QaccBound *qaccBound;
     TaskSpaceControl *tsc;

@@ -14,7 +14,7 @@ TSC::QaccBound::QaccBound(RobotWrapper &robot, string name) : LinearConstraints(
 }
 
 void QaccBound::update() {
-    _C.resize(robot().nv(), robot().nv() + 3 * robot().nc());
+    _C.resize(robot().nv(), robot().nv() + 3 * robot().nc() + robot().ncf());
     _C.leftCols(robot().nv()).setIdentity();
     assert((_ub - _lb).all() > 0);
     _c_lb = _lb;

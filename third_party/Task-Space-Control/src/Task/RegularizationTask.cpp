@@ -15,7 +15,7 @@ TSC::RegularizationTask::RegularizationTask(RobotWrapper &robot, string name) : 
 }
 
 void RegularizationTask::update() {
-    int input_dims = robot().nv() + 3 * robot().nc();
+    int input_dims = robot().nv() + 3 * robot().nc() + robot().ncf();
     if (_Q_qacc.rows() != robot().nv() || _Q_qacc.cols() != robot().nv()) {
         throw runtime_error(name() + " task  weight matrix _Q_qacc dimension is wrong");
     }
@@ -24,7 +24,7 @@ void RegularizationTask::update() {
         _Q.setZero();
         _Q.topLeftCorner(robot().nv(), robot().nv()) = _Q_qacc;
         for (int i = 0; i < robot().nc(); i++) {
-            _Q.block<3, 3>(robot().nv() + 3 * i, robot().nv() + 3 * i) =_Q_f;
+            _Q.block<3, 3>(robot().nv() + 3 * i, robot().nv() + 3 * i) = _Q_f;
         }
         _Q_isUpdated = true;
         _g = Vec::Zero(input_dims);
@@ -32,12 +32,16 @@ void RegularizationTask::update() {
 
 #ifdef REGULARIZE_TORQUE
     Mat A;
-    A.resize(_robot.na(), _robot.nv() + 3 * _robot.nc());
+    A.resize(_robot.na(), _robot.nv() + 3 * _robot.nc()+ robot().ncf());
     ConstMatRef Ma = _robot.M().bottomRows(_robot.na());
     ConstVecRef ba = _robot.nonLinearEffects().tail(_robot.na());
-
     ConstMatRef Jca = robot().contactJacobia().rightCols(_robot.na());
-    A << Ma, -Jca.transpose();
+    if (_robot.ncf() > 0) {
+        ConstMatRef Ka = _robot.constraintForceJacobia().rightCols(_robot.na());
+        A << Ma, -Jca.transpose(), -Ka.transpose();
+    } else {
+       A << Ma, -Jca.transpose();
+    }
     _H = _Q + 1e-12 * A.transpose() * A;
     _g = 1e-12 * A.transpose() * ba;
 #else

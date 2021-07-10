@@ -130,7 +130,7 @@
                                       diaginertia="0.004501 0.004501 3e-06"/>
                             <joint name="left_achillies_rod_joint" type="ball" limited="false" damping="0.010000"/>
                             <geom class="viz" mesh="achilles-rod"/>
-                            <geom size="0.01" pos="0.501194 -1.28948e-05 -5.20307e-06" contype="0" conaffinity="0"
+                            <geom size="0.01" pos="0 0 0" contype="0" conaffinity="0"
                                   group="1" rgba="0.6 0.1 0.9 0.7"/>
                         </body>
                         <body name="left_knee" pos="0.12 0 0.0045" quat="0.707107 0 0 -0.707107">
@@ -142,8 +142,8 @@
                             <body name="left_shin" pos="0.060677 0.047406 0">
                                 <inertial pos="0.174265 0.010265 0.00107" quat="0.0280548 0.710242 -0.00805869 0.703352"
                                           mass="0.895793" diaginertia="0.022795 0.0225481 0.00106995"/>
-                                <joint name="left_shin_joint" type='hinge' axis='0 0 1' limited='false'
-                                       stiffness='6000'/>
+                                <!--<joint name="left_shin_joint" type='hinge' axis='0 0 1' limited='false'
+                                       stiffness='6000'/>-->
                                 <geom class="viz" mesh="shin"/>
                                 <geom type='cylinder' size='0.03 0.1715' pos='0.23 0 0' euler='0 1.5707963267 0'
                                       class='collision'/>
@@ -161,8 +161,8 @@
                                         <inertial pos="0.049086 0.004739 -4.5e-05"
                                                   quat="0.504912 0.505969 0.494741 0.494257" mass="0.230018"
                                                   diaginertia="0.000740328 0.000701002 5.46701e-05"/>
-                                        <joint name="left_heel_spring_joint" type='hinge' axis='0 0 1'
-                                               range='-0.1047197551 0.1047197551' limited='true' stiffness='4375'/>
+                                        <!--<joint name="left_heel_spring_joint" type='hinge' axis='0 0 1'
+                                               range='-0.1047197551 0.1047197551' limited='true' stiffness='4375'/>-->
                                         <geom class="viz" mesh="heel-spring"/>
                                         <geom size="0.015" pos="0.113789 -0.011056 0" contype="0" conaffinity="0"
                                               group="1" rgba="0 0.7 0 0.7"/>
@@ -182,7 +182,7 @@
                                             <joint name="left_toe_A_rod_joint" type="ball" limited="false"
                                                    damping="0.010000"/>
                                             <geom class="viz" mesh="toe-A-rod"/>
-                                            <geom size="0.01" pos="0.340004 1.61352e-05 -8.14295e-06" contype="0"
+                                            <geom size="0.01" pos="0 0 0" contype="0"
                                                   conaffinity="0" group="1" rgba="0.6 0.1 0.9 0.7"/>
                                         </body>
                                     </body>
@@ -200,7 +200,7 @@
                                             <joint name="left_toe_B_rod_joint" type="ball" limited="false"
                                                    damping="0.010000"/>
                                             <geom class="viz" mesh="toe-B-rod"/>
-                                            <geom size="0.01" pos="0.288005 -9.72801e-06 -2.23467e-05" contype="0"
+                                            <geom size="0.01" pos="0 0 0" contype="0"
                                                   conaffinity="0" group="1" rgba="0.6 0.1 0.9 0.7"/>
                                         </body>
                                     </body>
@@ -308,7 +308,7 @@
                                       diaginertia="0.004501 0.004501 3e-06"/>
                             <joint name="right_achillies_rod_joint" type="ball" limited="false" damping="0.010000"/>
                             <geom class="viz" mesh="achilles-rod1"/>
-                            <geom size="0.01" pos="0.501194 -1.28948e-05 -5.20307e-06" contype="0" conaffinity="0"
+                            <geom size="0.01" pos="0 0 0" contype="0" conaffinity="0"
                                   group="1" rgba="0.6 0.1 0.9 0.7"/>
                         </body>
                         <body name="right_knee" pos="0.12 0 0.0045" quat="0.707107 0 0 0.707107">
@@ -322,8 +322,8 @@
                                 <inertial pos="0.174265 -0.010265 0.00107"
                                           quat="-0.0280548 0.710242 0.00805869 0.703352" mass="0.895793"
                                           diaginertia="0.022795 0.0225481 0.00106995"/>
-                                <joint name="right_shin_joint" type='hinge' axis='0 0 1' limited='false'
-                                       stiffness='6000'/>
+<!--                                <joint name="right_shin_joint" type='hinge' axis='0 0 1' limited='false'-->
+<!--                                       stiffness='6000'/>-->
                                 <geom class="viz" mesh="shin1"/>
                                 <geom type='cylinder' size='0.03 0.1715' pos='0.23 0 0' euler='0 1.5707963267 0'
                                       class='collision'/>
@@ -341,8 +341,8 @@
                                         <inertial pos="0.049086 -0.004739 -4.5e-05"
                                                   quat="0.494257 0.494741 0.505969 0.504912" mass="0.230018"
                                                   diaginertia="0.000740328 0.000701002 5.46701e-05"/>
-                                        <joint name="right_heel_spring_joint" type='hinge' axis='0 0 1' range='-6 6'
-                                               limited='true' stiffness='4375'/>
+<!--                                        <joint name="right_heel_spring_joint" type='hinge' axis='0 0 1' range='-6 6'-->
+<!--                                               limited='true' stiffness='4375'/>-->
                                         <geom class="viz" mesh="heel-spring1"/>
                                         <geom size="0.015" pos="0.113789 0.011056 0" contype="0" conaffinity="0"
                                               group="1" rgba="0 0.7 0 0.7"/>
@@ -362,7 +362,7 @@
                                             <joint name="right_toe_A_rod_joint" type="ball" limited="false"
                                                    damping="0.010000"/>
                                             <geom class="viz" mesh="toe-A-rod1"/>
-                                            <geom size="0.01" pos="0.340004 1.61352e-05 -8.14295e-06" contype="0"
+                                            <geom size="0.01" pos="0 0 0" contype="0"
                                                   conaffinity="0" group="1" rgba="0.6 0.1 0.9 0.7"/>
                                         </body>
                                     </body>
@@ -380,7 +380,7 @@
                                             <joint name="right_toe_B_rod_joint" type="ball" limited="false"
                                                    damping="0.010000"/>
                                             <geom class="viz" mesh="toe-B-rod1"/>
-                                            <geom size="0.01" pos="0.288005 -9.72801e-06 -2.23467e-05" contype="0"
+                                            <geom size="0.01" pos="0 0 0" contype="0"
                                                   conaffinity="0" group="1" rgba="0.6 0.1 0.9 0.7"/>
                                         </body>
                                     </body>
@@ -513,60 +513,78 @@
     </actuator>
 
     <sensor>
-        <touch name='ts_l' site='tl'/>
-        <touch name='ts_r' site='tr'/>
         <framepos name='base-pos' objtype='body' objname='torso'/>
         <framequat name='base-quat' objtype='body' objname='torso'/>
+
         <jointpos name='left-hip-roll' joint='left_hip_roll_joint'/>
         <jointpos name='left-hip-yaw' joint='left_hip_yaw_joint'/>
         <jointpos name='left-hip-pitch' joint='left_hip_pitch_joint'/>
         <jointpos name='left-knee' joint='left_knee_joint'/>
-        <jointpos name='left-shin' joint='left_shin_joint'/>
+<!--        <jointpos name='left-shin' joint='left_shin_joint'/>-->
         <jointpos name='left-tarsus' joint='left_tarsus_joint'/>
         <jointpos name='left-toe-A' joint='left_toe_A_joint'/>
         <jointpos name='left-toe-B' joint='left_toe_B_joint'/>
-        <jointpos name='right-hip-roll' joint='right_hip_roll_joint'/>
-        <jointpos name='right-hip-yaw' joint='right_hip_yaw_joint'/>
-        <jointpos name='right-hip-pitch' joint='right_hip_pitch_joint'/>
-        <jointpos name='right-knee' joint='right_knee_joint'/>
-        <jointpos name='right-shin' joint='right_shin_joint'/>
-        <jointpos name='right-tarsus' joint='right_tarsus_joint'/>
-        <jointpos name='right-toe-A' joint='right_toe_A_joint'/>
-        <jointpos name='right-toe-B' joint='right_toe_B_joint'/>
+        <jointpos name='left-toe-pitch' joint='left_toe_pitch_joint'/>
+        <jointpos name='left-toe-roll' joint='left_toe_roll_joint'/>
+
         <jointpos name='left-shoulder-roll' joint='left_shoulder_roll_joint'/>
         <jointpos name='left-shoulder-pitch' joint='left_shoulder_pitch_joint'/>
         <jointpos name='left-shoulder-yaw' joint='shoulder_yaw_joint_left'/>
         <jointpos name='left-elbow' joint='left_elbow_joint'/>
+
+        <jointpos name='right-hip-roll' joint='right_hip_roll_joint'/>
+        <jointpos name='right-hip-yaw' joint='right_hip_yaw_joint'/>
+        <jointpos name='right-hip-pitch' joint='right_hip_pitch_joint'/>
+        <jointpos name='right-knee' joint='right_knee_joint'/>
+<!--        <jointpos name='right-shin' joint='right_shin_joint'/>-->
+        <jointpos name='right-tarsus' joint='right_tarsus_joint'/>
+        <jointpos name='right-toe-A' joint='right_toe_A_joint'/>
+        <jointpos name='right-toe-B' joint='right_toe_B_joint'/>
+        <jointpos name='right-toe-pitch' joint='right_toe_pitch_joint'/>
+        <jointpos name='right-toe-roll' joint='right_toe_roll_joint'/>
+
         <jointpos name='right-shoulder-roll' joint='right_shoulder_roll_joint'/>
         <jointpos name='right-shoulder-pitch' joint='right_shoulder_pitch_joint'/>
         <jointpos name='right-shoulder-yaw' joint='shoulder_yaw_joint_right'/>
         <jointpos name='right-elbow' joint='right_elbow_joint'/>
+
         <frameangvel name='base-angvel' objtype='body' objname='torso'/>
         <framelinvel name='base-linvel' objtype='body' objname='torso'/>
+
         <jointvel name='left-hip-roll-vel' joint='left_hip_roll_joint'/>
         <jointvel name='left-hip-yaw-vel' joint='left_hip_yaw_joint'/>
         <jointvel name='left-hip-pitch-vel' joint='left_hip_pitch_joint'/>
         <jointvel name='left-knee-vel' joint='left_knee_joint'/>
-        <jointvel name='left-shin-vel' joint='left_shin_joint'/>
+<!--        <jointvel name='left-shin-vel' joint='left_shin_joint'/>-->
         <jointvel name='left-tarsus-vel' joint='left_tarsus_joint'/>
         <jointvel name='left-toe-A-vel' joint='left_toe_A_joint'/>
         <jointvel name='left-toe-B-vel' joint='left_toe_B_joint'/>
-        <jointvel name='right-hip-roll-vel' joint='right_hip_roll_joint'/>
-        <jointvel name='right-hip-yaw-vel' joint='right_hip_yaw_joint'/>
-        <jointvel name='right-hip-pitch-vel' joint='right_hip_pitch_joint'/>
-        <jointvel name='right-knee-vel' joint='right_knee_joint'/>
-        <jointvel name='right-shin-vel' joint='right_shin_joint'/>
-        <jointvel name='right-tarsus-vel' joint='right_tarsus_joint'/>
-        <jointvel name='right-toe-A-vel' joint='right_toe_A_joint'/>
-        <jointvel name='right-toe-B-vel' joint='right_toe_B_joint'/>
+        <jointvel name='left-toe-pitch-vel' joint='left_toe_pitch_joint'/>
+        <jointvel name='left-toe-roll-vel' joint='left_toe_roll_joint'/>
+
         <jointvel name='left-shoulder-roll-vel' joint='left_shoulder_roll_joint'/>
         <jointvel name='left-shoulder-pitch-vel' joint='left_shoulder_pitch_joint'/>
         <jointvel name='left-shoulder-yaw-vel' joint='shoulder_yaw_joint_left'/>
         <jointvel name='left-elbow-vel' joint='left_elbow_joint'/>
+
+        <jointvel name='right-hip-roll-vel' joint='right_hip_roll_joint'/>
+        <jointvel name='right-hip-yaw-vel' joint='right_hip_yaw_joint'/>
+        <jointvel name='right-hip-pitch-vel' joint='right_hip_pitch_joint'/>
+        <jointvel name='right-knee-vel' joint='right_knee_joint'/>
+<!--        <jointvel name='right-shin-vel' joint='right_shin_joint'/>-->
+        <jointvel name='right-tarsus-vel' joint='right_tarsus_joint'/>
+        <jointvel name='right-toe-A-vel' joint='right_toe_A_joint'/>
+        <jointvel name='right-toe-B-vel' joint='right_toe_B_joint'/>
+        <jointvel name='right-toe-pitch-vel' joint='right_toe_pitch_joint'/>
+        <jointvel name='right-toe-roll-vel' joint='right_toe_roll_joint'/>
+
         <jointvel name='right-shoulder-roll-vel' joint='right_shoulder_roll_joint'/>
         <jointvel name='right-shoulder-pitch-vel' joint='right_shoulder_pitch_joint'/>
         <jointvel name='right-shoulder-yaw-vel' joint='shoulder_yaw_joint_right'/>
         <jointvel name='right-elbow-vel' joint='right_elbow_joint'/>
+
+        <touch name='ts_l' site='tl'/>
+        <touch name='ts_r' site='tr'/>
     </sensor>
 
 </mujoco>

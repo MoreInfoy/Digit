@@ -22,6 +22,9 @@ ConstRefVec RobotWrapper::actuatorsEffortLimit() {
 }
 
 void RobotWrapper::computeAllData(ConstRefVec qpos, ConstRefVec qvel, const VecXi &mask) {
+    if (6 * _connect_point_pairs.size() != _T.rows() || 6 * _connect_point_pairs.size() != _T_dot.rows()) {
+        throw runtime_error("constraint-force subspace matrix (T, Tdot) is not compatible with connect-point pairs");
+    }
     _qpos = qpos;
     _qvel = qvel;
     pin::normalize(_model, _qpos);
@@ -39,6 +42,8 @@ void RobotWrapper::computeAllData(ConstRefVec qpos, ConstRefVec qvel, const VecX
 
     computeContactJacobia();
     computeActiveContactPointBiasAcc();
+    computeConstraintForceJacobia();
+    computeConnectPointBiasAcc();
 }
 
 Vec3 RobotWrapper::CoM_pos() {
@@ -211,6 +216,65 @@ Vec6 RobotWrapper::momentumTimeVariation() {
 
 bool RobotWrapper::isFixedBase() {
     return _isFixedBase;
+}
+
+void RobotWrapper::setConnectVirtualLink(const vector<pair<string, string>> &link_pairs) {
+    _connect_point_pairs = link_pairs;
+}
+
+void RobotWrapper::setConstraintForceSubspace(ConstRefMat T, ConstRefMat T_dot) {
+    _T = T;
+    _T_dot = T_dot;
+}
+
+void RobotWrapper::computeConstraintForceJacobia() {
+    if (_connect_point_pairs.size() > 0) {
+        Mat X(6, 6);
+        X.setIdentity();
+        if (_Jps.rows() != 6 * _connect_point_pairs.size()) {
+            _Jps.resize(6 * _connect_point_pairs.size(), _model.nv);
+        }
+        Mat6x Js, Jp;
+        for (int i = 0; i < _connect_point_pairs.size(); i++) {
+            X.topLeftCorner<3, 3>() = frame_pose(_connect_point_pairs[i].first).rotation();
+            X.bottomRightCorner<3, 3>() = X.topLeftCorner<3, 3>();
+            _T.middleRows(6 * i, 6) = X * _T.middleRows(6 * i, 6);
+            analyticalJacobia(_connect_point_pairs[i].first, Jp);
+            analyticalJacobia(_connect_point_pairs[i].second, Js);
+            _Jps.middleRows(6 * i, 6) = Jp - Js;
+        }
+        _K.noalias() = _T.transpose() * _Jps;
+    }
+}
+
+void RobotWrapper::computeConnectPointBiasAcc() {
+    if (_connect_point_pairs.size() > 0) {
+        Vec acc_ps(6 * _connect_point_pairs.size());
+
+        for (int i = 0; i < _connect_point_pairs.size(); i++) {
+            auto acc_p = frame_6dClassicalAcc_world(_connect_point_pairs[i].first);
+            auto acc_s = frame_6dClassicalAcc_world(_connect_point_pairs[i].second);
+            acc_ps.segment(6 * i, 6) = acc_p.toVector() - acc_s.toVector();
+        }
+        _connectPointsBiasAcc = _T.transpose() * acc_ps + _T_dot.transpose() * _Jps * _qvel;
+        cout << _connectPointsBiasAcc.transpose() << endl;
+    }
+}
+
+ConstRefMat RobotWrapper::constraintForceJacobia() {
+    return RobotWrapperMath::ConstRefMat(_K);
+}
+
+ConstRefVec RobotWrapper::connectPointBiasAcc() {
+    return RobotWrapperMath::ConstRefVec(_connectPointsBiasAcc);
+}
+
+int RobotWrapper::ncf() {
+    return (_T.cols() > 0 ? _T.cols() : 0);
+}
+
+ConstRefMat RobotWrapper::connectPointRelativeJacobia() {
+    return RobotWrapperMath::ConstRefMat(_Jps);
 }
 
 

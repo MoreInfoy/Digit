@@ -8,6 +8,7 @@
 #include "Constraints/ContactPointsConstraints.h"
 #include "Constraints/ContactForceConstraints.h"
 #include "Constraints/ActuatorLimit.h"
+#include "Constraints/ClosedChainsConstraints.h"
 #include "path.h"
 #include "Task/CoMMotionTask.h"
 #include "Constraints/QaccBound.h"

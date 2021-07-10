@@ -14,7 +14,7 @@ ContactForceConstraints::ContactForceConstraints(RobotWrapper &robot, string nam
 }
 
 void ContactForceConstraints::update() {
-    int input_dims = robot().nv() + 3 * robot().nc();
+    int input_dims = robot().nv() + 3 * robot().nc() + robot().ncf();
     _C.resize(robot().nc() * 5, input_dims);
     _c_ub.resize(robot().nc() * 5);
     _c_lb.resize(robot().nc() * 5);

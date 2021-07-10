@@ -16,7 +16,7 @@ TSC::CoMMotionTask::CoMMotionTask(RobotWrapper &robot, string name) : Task(robot
 }
 
 void TSC::CoMMotionTask::update() {
-    int input_dims = robot().nv() + 3 * robot().nc();
+    int input_dims = robot().nv() + 3 * robot().nc()+ robot().ncf();
     Mat S;
     S.resize(robot().nv(), input_dims);
     S.setZero();

@@ -12,13 +12,18 @@ ActuatorLimit::ActuatorLimit(RobotWrapper &robot, string name) : LinearConstrain
 }
 
 void ActuatorLimit::update() {
-    if (_C.rows() != _robot.na() || _C.cols() != (_robot.nv() + 3 * _robot.nc())) {
+    if (_C.rows() != _robot.na() || _C.cols() != (_robot.nv() + 3 * _robot.nc() + _robot.ncf())) {
         _C.resize(_robot.na(), _robot.nv() + 3 * _robot.nc());
     }
     ConstMatRef Ma = _robot.M().bottomRows(_robot.na());
     ConstVecRef ba = _robot.nonLinearEffects().tail(_robot.na());
     ConstMatRef Jca = _robot.contactJacobia().rightCols(_robot.na());
-    _C << Ma, -Jca.transpose();
+    if (_robot.ncf() > 0) {
+        ConstMatRef Ka = _robot.constraintForceJacobia().rightCols(_robot.na());
+        _C << Ma, -Jca.transpose(), -Ka.transpose();
+    } else {
+        _C << Ma, -Jca.transpose();
+    }
     _c_lb = _lb - ba;
     _c_ub = _ub - ba;
 }

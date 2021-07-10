@@ -14,7 +14,7 @@ TSC::AngularMomentumTask::AngularMomentumTask(RobotWrapper &robot, string name) 
 }
 
 void AngularMomentumTask::update() {
-    int u_dims = robot().nv() + 3 * robot().nc();
+    int u_dims = robot().nv() + 3 * robot().nc() + robot().ncf();
     Mat S(robot().nv(), u_dims);
     S.setZero();
     S.leftCols(robot().nv()).setIdentity();

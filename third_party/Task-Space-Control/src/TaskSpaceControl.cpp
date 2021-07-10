@@ -22,7 +22,7 @@ void TaskSpaceControl::solve() {
 /*    FullPivLU<Mat> rank_check(_robot.contactJacobia().topRows(12));
     cout << "rank of Jc: " << rank_check.rank() << endl;*/
 
-    _u_dims = _robot.nv() + 3 * _robot.nc();
+    _u_dims = _robot.nv() + 3 * _robot.nc() + _robot.ncf();
 
     if (_u_dims == 0) {
         throw runtime_error("[TaskSpaceControl::getOptimalControl] decision variable dimensions is 0");
@@ -84,7 +84,12 @@ void TaskSpaceControl::solve() {
         Ce.setZero();
         ce.resize(nDims_cstrs_eq + 6);
         ce.setZero();
-        Ce.bottomRows(6) << _robot.M().topRows(6), -_robot.contactJacobia().leftCols(6).transpose();
+        if (_robot.ncf() > 0) {
+            Ce.bottomRows(6) << _robot.M().topRows(6), -_robot.contactJacobia().leftCols(
+                    6).transpose(), -_robot.constraintForceJacobia().leftCols(6).transpose();
+        } else {
+            Ce.bottomRows(6) << _robot.M().topRows(6), -_robot.contactJacobia().leftCols(6).transpose();
+        }
         ce.tail(6) = -_robot.nonLinearEffects().head(6);
     }
 
@@ -148,7 +153,7 @@ ConstVecRef TaskSpaceControl::getOptimalQacc() {
 }
 
 size_t TaskSpaceControl::getInputDims() {
-    _u_dims = _robot.nv() + 3 * _robot.nc();
+    _u_dims = _robot.nv() + 3 * _robot.nc() + _robot.ncf();
     return _u_dims;
 }
 
@@ -192,13 +197,19 @@ void TaskSpaceControl::removeLinearConstraint(string name) {
 
 ConstVecRef TaskSpaceControl::getOptimalTorque() {
     ConstVecRef qacc = optimal_u.head(_robot.nv());
-    optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects() -
-                  _robot.contactJacobia().transpose() * optimal_u.tail(_robot.nc() * 3);
+    if (_robot.ncf() > 0) {
+        optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects()
+                      - _robot.contactJacobia().transpose() * optimal_u.segment(_robot.nv(), _robot.nc() * 3)
+                      - _robot.constraintForceJacobia().transpose() * optimal_u.tail(_robot.ncf());
+    } else {
+        optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects()
+                      - _robot.contactJacobia().transpose() * optimal_u.segment(_robot.nv(), _robot.nc() * 3);
+    }
     return ConstVecRef(optimal_tau.tail(_robot.na()));
 }
 
 ConstVecRef TaskSpaceControl::getOptimalContactForce() {
-    return ConstVecRef(optimal_u.tail(_robot.nc() * 3));
+    return ConstVecRef(optimal_u.segment(_robot.nv(), _robot.nc() * 3));
 }
 
 
