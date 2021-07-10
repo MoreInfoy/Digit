@@ -88,7 +88,7 @@
             <camera name='track' pos='0 -3 1' zaxis='0 -1 0.5' mode='trackcom'/>
             <inertial pos="-0.00148645 0.000175054 0.252154" quat="0.999974 8.03746e-05 -0.00708699 -0.000904934"
                       mass="17.17" diaginertia="0.492749 0.439332 0.127268"/>
-            <joint type='free' limited='false'/>
+<!--            <joint type='free' limited='false'/>-->
 
             <geom class="viz" mesh="torso"/>
             <geom type='box' size='0.0975 0.087 0.245' pos='0.008 0 0.21' euler='0 0 0' class='collision'/>
@@ -137,7 +137,7 @@
                             <inertial pos="0.045641 0.042154 0.001657" quat="-0.167216 0.690239 0.176024 0.681634"
                                       mass="1.22708" diaginertia="0.00702026 0.00607564 0.00166411"/>
                             <joint name="left_knee_joint" pos="0 0 0" axis="0 0 1" limited="true"
-                                   range="-1.2392 0.8727"/>
+                                   range="-1.2392 0.8727" damping="1.000000" frictionloss="0.500000" armature="0.120576"/>
                             <geom class="viz" mesh="knee"/>
                             <body name="left_shin" pos="0.060677 0.047406 0">
                                 <inertial pos="0.174265 0.010265 0.00107" quat="0.0280548 0.710242 -0.00805869 0.703352"
@@ -487,6 +487,15 @@
         <motor name='left_knee_motor' joint='left_knee_joint' gear='16' ctrllimited='true' ctrlrange='-12.5 12.5'/>
         <motor name='left_toe_A_motor' joint='left_toe_A_joint' gear='50' ctrllimited='true' ctrlrange='-0.9 0.9'/>
         <motor name='left_toe_B_motor' joint='left_toe_B_joint' gear='50' ctrllimited='true' ctrlrange='-0.9 0.9'/>
+
+        <motor name='left_shoulder_roll_motor' joint='left_shoulder_roll_joint' gear='80' ctrllimited='true'
+               ctrlrange='-1.4 1.4'/>
+        <motor name='left_shoulder_pitch_motor' joint='left_shoulder_pitch_joint' gear='80' ctrllimited='true'
+               ctrlrange='-1.4 1.4'/>
+        <motor name='left_shoulder_yaw_motor' joint='shoulder_yaw_joint_left' gear='50' ctrllimited='true'
+               ctrlrange='-1.4 1.4'/>
+        <motor name='left_elbow_motor' joint='left_elbow_joint' gear='80' ctrllimited='true' ctrlrange='-1.4 1.4'/>
+
         <motor name='right_hip_roll_motor' joint='right_hip_roll_joint' gear='80' ctrllimited='true'
                ctrlrange='-1.4 1.4'/>
         <motor name='right_hip_yaw_motor' joint='right_hip_yaw_joint' gear='50' ctrllimited='true'
@@ -496,13 +505,7 @@
         <motor name='right_knee_motor' joint='right_knee_joint' gear='16' ctrllimited='true' ctrlrange='-12.5 12.5'/>
         <motor name='right_toe_A_motor' joint='right_toe_A_joint' gear='50' ctrllimited='true' ctrlrange='-0.9 0.9'/>
         <motor name='right_toe_B_motor' joint='right_toe_B_joint' gear='50' ctrllimited='true' ctrlrange='-0.9 0.9'/>
-        <motor name='left_shoulder_roll_motor' joint='left_shoulder_roll_joint' gear='80' ctrllimited='true'
-               ctrlrange='-1.4 1.4'/>
-        <motor name='left_shoulder_pitch_motor' joint='left_shoulder_pitch_joint' gear='80' ctrllimited='true'
-               ctrlrange='-1.4 1.4'/>
-        <motor name='left_shoulder_yaw_motor' joint='shoulder_yaw_joint_left' gear='50' ctrllimited='true'
-               ctrlrange='-1.4 1.4'/>
-        <motor name='left_elbow_motor' joint='left_elbow_joint' gear='80' ctrllimited='true' ctrlrange='-1.4 1.4'/>
+
         <motor name='right_shoulder_roll_motor' joint='right_shoulder_roll_joint' gear='80' ctrllimited='true'
                ctrlrange='-1.4 1.4'/>
         <motor name='right_shoulder_pitch_motor' joint='right_shoulder_pitch_joint' gear='80' ctrllimited='true'
@@ -513,8 +516,8 @@
     </actuator>
 
     <sensor>
-        <framepos name='base-pos' objtype='body' objname='torso'/>
-        <framequat name='base-quat' objtype='body' objname='torso'/>
+        <framepos name='base-pos' objtype='xbody' objname='torso'/>
+        <framequat name='base-quat' objtype='xbody' objname='torso'/>
 
         <jointpos name='left-hip-roll' joint='left_hip_roll_joint'/>
         <jointpos name='left-hip-yaw' joint='left_hip_yaw_joint'/>
@@ -548,8 +551,8 @@
         <jointpos name='right-shoulder-yaw' joint='shoulder_yaw_joint_right'/>
         <jointpos name='right-elbow' joint='right_elbow_joint'/>
 
-        <frameangvel name='base-angvel' objtype='body' objname='torso'/>
-        <framelinvel name='base-linvel' objtype='body' objname='torso'/>
+        <framelinvel name='base-linvel' objtype='xbody' objname='torso'/>
+        <frameangvel name='base-angvel' objtype='xbody' objname='torso'/>
 
         <jointvel name='left-hip-roll-vel' joint='left_hip_roll_joint'/>
         <jointvel name='left-hip-yaw-vel' joint='left_hip_yaw_joint'/>

@@ -61,7 +61,8 @@
         <axis xyz="0 0 1"/>
         <parent link="torso"/>
         <child link="left_hip_roll"/>
-        <limit effort="1.4" lower="-1.0472" upper="1.0472" velocity="12.15"/>
+        <dynamics damping="1.0" friction="1.0"/>
+        <limit effort="112" lower="-1.0472" upper="1.0472" velocity="12.15"/>
     </joint>
     <link name="left_hip_roll">
         <inertial>
@@ -95,7 +96,8 @@
         <axis xyz="0 0 1"/>
         <parent link="left_hip_roll"/>
         <child link="left_hip_yaw"/>
-        <limit effort="1.4" lower="-0.698132" upper="0.698132" velocity="12.15"/>
+        <dynamics damping="1.0" friction="1.0"/>
+        <limit effort="70" lower="-0.698132" upper="0.698132" velocity="12.15"/>
     </joint>
 
     <link name="left_hip_yaw">
@@ -127,7 +129,8 @@
         <axis xyz="0 0 -1"/>
         <parent link="left_hip_yaw"/>
         <child link="left_hip_pitch"/>
-        <limit effort="12.5" lower="-1.0472" upper="1.57079632679" velocity="8.5"/>
+        <dynamics damping="1.0" friction="0.5"/>
+        <limit effort="200" lower="-1.0472" upper="1.57079632679" velocity="8.5"/>
     </joint>
 
     <link name="left_hip_pitch">
@@ -209,7 +212,8 @@
         <axis xyz="0 0 1"/>
         <parent link="left_hip_pitch"/>
         <child link="left_knee"/>
-        <limit effort="12.5" lower="-1.2392" upper="0.8727" velocity="8.5085"/>
+        <dynamics damping="1.0" friction="0.5"/>
+        <limit effort="200" lower="-1.2392" upper="0.8727" velocity="8.5085"/>
     </joint>
 
     <link name="left_knee">
@@ -273,7 +277,8 @@
         <axis xyz="0 0 1"/>
         <parent link="left_shin"/>
         <child link="left_tarsus"/>
-        <limit effort="0" lower="-0.8779" upper="1.2497" velocity="20"/>
+        <dynamics damping="0.0" friction="0.0"/>
+        <limit effort="0.001" lower="-0.8779" upper="1.2497" velocity="20"/>
     </joint>
 
     <link name="left_tarsus">
@@ -337,7 +342,8 @@
         <axis xyz="0 0 1"/>
         <parent link="left_tarsus"/>
         <child link="left_toe_A"/>
-        <limit effort="0.9" lower="-0.912807183222" upper="1.2644910215" velocity="11.5"/>
+        <dynamics damping="1.0" friction="1.0"/>
+        <limit effort="45" lower="-0.912807183222" upper="1.2644910215" velocity="11.5"/>
     </joint>
 
     <link name="left_toe_A">
@@ -419,7 +425,8 @@
         <axis xyz="0 0 1"/>
         <parent link="left_tarsus"/>
         <child link="left_toe_B"/>
-        <limit effort="0.9" lower="-0.912807183222" upper="1.2644910215" velocity="11.5"/>
+        <dynamics damping="1.0" friction="1.0"/>
+        <limit effort="45" lower="-0.912807183222" upper="1.2644910215" velocity="11.5"/>
     </joint>
 
     <link name="left_toe_B">
@@ -501,7 +508,8 @@
         <axis xyz="0 0 1"/>
         <parent link="left_tarsus"/>
         <child link="left_toe_pitch"/>
-        <limit effort="0.9" lower="-0.785398163397" upper="0.785398163397" velocity="11.5"/>
+        <dynamics damping="0.0" friction="0.0"/>
+        <limit effort="0.001" lower="-0.785398163397" upper="0.785398163397" velocity="11.5"/>
     </joint>
 
     <link name="left_toe_pitch">
@@ -533,7 +541,8 @@
         <axis xyz="0 0 1"/>
         <parent link="left_toe_pitch"/>
         <child link="left_toe_roll"/>
-        <limit effort="0.9" lower="-0.6109" upper="0.6109" velocity="11.5"/>
+        <dynamics damping="0.0" friction="0.0"/>
+        <limit effort="0.001" lower="-0.6109" upper="0.6109" velocity="11.5"/>
     </joint>
 
     <link name="left_toe_roll">
@@ -597,7 +606,8 @@
         <axis xyz="0 0 1"/>
         <parent link="torso"/>
         <child link="left_shoulder_roll"/>
-        <limit effort="1.4" lower="-1.309" upper="1.309" velocity="12.5"/>
+        <dynamics damping="2.0" friction="2.0"/>
+        <limit effort="112" lower="-1.309" upper="1.309" velocity="12.5"/>
     </joint>
 
     <link name="left_shoulder_roll">
@@ -629,7 +639,8 @@
         <axis xyz="0 0 -1"/>
         <parent link="left_shoulder_roll"/>
         <child link="left_shoulder_pitch"/>
-        <limit effort="1.4" lower="-2.5307" upper="2.5307" velocity="12.5"/>
+        <dynamics damping="2.0" friction="2.0"/>
+        <limit effort="112" lower="-2.5307" upper="2.5307" velocity="12.5"/>
     </joint>
 
     <link name="left_shoulder_pitch">
@@ -660,7 +671,8 @@
         <axis xyz="0 0 1"/>
         <parent link="left_shoulder_pitch"/>
         <child link="left_shoulder_yaw"/>
-        <limit effort="1.4" lower="-1.7453" upper="1.7453" velocity="10"/>
+        <dynamics damping="1.0" friction="2.0"/>
+        <limit effort="70" lower="-1.7453" upper="1.7453" velocity="10"/>
     </joint>
 
     <link name="left_shoulder_yaw">
@@ -692,7 +704,8 @@
         <axis xyz="0 0 1"/>
         <parent link="left_shoulder_yaw"/>
         <child link="left_elbow"/>
-        <limit effort="1.4" lower="-1.3526" upper="1.3526" velocity="12.5"/>
+        <dynamics damping="1.0" friction="2.0"/>
+        <limit effort="112" lower="-1.3526" upper="1.3526" velocity="12.5"/>
     </joint>
 
     <link name="left_elbow">
@@ -756,7 +769,8 @@
         <axis xyz="0 0 1"/>
         <parent link="torso"/>
         <child link="right_hip_roll"/>
-        <limit effort="1.4" lower="-1.0472" upper="1.0472" velocity="12.15"/>
+        <dynamics damping="1.0" friction="1.0"/>
+        <limit effort="112" lower="-1.0472" upper="1.0472" velocity="12.15"/>
     </joint>
     <link name="right_hip_roll">
         <inertial>
@@ -790,7 +804,8 @@
         <axis xyz="0 0 1"/>
         <parent link="right_hip_roll"/>
         <child link="right_hip_yaw"/>
-        <limit effort="1.4" lower="-0.698132" upper="0.698132" velocity="12.15"/>
+        <dynamics damping="1.0" friction="1.0"/>
+        <limit effort="70" lower="-0.698132" upper="0.698132" velocity="12.15"/>
     </joint>
 
     <link name="right_hip_yaw">
@@ -822,7 +837,8 @@
         <axis xyz="0 0 -1"/>
         <parent link="right_hip_yaw"/>
         <child link="right_hip_pitch"/>
-        <limit effort="12.5" lower="-1.0472" upper="1.57079632679" velocity="8.5"/>
+        <dynamics damping="1.0" friction="0.5"/>
+        <limit effort="200" lower="-1.0472" upper="1.57079632679" velocity="8.5"/>
     </joint>
 
     <link name="right_hip_pitch">
@@ -904,7 +920,8 @@
         <axis xyz="0 0 1"/>
         <parent link="right_hip_pitch"/>
         <child link="right_knee"/>
-        <limit effort="12.5" lower="-0.8727" upper="1.2392" velocity="8.5085"/>
+        <dynamics damping="1.0" friction="0.5"/>
+        <limit effort="200" lower="-0.8727" upper="1.2392" velocity="8.5085"/>
     </joint>
 
     <link name="right_knee">
@@ -968,7 +985,8 @@
         <axis xyz="0 0 1"/>
         <parent link="right_shin"/>
         <child link="right_tarsus"/>
-        <limit effort="0" lower="-1.2497" upper="0.8779" velocity="20"/>
+        <dynamics damping="0.0" friction="0.0"/>
+        <limit effort="0.001" lower="-1.2497" upper="0.8779" velocity="20"/>
     </joint>
 
     <link name="right_tarsus">
@@ -1032,7 +1050,8 @@
         <axis xyz="0 0 1"/>
         <parent link="right_tarsus"/>
         <child link="right_toe_A"/>
-        <limit effort="0.9" lower="-1.2644910215" upper="0.912807183222" velocity="11.5"/>
+        <dynamics damping="1.0" friction="1.0"/>
+        <limit effort="45" lower="-1.2644910215" upper="0.912807183222" velocity="11.5"/>
     </joint>
 
     <link name="right_toe_A">
@@ -1115,7 +1134,8 @@
         <axis xyz="0 0 1"/>
         <parent link="right_tarsus"/>
         <child link="right_toe_B"/>
-        <limit effort="0.9" lower="-0.912807183222" upper="1.2644910215" velocity="11.5"/>
+        <dynamics damping="1.0" friction="1.0"/>
+        <limit effort="45" lower="-0.912807183222" upper="1.2644910215" velocity="11.5"/>
     </joint>
 
     <link name="right_toe_B">
@@ -1197,7 +1217,8 @@
         <axis xyz="0 0 1"/>
         <parent link="right_tarsus"/>
         <child link="right_toe_pitch"/>
-        <limit effort="0.9" lower="-0.785398163397" upper="0.785398163397" velocity="11.5"/>
+        <dynamics damping="0.0" friction="0.0"/>
+        <limit effort="0.001" lower="-0.785398163397" upper="0.785398163397" velocity="11.5"/>
     </joint>
 
     <link name="right_toe_pitch">
@@ -1229,7 +1250,8 @@
         <axis xyz="0 0 1"/>
         <parent link="right_toe_pitch"/>
         <child link="right_toe_roll"/>
-        <limit effort="0.9" lower="-0.6109" upper="0.6109" velocity="11.5"/>
+        <dynamics damping="0.0" friction="0.0"/>
+        <limit effort="0.0" lower="-0.6109" upper="0.6109" velocity="11.5"/>
     </joint>
 
     <link name="right_toe_roll">
@@ -1293,7 +1315,8 @@
         <axis xyz="0 0 1"/>
         <parent link="torso"/>
         <child link="right_shoulder_roll"/>
-        <limit effort="1.4" lower="-1.309" upper="1.309" velocity="12.5"/>
+        <dynamics damping="2.0" friction="2.0"/>
+        <limit effort="112" lower="-1.309" upper="1.309" velocity="12.5"/>
     </joint>
 
     <link name="right_shoulder_roll">
@@ -1325,7 +1348,8 @@
         <axis xyz="0 0 -1"/>
         <parent link="right_shoulder_roll"/>
         <child link="right_shoulder_pitch"/>
-        <limit effort="1.4" lower="-2.5307" upper="2.5307" velocity="12.5"/>
+        <dynamics damping="2.0" friction="2.0"/>
+        <limit effort="112" lower="-2.5307" upper="2.5307" velocity="12.5"/>
     </joint>
 
     <link name="right_shoulder_pitch">
@@ -1356,7 +1380,8 @@
         <axis xyz="0 0 1"/>
         <parent link="right_shoulder_pitch"/>
         <child link="right_shoulder_yaw"/>
-        <limit effort="1.4" lower="-1.7453" upper="1.7453" velocity="10"/>
+        <dynamics damping="1.0" friction="2.0"/>
+        <limit effort="70" lower="-1.7453" upper="1.7453" velocity="10"/>
     </joint>
 
     <link name="right_shoulder_yaw">
@@ -1388,7 +1413,8 @@
         <axis xyz="0 0 1"/>
         <parent link="right_shoulder_yaw"/>
         <child link="right_elbow"/>
-        <limit effort="1.4" lower="-1.3526" upper="1.3526" velocity="12.5"/>
+        <dynamics damping="1.0" friction="2.0"/>
+        <limit effort="112" lower="-1.3526" upper="1.3526" velocity="12.5"/>
     </joint>
 
     <link name="right_elbow">

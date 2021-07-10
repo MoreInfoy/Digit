@@ -13,7 +13,7 @@ ActuatorLimit::ActuatorLimit(RobotWrapper &robot, string name) : LinearConstrain
 
 void ActuatorLimit::update() {
     if (_C.rows() != _robot.na() || _C.cols() != (_robot.nv() + 3 * _robot.nc() + _robot.ncf())) {
-        _C.resize(_robot.na(), _robot.nv() + 3 * _robot.nc());
+        _C.resize(_robot.na(), _robot.nv() + 3 * _robot.nc() + _robot.ncf());
     }
     ConstMatRef Ma = _robot.M().bottomRows(_robot.na());
     ConstVecRef ba = _robot.nonLinearEffects().tail(_robot.na());

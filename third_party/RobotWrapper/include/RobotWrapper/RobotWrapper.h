@@ -25,6 +25,8 @@ public:
 
     void computeAllData(ConstRefVec qpos, ConstRefVec qvel, const VecXi &mask = VecXi::Zero(0));
 
+    void computeClosedChainTerm(); // call this function after call computeAllData
+
     Vec3 CoM_pos();
 
     Vec3 CoM_vel();

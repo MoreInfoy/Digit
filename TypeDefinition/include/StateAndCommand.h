@@ -14,8 +14,8 @@
 using namespace Eigen;
 
 struct JointsState {
-    Matrix<RealNum, ROBOT_NU, 1> qpos;
-    Matrix<RealNum, ROBOT_NU, 1> qvel;
+    Matrix<RealNum, ROBOT_NJ, 1> qpos;
+    Matrix<RealNum, ROBOT_NJ, 1> qvel;
 };
 
 struct FloatingBaseState {

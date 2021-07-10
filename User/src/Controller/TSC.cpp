@@ -13,7 +13,6 @@ bool fixedBase = false;
 using namespace TSC;
 
 TSC_IMPL::TSC_IMPL(string urdf_file) : _robot(urdf_file, fixedBase), _iter(0) {
-
     mt_waist = new SE3MotionTask(_robot, "torso");
     mt_waist->Kp() = 500 * Mat6::Identity();
     mt_waist->Kd() = 2 * mt_waist->Kp().cwiseSqrt();
@@ -48,10 +47,10 @@ TSC_IMPL::TSC_IMPL(string urdf_file) : _robot(urdf_file, fixedBase), _iter(0) {
     jointsNominalTask->Kd().setIdentity();
     jointsNominalTask->Kd() = 5 * jointsNominalTask->Kd();
     jointsNominalTask->norminalPosition()
-            << 0.325, 0, 0, 0, 0, -0.102, -0.07,
-            -0.325, 0, 0, 0, 0, 0.102, 0.07,
-            0, 0.987, 0, 0,
-            0, -0.987, 0, 0;
+            << 0.325, 0, 0, 0, 0, 0, 0, -0.102, -0.0367,
+            -0.314, 0.987, 0, 0,
+            -0.325, 0, 0, 0, 0, 0, 0, 0.102, 0.0367,
+            0.314, -0.987, 0, 0;
 
     angularMomentumTask = new AngularMomentumTask(_robot, "AngularMomentumTask");
     angularMomentumTask->weightMatrix().diagonal().fill(10);
@@ -61,10 +60,10 @@ TSC_IMPL::TSC_IMPL(string urdf_file) : _robot(urdf_file, fixedBase), _iter(0) {
 
     if (_robot.isFixedBase()) {
         Vec qpos(_robot.nq()), qvel(_robot.nv());
-        qpos << 0.325, 0, 0, 0, 0, -0.102, -0.07,
-                -0.325, 0, 0, 0, 0, 0.102, 0.07,
-                0, 0.987, 0, 0,
-                0, -0.987, 0, 0;
+        qpos << 0.325, 0, 0, 0, 0, 0, 0, -0.102, -0.0367,
+                -0.314, 0.987, 0, 0,
+                -0.325, 0, 0, 0, 0, 0, 0, 0.102, 0.0367,
+                0.314, -0.987, 0, 0;
         qvel.setZero();
         _robot.computeAllData(qpos, qvel);
         rf = new SE3MotionTask(_robot, "right_toe_roll");
@@ -106,6 +105,27 @@ TSC_IMPL::TSC_IMPL(string urdf_file) : _robot(urdf_file, fixedBase), _iter(0) {
 //    tsc->addLinearConstraint(actuatorLimit);
     tsc->addLinearConstraint(qaccBound);
     //    tsc.removeLinearConstraint(ccstr.name());
+
+    contact_virtual_link.emplace_back("contact1");
+    contact_virtual_link.emplace_back("contact2");
+    contact_virtual_link.emplace_back("contact3");
+    contact_virtual_link.emplace_back("contact4");
+    contact_virtual_link.emplace_back("contact5");
+    contact_virtual_link.emplace_back("contact6");
+    contact_virtual_link.emplace_back("contact7");
+    contact_virtual_link.emplace_back("contact8");
+    _robot.setContactVirtualLink(contact_virtual_link);
+
+    link_pairs.push_back(pair<string, string>("cp_left_achillies_rod", "cp_left_heel_spring"));
+    link_pairs.push_back(pair<string, string>("cp_right_achillies_rod", "cp_right_heel_spring"));
+    link_pairs.push_back(pair<string, string>("cp_left_toe_A_rod", "cp_left_toe_roll_A"));
+    link_pairs.push_back(pair<string, string>("cp_left_toe_B_rod", "cp_left_toe_roll_B"));
+    link_pairs.push_back(pair<string, string>("cp_right_toe_A_rod", "cp_right_toe_roll_A"));
+    link_pairs.push_back(pair<string, string>("cp_right_toe_B_rod", "cp_right_toe_roll_B"));
+//    _robot.setConnectVirtualLink(link_pairs);
+
+    cout << "tau limit: " << _robot.actuatorsEffortLimit().transpose() << endl;
+//    exit(0);
 }
 
 TSC_IMPL::~TSC_IMPL() {
@@ -133,6 +153,22 @@ void TSC_IMPL::setContactVirtualLink(vector<string> &contact_virtual_link) {
 
 void TSC_IMPL::solve(ConstVecRef qpos, ConstVecRef qvel, const VecInt &mask) {
     _robot.computeAllData(qpos, qvel, mask);
+
+//    Mat T, T_dot;
+//    Vec par;
+//    T.resize(link_pairs.size() * 6, link_pairs.size());
+//    T.setZero();
+//    T_dot = T;
+//    for (int i = 0; i < link_pairs.size(); i++) {
+//        auto p = _robot.frame_pose(link_pairs[i].first).translation();
+//        auto s = _robot.frame_pose(link_pairs[i].second).translation();
+//        T.block<3, 1>(i * 6, i) = p - s;
+//        par = _robot.connectPointRelativeJacobia().middleRows(i*6, 6) * qvel;
+//        T_dot.block<3, 1>(i * 6, i) = par.head(3);
+//    }
+//    _robot.setConstraintForceSubspace(T, T_dot);
+//    _robot.computeClosedChainTerm();
+
     if (_robot.isFixedBase()) {
         rf->SE3Ref().translation()(2) = -0.839273 + 0.05 * sin(0.004 * _iter);
         lf->SE3Ref().translation()(2) = -0.839273 - 0.05 * sin(0.004 * _iter);
@@ -140,7 +176,8 @@ void TSC_IMPL::solve(ConstVecRef qpos, ConstVecRef qvel, const VecInt &mask) {
         mt_waist->SE3Ref().translation()(2) = 0.892442 + 0.05 * sin(0.004 * _iter);
     }
     tsc->solve();
-    cout << robot().frame_pose("right_toe_roll") << endl;
+    cout << robot().frame_pose("left_toe_roll") << endl;
+
 //    cout << robot().frame_6dVel_local("torso") << endl;
 //        tsc->saveAllData("data.txt");
 }
@@ -166,6 +203,7 @@ void TSC_IMPL::run(const Reference &ref, const RobotState &state) {
                 state.floatingBaseState.omega, state.jointsState.qvel;
     }
 
+
 //    for (int i = 0; i < _dataSets.robotModelData.model.nv + 1; i++) {
 //        printf("%f, ", qpos(i));
 //    }
@@ -173,11 +211,14 @@ void TSC_IMPL::run(const Reference &ref, const RobotState &state) {
 //    for (int i = 0; i < qdot.size(); i++) {
 //        printf("%f, ", qdot(i));
 //    }
+
+
     Timer timer;
     solve(qpos, qdot, _mask);
     cout << "time cost: " << timer.getMs() << endl;
 
-    _jointsCmd.tau_ff = getOptimalTorque();
+    auto tau = getOptimalTorque();
+    _jointsCmd.tau_ff << tau.head(4), tau.segment(5, 2), tau.segment(9, 8), tau.segment(18, 2), tau.tail(4);
 //    cout << "optimal qacc: " << getOptimalQacc().transpose() << endl;
 //    cout << "optimal force: " << getOptimalContactForce().transpose() << endl;
 //    cout << "optimal torque: " << _jointsCmd.tau_ff.transpose() << endl;

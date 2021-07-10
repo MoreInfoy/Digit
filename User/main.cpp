@@ -31,11 +31,11 @@ int main() {
     Manager manager(shared_memory().robotToUser);
     manager.init();
 
-    Poplar::Vec qdes(ROBOT_NU);
-    qdes << 0.325, 0, 0, 0, 0, -0.102, -0.07,
-            -0.325, 0, 0, 0, 0, 0.102, 0.07,
-            0, 0.987, 0, 0,
-            0, -0.987, 0, 0;
+    Poplar::Vec qdes(ROBOT_NJ);
+    qdes << 0.325, 0, 0, 0, 0, 0, 0, -0.102, -0.0367,
+            -0.314, 0.987, 0, 0,
+            -0.325, 0, 0, 0, 0, 0, 0, 0.102, 0.0367,
+            0.314, -0.987, 0, 0;
 
     while (!exitrequest) {
         if (shared_memory().waitForRobotWithTimeout(1, 0)) {

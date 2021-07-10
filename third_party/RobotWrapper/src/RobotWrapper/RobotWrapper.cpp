@@ -22,9 +22,6 @@ ConstRefVec RobotWrapper::actuatorsEffortLimit() {
 }
 
 void RobotWrapper::computeAllData(ConstRefVec qpos, ConstRefVec qvel, const VecXi &mask) {
-    if (6 * _connect_point_pairs.size() != _T.rows() || 6 * _connect_point_pairs.size() != _T_dot.rows()) {
-        throw runtime_error("constraint-force subspace matrix (T, Tdot) is not compatible with connect-point pairs");
-    }
     _qpos = qpos;
     _qvel = qvel;
     pin::normalize(_model, _qpos);
@@ -42,8 +39,23 @@ void RobotWrapper::computeAllData(ConstRefVec qpos, ConstRefVec qvel, const VecX
 
     computeContactJacobia();
     computeActiveContactPointBiasAcc();
-    computeConstraintForceJacobia();
-    computeConnectPointBiasAcc();
+
+    if (_connect_point_pairs.size() > 0) {
+        Mat X(6, 6);
+        X.setIdentity();
+        if (_Jps.rows() != 6 * _connect_point_pairs.size()) {
+            _Jps.resize(6 * _connect_point_pairs.size(), _model.nv);
+        }
+        Mat6x Js, Jp;
+        for (int i = 0; i < _connect_point_pairs.size(); i++) {
+            X.topLeftCorner<3, 3>() = frame_pose(_connect_point_pairs[i].first).rotation();
+            X.bottomRightCorner<3, 3>() = X.topLeftCorner<3, 3>();
+            analyticalJacobia(_connect_point_pairs[i].first, Jp);
+            analyticalJacobia(_connect_point_pairs[i].second, Js);
+            _Jps.middleRows(6 * i, 6) = Jp - Js;
+        }
+    }
+
 }
 
 Vec3 RobotWrapper::CoM_pos() {
@@ -231,17 +243,10 @@ void RobotWrapper::computeConstraintForceJacobia() {
     if (_connect_point_pairs.size() > 0) {
         Mat X(6, 6);
         X.setIdentity();
-        if (_Jps.rows() != 6 * _connect_point_pairs.size()) {
-            _Jps.resize(6 * _connect_point_pairs.size(), _model.nv);
-        }
-        Mat6x Js, Jp;
         for (int i = 0; i < _connect_point_pairs.size(); i++) {
             X.topLeftCorner<3, 3>() = frame_pose(_connect_point_pairs[i].first).rotation();
             X.bottomRightCorner<3, 3>() = X.topLeftCorner<3, 3>();
             _T.middleRows(6 * i, 6) = X * _T.middleRows(6 * i, 6);
-            analyticalJacobia(_connect_point_pairs[i].first, Jp);
-            analyticalJacobia(_connect_point_pairs[i].second, Js);
-            _Jps.middleRows(6 * i, 6) = Jp - Js;
         }
         _K.noalias() = _T.transpose() * _Jps;
     }
@@ -275,6 +280,14 @@ int RobotWrapper::ncf() {
 
 ConstRefMat RobotWrapper::connectPointRelativeJacobia() {
     return RobotWrapperMath::ConstRefMat(_Jps);
+}
+
+void RobotWrapper::computeClosedChainTerm() {
+    if (6 * _connect_point_pairs.size() != _T.rows() || 6 * _connect_point_pairs.size() != _T_dot.rows()) {
+        throw runtime_error("constraint-force subspace matrix (T, Tdot) is not compatible with connect-point pairs");
+    }
+    computeConstraintForceJacobia();
+    computeConnectPointBiasAcc();
 }
 
 

@@ -7,16 +7,7 @@
 
 Manager::Manager(const RobotState &state) : _state(state) {
     tsc = new TSC_IMPL(URDF);
-    vector<string> contact_virtual_link;
-    contact_virtual_link.emplace_back("contact1");
-    contact_virtual_link.emplace_back("contact2");
-    contact_virtual_link.emplace_back("contact3");
-    contact_virtual_link.emplace_back("contact4");
-    contact_virtual_link.emplace_back("contact5");
-    contact_virtual_link.emplace_back("contact6");
-    contact_virtual_link.emplace_back("contact7");
-    contact_virtual_link.emplace_back("contact8");
-    tsc->setContactVirtualLink(contact_virtual_link);
+
 }
 
 Manager::~Manager() {
@@ -29,8 +20,15 @@ void Manager::init() {
 
 void Manager::run() {
     Reference ref;
+/*#ifdef FIXED_BASE
+    VecInt mask(8);
+    mask.setZero();
+#else
     VecInt mask(8);
     mask.setOnes();
+#endif*/
+    VecInt mask(8);
+    mask.setZero();
     tsc->setContactMask(mask);
     tsc->run(ref, _state);
 }

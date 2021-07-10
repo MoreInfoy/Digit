@@ -2,20 +2,19 @@
 #define _${PROJECT_NAME}_CONFIG_H
 
 #define THIS_COM "@THIS_COM@"
-// #define FIXED_BASE
+#define FIXED_BASE
 
 #ifdef FIXED_BASE
-#define ROBOT_NV 22
+#define ROBOT_NV 26
 #else
-#define ROBOT_NV 28
+#define ROBOT_NV 32
 #endif
 
-#define ROBOT_NU 22
+#define ROBOT_NJ 26 // Joints number, include passive joints
+#define ROBOT_NU 20 // Actuator number
 #define RealNum double
 #define MJKEY "@THIS_COM@/Simulation/lib/mjkey.txt"
 
-#define URDF "@THIS_COM@/Simulation/model/digit_model.urdf"
-
-
+#define URDF "@THIS_COM@/Simulation/model/digit_ysp.urdf"
 
 #endif

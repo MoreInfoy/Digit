@@ -23,7 +23,9 @@
 
 #include <iostream>
 
-#define SET_INIT_QPOS
+//#define SET_INIT_QPOS
+
+#define USE_SENSORS_DATA
 
 #ifdef FIXED_BASE
 double q_init[] = {0.325, 0, 0, 0, 0, -0.102, -0.07,
@@ -1681,11 +1683,23 @@ void render(GLFWwindow *window) {
 
 // get robot state
 void getRobotState(void) {
-    if (m->nv != ROBOT_NV) {
-        printf("nv = %d\n", m->nv);
-        throw std::runtime_error("[Simulate::getRobotState] m->nv != ROBOT_NV");
+    if (m->nu != ROBOT_NU) {
+        printf("nu = %d\n", m->nu);
+        throw std::runtime_error("[Simulate::getRobotState] m->nu != ROBOT_NU");
     }
-
+#ifdef USE_SENSORS_DATA
+    shared_memory().robotToUser.floatingBaseState.pos << d->sensordata[0], d->sensordata[1], d->sensordata[2];
+    shared_memory().robotToUser.floatingBaseState.quat.x() = d->sensordata[4];
+    shared_memory().robotToUser.floatingBaseState.quat.y() = d->sensordata[5];
+    shared_memory().robotToUser.floatingBaseState.quat.z() = d->sensordata[6];
+    shared_memory().robotToUser.floatingBaseState.quat.w() = d->sensordata[3];
+    std::memcpy(shared_memory().robotToUser.jointsState.qpos.data(), d->sensordata + 7, ROBOT_NJ * sizeof(mjtNum));
+    shared_memory().robotToUser.floatingBaseState.vel << d->qvel[7 + ROBOT_NJ], d->qvel[8 + ROBOT_NJ], d->qvel[9 + ROBOT_NJ];
+    shared_memory().robotToUser.floatingBaseState.omega << d->qvel[10 + ROBOT_NJ], d->qvel[11 + ROBOT_NJ], d->qvel[12 +
+                                                                                                                   ROBOT_NJ];
+    std::memcpy(shared_memory().robotToUser.jointsState.qvel.data(), d->sensordata + 13 + ROBOT_NJ,
+                m->nu * sizeof(mjtNum));
+#else
     if (m->nq == m->nv) {
         shared_memory().robotToUser.floatingBaseState.pos.setZero();
         shared_memory().robotToUser.floatingBaseState.quat.setIdentity();
@@ -1705,6 +1719,7 @@ void getRobotState(void) {
         std::memcpy(shared_memory().robotToUser.jointsState.qpos.data(), d->qpos + 7, m->nu * sizeof(mjtNum));
         std::memcpy(shared_memory().robotToUser.jointsState.qvel.data(), d->qvel + 6, m->nu * sizeof(mjtNum));
     }
+#endif
 
     /*printEigenDVec(shared_memory().robotToUser.q, "qpos");
     printEigenDVec(shared_memory().robotToUser.qdot, "qdot");
@@ -1774,12 +1789,16 @@ void simulate(void) {
                     getRobotState();
                     shared_memory().robotDone();
 
+                    ArrayXd tau;
                     if (shared_memory().waitForUserWithTimeout(0, 1e8)) {
                         if (m->nu != ROBOT_NU) {
                             throw std::runtime_error("m->nu != ROBOT_NU");
                         } else {
                             std::memcpy(tau_user.data(), shared_memory().userToRobot.tau.data(),
                                         m->nu * sizeof(mjtNum));
+
+                            tau = 1 / gear * tau_user;
+                            std::memcpy(d->ctrl, tau.data(), m->nu * sizeof(mjtNum));
                         }
                     } else {
                         std::cout << "[" << glfwGetTime() << "]"
@@ -1787,12 +1806,10 @@ void simulate(void) {
                         shared_memory().waitForRobot();
                     }
 
-                    ArrayXd tau = 1 / gear * tau_user;
-                    std::memcpy(d->ctrl, tau.data(), m->nu * sizeof(mjtNum));
 //                    std::cout << "[" << glfwGetTime() << "]"
 //                              << "user_cmd: " << shared_memory().userToRobot.tau.transpose() << std::endl;
-//                    std::cout << "[" << glfwGetTime() << "]"
-//                              << "tau: " << tau.transpose() << std::endl;
+                    std::cout << "[" << glfwGetTime() << "]"
+                              << "tau: " << tau.transpose() << std::endl;
 //                    std::cout << "[" << glfwGetTime() << "]"
 //                              << "gear: " << gear.transpose() << std::endl;
 
@@ -1816,13 +1833,16 @@ void simulate(void) {
                         mj_step1(m, d);
                         getRobotState();
                         shared_memory().robotDone();
-
+                        ArrayXd tau;
                         if (shared_memory().waitForUserWithTimeout(0, 1e8)) {
                             if (m->nu != ROBOT_NU) {
                                 throw std::runtime_error("m->nu != ROBOT_NU");
                             } else {
                                 std::memcpy(tau_user.data(), shared_memory().userToRobot.tau.data(),
                                             m->nu * sizeof(mjtNum));
+
+                                tau = 1 / gear * tau_user;
+                                std::memcpy(d->ctrl, tau.data(), m->nu * sizeof(mjtNum));
                             }
                         } else {
                             std::cout << "[" << glfwGetTime() << "]"
@@ -1830,12 +1850,11 @@ void simulate(void) {
                             shared_memory().waitForRobot();
                         }
 
-                        ArrayXd tau = 1 / gear * tau_user;
-                        std::memcpy(d->ctrl, tau.data(), m->nu * sizeof(mjtNum));
+
 //                        std::cout << "[" << glfwGetTime() << "]"
 //                                  << "user_cmd: " << shared_memory().userToRobot.tau.transpose() << std::endl;
-//                        std::cout << "[" << glfwGetTime() << "]"
-//                                  << "tau: " << tau.transpose() << std::endl;
+                        std::cout << "[" << glfwGetTime() << "]"
+                                  << "tau: " << tau.transpose() << std::endl;
 //                        std::cout << "[" << glfwGetTime() << "]"
 //                                  << "gear: " << gear.transpose() << std::endl;
 

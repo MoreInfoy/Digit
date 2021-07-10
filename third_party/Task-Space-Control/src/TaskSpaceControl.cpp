@@ -110,9 +110,14 @@ void TaskSpaceControl::solve() {
 
 
 #ifdef USE_QPOASES
-    Eigen::Matrix<RealNum, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> Cin(nDims_cstrs + nDims_cstrs_eq + 6, _u_dims);
-    Vec clb(nDims_cstrs + nDims_cstrs_eq + 6);
-    Vec cub(nDims_cstrs + nDims_cstrs_eq + 6);
+    int add_DoF = 6;
+    if (_robot.isFixedBase()) {
+        add_DoF = 0;
+    }
+    Eigen::Matrix<RealNum, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> Cin(nDims_cstrs + nDims_cstrs_eq + add_DoF,
+                                                                                _u_dims);
+    Vec clb(nDims_cstrs + nDims_cstrs_eq + add_DoF);
+    Vec cub(nDims_cstrs + nDims_cstrs_eq + add_DoF);
     Cin << C, Ce;
     clb << c_lb, ce;
     cub << c_ub, ce;
@@ -123,7 +128,7 @@ void TaskSpaceControl::solve() {
     opt.enableEqualities = qpOASES::BT_TRUE;
     opt.enableRegularisation = qpOASES::BT_TRUE;
     opt.numRegularisationSteps = 1000;
-    opt.printLevel = qpOASES::PL_NONE;
+    opt.printLevel = qpOASES::PL_DEBUG_ITER;
     solver->setOptions(opt);
 
     qpOASES::int_t nWSR = 5000;

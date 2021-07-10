@@ -73,6 +73,9 @@ private:
     QaccBound *qaccBound;
     TaskSpaceControl *tsc;
 
+    vector<string> contact_virtual_link;
+    vector<pair<string, string>> link_pairs;
+
     JointsCmd _jointsCmd;
     size_t _iter;
 };
