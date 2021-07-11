@@ -24,8 +24,13 @@ void ActuatorLimit::update() {
     } else {
         _C << Ma, -Jca.transpose();
     }
+#ifdef DAMPING_TERM
+    _c_lb = _lb - ba - _robot.actuatorsDamping().cwiseProduct(_robot.qvel().tail(_robot.na()));
+    _c_ub = _ub - ba - _robot.actuatorsDamping().cwiseProduct(_robot.qvel().tail(_robot.na()));
+#else
     _c_lb = _lb - ba;
     _c_ub = _ub - ba;
+#endif
 }
 
 ConstMatRef ActuatorLimit::C() {

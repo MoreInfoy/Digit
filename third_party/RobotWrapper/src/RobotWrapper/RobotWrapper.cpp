@@ -15,10 +15,20 @@ RobotWrapper::RobotWrapper(string urdf_file, bool isFixedBase) : _urdf_file(urdf
     for (pin::JointIndex joint_id = 0; joint_id < (pin::JointIndex) _model.njoints; ++joint_id)
         std::cout << std::setw(24) << std::left
                   << _model.names[joint_id] << endl;
+    cout << "Joint damping: " << _model.damping.transpose() << endl;
+    cout << "Joint friction: " << _model.friction.transpose() << endl;
 }
 
 ConstRefVec RobotWrapper::actuatorsEffortLimit() {
     return ConstRefVec(_model.effortLimit.tail(na()));
+}
+
+ConstRefVec RobotWrapper::actuatorsDamping() {
+    return ConstRefVec(_model.damping.tail(na()));
+}
+
+ConstRefVec RobotWrapper::actuatorsFriction() {
+    return ConstRefVec(_model.friction.tail(na()));
 }
 
 void RobotWrapper::computeAllData(ConstRefVec qpos, ConstRefVec qvel, const VecXi &mask) {
@@ -41,15 +51,11 @@ void RobotWrapper::computeAllData(ConstRefVec qpos, ConstRefVec qvel, const VecX
     computeActiveContactPointBiasAcc();
 
     if (_connect_point_pairs.size() > 0) {
-        Mat X(6, 6);
-        X.setIdentity();
         if (_Jps.rows() != 6 * _connect_point_pairs.size()) {
             _Jps.resize(6 * _connect_point_pairs.size(), _model.nv);
         }
         Mat6x Js, Jp;
         for (int i = 0; i < _connect_point_pairs.size(); i++) {
-            X.topLeftCorner<3, 3>() = frame_pose(_connect_point_pairs[i].first).rotation();
-            X.bottomRightCorner<3, 3>() = X.topLeftCorner<3, 3>();
             analyticalJacobia(_connect_point_pairs[i].first, Jp);
             analyticalJacobia(_connect_point_pairs[i].second, Js);
             _Jps.middleRows(6 * i, 6) = Jp - Js;
@@ -240,7 +246,7 @@ void RobotWrapper::setConstraintForceSubspace(ConstRefMat T, ConstRefMat T_dot) 
 }
 
 void RobotWrapper::computeConstraintForceJacobia() {
-    if (_connect_point_pairs.size() > 0) {
+    /*if (_connect_point_pairs.size() > 0) {
         Mat X(6, 6);
         X.setIdentity();
         for (int i = 0; i < _connect_point_pairs.size(); i++) {
@@ -249,7 +255,8 @@ void RobotWrapper::computeConstraintForceJacobia() {
             _T.middleRows(6 * i, 6) = X * _T.middleRows(6 * i, 6);
         }
         _K.noalias() = _T.transpose() * _Jps;
-    }
+    }*/
+    _K.noalias() = _T.transpose() * _Jps;
 }
 
 void RobotWrapper::computeConnectPointBiasAcc() {
@@ -262,7 +269,7 @@ void RobotWrapper::computeConnectPointBiasAcc() {
             acc_ps.segment(6 * i, 6) = acc_p.toVector() - acc_s.toVector();
         }
         _connectPointsBiasAcc = _T.transpose() * acc_ps + _T_dot.transpose() * _Jps * _qvel;
-        cout << _connectPointsBiasAcc.transpose() << endl;
+//        cout << "_connectPointsBiasAcc: " << _connectPointsBiasAcc.transpose() << endl;
     }
 }
 

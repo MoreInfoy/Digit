@@ -151,6 +151,10 @@ void TaskSpaceControl::solve() {
     auto state = eiquadprog_solver.solve_quadprog(H, g, Ce, ce0, Cin, cin, optimal_u);
     printf("solver state: %d\n", state);
 #endif
+
+#ifdef PRINT_ERR
+    printCstrsErr();
+#endif
 }
 
 ConstVecRef TaskSpaceControl::getOptimalQacc() {
@@ -171,6 +175,12 @@ void TaskSpaceControl::saveAllData(string file_name) {
             << H << endl
             << "-----------------------g------------------------" << endl
             << g.transpose() << endl
+            << "-----------------------Ce------------------------" << endl
+            << Ce << endl
+            << "-----------------------c_e------------------------" << endl
+            << ce.transpose() << endl
+            << "-----------------------EqualityCstrs Err------------------------" << endl
+            << (Ce * optimal_u).transpose() - ce.transpose() << endl
             << "-----------------------C------------------------" << endl
             << C << endl
             << "-----------------------c_lb------------------------" << endl
@@ -178,7 +188,11 @@ void TaskSpaceControl::saveAllData(string file_name) {
             << "-----------------------c_ub------------------------" << endl
             << c_ub.transpose() << endl
             << "-----------------------sol------------------------" << endl
-            << optimal_u.transpose() << endl;
+            << optimal_u.transpose() << endl
+            << "-----------------------optimal_torque------------------------" << endl
+            << getOptimalTorque().transpose() << endl
+            << "-----------------------optimal_force------------------------" << endl
+            << getOptimalContactForce().transpose() << endl;
     outfile.close();
 }
 
@@ -202,6 +216,20 @@ void TaskSpaceControl::removeLinearConstraint(string name) {
 
 ConstVecRef TaskSpaceControl::getOptimalTorque() {
     ConstVecRef qacc = optimal_u.head(_robot.nv());
+    /*cout << "damping: " << _robot.actuatorsDamping().transpose() << endl;
+cout << "qJ_vel: " << _robot.qvel().tail(_robot.na()).transpose() << endl;*/
+#ifdef DAMPING_TERM
+    if (_robot.ncf() > 0) {
+        optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects()
+                      - _robot.contactJacobia().transpose() * optimal_u.segment(_robot.nv(), _robot.nc() * 3)
+                      - _robot.constraintForceJacobia().transpose() * optimal_u.tail(_robot.ncf());
+        optimal_tau.tail(_robot.na()) += _robot.actuatorsDamping().cwiseProduct(_robot.qvel().tail(_robot.na()));
+    } else {
+        optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects()
+                      - _robot.contactJacobia().transpose() * optimal_u.segment(_robot.nv(), _robot.nc() * 3);
+        optimal_tau.tail(_robot.na()) += _robot.actuatorsDamping().cwiseProduct(_robot.qvel().tail(_robot.na()));
+    }
+#else
     if (_robot.ncf() > 0) {
         optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects()
                       - _robot.contactJacobia().transpose() * optimal_u.segment(_robot.nv(), _robot.nc() * 3)
@@ -210,11 +238,18 @@ ConstVecRef TaskSpaceControl::getOptimalTorque() {
         optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects()
                       - _robot.contactJacobia().transpose() * optimal_u.segment(_robot.nv(), _robot.nc() * 3);
     }
+#endif
     return ConstVecRef(optimal_tau.tail(_robot.na()));
 }
 
 ConstVecRef TaskSpaceControl::getOptimalContactForce() {
     return ConstVecRef(optimal_u.segment(_robot.nv(), _robot.nc() * 3));
+}
+
+void TaskSpaceControl::printCstrsErr() {
+    for (auto &cstr: _linearConstraints) {
+        cstr->errPrint(optimal_u);
+    }
 }
 
 

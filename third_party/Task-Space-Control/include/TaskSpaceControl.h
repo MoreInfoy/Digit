@@ -16,6 +16,8 @@
 
 #define USE_QPOASES
 
+#define PRINT_ERR
+
 namespace TSC {
     class TaskSpaceControl {
     public:
@@ -42,6 +44,8 @@ namespace TSC {
         ConstVecRef getOptimalContactForce(); // f
 
         void saveAllData(string file_name);
+
+        void printCstrsErr();
 
     private:
         RobotWrapper &_robot;

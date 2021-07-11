@@ -25,4 +25,6 @@ namespace pin = pinocchio;
 
 #define RealNum double
 
+#define DAMPING_TERM
+
 #endif //TASK_SPACE_CONTROL_CONFIGURATION_H

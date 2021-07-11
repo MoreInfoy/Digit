@@ -21,3 +21,15 @@ RobotWrapper &TSC::LinearConstraints::robot()
 bool TSC::LinearConstraints::isEqual() {
     return _isEqual;
 }
+
+void TSC::LinearConstraints::errPrint(ConstVecRef u) {
+    if(isEqual())
+    {
+        cout << name() << " equality err: " << (C() * u - c_ub()).norm() << endl;
+    }
+    else
+    {
+        cout << name() << " inequality ub err: " << (c_ub() - C() * u).transpose() << endl;
+        cout << name() << " inequality lb err: " << (c_lb() - C() * u).transpose() << endl;
+    }
+}

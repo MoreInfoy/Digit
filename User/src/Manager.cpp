@@ -20,15 +20,13 @@ void Manager::init() {
 
 void Manager::run() {
     Reference ref;
-/*#ifdef FIXED_BASE
+#ifdef FIXED_BASE
     VecInt mask(8);
     mask.setZero();
 #else
     VecInt mask(8);
     mask.setOnes();
-#endif*/
-    VecInt mask(8);
-    mask.setZero();
+#endif
     tsc->setContactMask(mask);
     tsc->run(ref, _state);
 }

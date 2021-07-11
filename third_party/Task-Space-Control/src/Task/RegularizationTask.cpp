@@ -12,6 +12,7 @@ TSC::RegularizationTask::RegularizationTask(RobotWrapper &robot, string name) : 
                                                                                 _Q_isUpdated(false) {
     _Q_qacc.setZero();
     _Q_f.setZero();
+    _Q_cstrf = 1e-6;
 }
 
 void RegularizationTask::update() {
@@ -26,6 +27,7 @@ void RegularizationTask::update() {
         for (int i = 0; i < robot().nc(); i++) {
             _Q.block<3, 3>(robot().nv() + 3 * i, robot().nv() + 3 * i) = _Q_f;
         }
+        _Q.bottomRightCorner(robot().ncf(), robot().ncf()).diagonal().fill(_Q_cstrf);
         _Q_isUpdated = true;
         _g = Vec::Zero(input_dims);
     }
@@ -73,3 +75,7 @@ MatRef RegularizationTask::qaccWeight() {
     return TSC::MatRef(_Q_qacc);
 }
 
+
+RealNum& RegularizationTask::constraintForceWeight() {
+    return ref(_Q_cstrf);
+}

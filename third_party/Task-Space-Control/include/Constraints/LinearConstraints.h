@@ -26,6 +26,8 @@ namespace TSC {
 
         virtual bool isEqual();
 
+        virtual void errPrint(ConstVecRef u);
+
         RobotWrapper &robot();
 
     protected:

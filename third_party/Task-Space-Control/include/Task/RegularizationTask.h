@@ -25,10 +25,13 @@ namespace TSC {
 
         MatRef qaccWeight();
 
+        RealNum& constraintForceWeight();
+
     private:
         Mat _H, _Q, _Q_qacc;
         Mat3 _Q_f;
         Vec _g;
+        double _Q_cstrf;
         bool _Q_isUpdated;
     };
 }

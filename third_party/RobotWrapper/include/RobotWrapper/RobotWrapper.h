@@ -17,6 +17,10 @@ public:
 
     ConstRefVec actuatorsEffortLimit();
 
+    ConstRefVec actuatorsDamping();
+
+    ConstRefVec actuatorsFriction();
+
     void setContactVirtualLink(const vector<string> &names);
 
     void setConnectVirtualLink(const vector<pair<string, string>> &link_pairs);

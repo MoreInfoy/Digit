@@ -25,7 +25,7 @@ int main(int argc, const char **argv)
     }
     else
     {
-        mju_strncpy(filename, (std::string(THIS_COM) + std::string("/Simulation/model/digit_ysp.xml")).c_str(), 1000);
+        mju_strncpy(filename, (std::string(THIS_COM) + std::string("/Simulation/model/digit_ysp_o.xml")).c_str(), 1000);
         std::cout << "MODEL: " << filename << std::endl;
         settings.loadrequest = 1;
     }
