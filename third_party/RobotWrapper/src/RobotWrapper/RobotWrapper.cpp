@@ -14,9 +14,14 @@ RobotWrapper::RobotWrapper(string urdf_file, bool isFixedBase) : _urdf_file(urdf
     _data = pin::Data(_model);
     for (pin::JointIndex joint_id = 0; joint_id < (pin::JointIndex) _model.njoints; ++joint_id)
         std::cout << std::setw(24) << std::left
-                  << _model.names[joint_id] << endl;
+                  << _model.names[joint_id] << ":" << _model.getJointId(_model.names[joint_id]) << endl;
     cout << "Joint damping: " << _model.damping.transpose() << endl;
     cout << "Joint friction: " << _model.friction.transpose() << endl;
+
+    _qpos = Vec::Zero(nq());
+    _qvel = Vec::Zero(nv());
+    _jointsSpringForce = Vec::Zero(na());
+
 }
 
 ConstRefVec RobotWrapper::actuatorsEffortLimit() {
@@ -29,6 +34,14 @@ ConstRefVec RobotWrapper::actuatorsDamping() {
 
 ConstRefVec RobotWrapper::actuatorsFriction() {
     return ConstRefVec(_model.friction.tail(na()));
+}
+
+void RobotWrapper::setSpringJoints(const vector<pair<string, Scalar>> spring_joints) {
+    _spring_joints = spring_joints;
+}
+
+ConstRefVec RobotWrapper::jointsSpringForce() {
+    return _jointsSpringForce;
 }
 
 void RobotWrapper::computeAllData(ConstRefVec qpos, ConstRefVec qvel, const VecXi &mask) {
@@ -61,7 +74,19 @@ void RobotWrapper::computeAllData(ConstRefVec qpos, ConstRefVec qvel, const VecX
             _Jps.middleRows(6 * i, 6) = Jp - Js;
         }
     }
-
+    if (!_spring_joints.empty()) {
+        if (_isFixedBase) {
+            for (auto &sj: _spring_joints) {
+                pin::JointIndex id = _model.getJointId(sj.first) - 1;
+                _jointsSpringForce(id) = -sj.second * _qpos(id);
+            }
+        } else {
+            for (auto &sj: _spring_joints) {
+                pin::JointIndex id = _model.getJointId(sj.first) - 2;
+                _jointsSpringForce(id) = -sj.second * _qpos(id + 7);
+            }
+        }
+    }
 }
 
 Vec3 RobotWrapper::CoM_pos() {
@@ -210,7 +235,8 @@ void RobotWrapper::computeActiveContactPointBiasAcc() {
         if (_mask(i) == 1) {
             auto acc = frame_6dClassicalAcc_world(_contactPoint_virtual_link[i]);
             _contactPointsBiasAcc.segment(3 * ci, 3) = acc.linear()
-                    + 0.0 * frame_6dVel_localWorldAligned(_contactPoint_virtual_link[i]).linear();
+                                                       + 0.0 * frame_6dVel_localWorldAligned(
+                    _contactPoint_virtual_link[i]).linear();
             if (acc.linear().hasNaN())
                 throw runtime_error(_contactPoint_virtual_link[i] + " get wrong bias acc");
             ci++;

@@ -240,12 +240,12 @@
         </collision>
     </link>
 
-    <joint name="left_shin_joint" type="fixed">
+    <joint name="left_shin_joint" type="revolute">
         <origin rpy="0 0 0" xyz="0.060677 0.047406 0"/>
         <axis xyz="0 0 1"/>
         <parent link="left_knee"/>
         <child link="left_shin"/>
-        <limit effort="0" lower="-0.35" upper="0.35" velocity="10"/>
+        <limit effort="0.001" lower="-0.35" upper="0.35" velocity="10"/>
     </joint>
 
     <link name="left_shin">
@@ -305,12 +305,12 @@
         </collision>
     </link>
 
-    <joint name="left_heel_spring_joint" type="fixed">
+    <joint name="left_heel_spring_joint" type="revolute">
         <origin rpy="-0.0689073 -0.0370354 2.7207176" xyz="-0.01766 -0.029456 0.00104"/>
         <axis xyz="0 0 1"/>
         <parent link="left_tarsus"/>
         <child link="left_heel_spring"/>
-        <limit effort="0.9" lower="-0.104719753333" upper="0.104719753333" velocity="11.5"/>
+        <limit effort="0.001" lower="-0.104719753333" upper="0.104719753333" velocity="11.5"/>
     </joint>
 
     <link name="left_heel_spring">
@@ -948,12 +948,12 @@
         </collision>
     </link>
 
-    <joint name="right_shin_joint" type="fixed">
+    <joint name="right_shin_joint" type="revolute">
         <origin rpy="0 0 0" xyz="0.060677 -0.047406 0"/>
         <axis xyz="0 0 1"/>
         <parent link="right_knee"/>
         <child link="right_shin"/>
-        <limit effort="0" lower="-0.35" upper="0.35" velocity="10"/>
+        <limit effort="0.001" lower="-0.35" upper="0.35" velocity="10"/>
     </joint>
 
     <link name="right_shin">
@@ -1013,12 +1013,12 @@
         </collision>
     </link>
 
-    <joint name="right_heel_spring_joint" type="fixed">
+    <joint name="right_heel_spring_joint" type="revolute">
         <origin rpy="0.0689073 -0.0370354 -2.7207176" xyz="-0.01766 0.029456 0.00104"/>
         <axis xyz="0 0 1"/>
         <parent link="right_tarsus"/>
         <child link="right_heel_spring"/>
-        <limit effort="0.9" lower="-0.104719753333" upper="0.104719753333" velocity="11.5"/>
+        <limit effort="0.001" lower="-0.104719753333" upper="0.104719753333" velocity="11.5"/>
     </joint>
 
     <link name="right_heel_spring">

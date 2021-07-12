@@ -224,10 +224,12 @@ cout << "qJ_vel: " << _robot.qvel().tail(_robot.na()).transpose() << endl;*/
                       - _robot.contactJacobia().transpose() * optimal_u.segment(_robot.nv(), _robot.nc() * 3)
                       - _robot.constraintForceJacobia().transpose() * optimal_u.tail(_robot.ncf());
         optimal_tau.tail(_robot.na()) += _robot.actuatorsDamping().cwiseProduct(_robot.qvel().tail(_robot.na()));
+        optimal_tau.tail(_robot.na()) -= _robot.jointsSpringForce();
     } else {
         optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects()
                       - _robot.contactJacobia().transpose() * optimal_u.segment(_robot.nv(), _robot.nc() * 3);
         optimal_tau.tail(_robot.na()) += _robot.actuatorsDamping().cwiseProduct(_robot.qvel().tail(_robot.na()));
+        optimal_tau.tail(_robot.na()) -= _robot.jointsSpringForce();
     }
 #else
     if (_robot.ncf() > 0) {

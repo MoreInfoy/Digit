@@ -15,9 +15,10 @@ using namespace TSC;
 TSC_IMPL::TSC_IMPL(string urdf_file) : _robot(urdf_file, fixedBase), _iter(0) {
     Vec qpos(_robot.nq()), qvel(_robot.nv());
     if (_robot.isFixedBase()) {
-        qpos << 0.325685, 0.00398248, 0.0609534, 0.109731, -0.109664, 0.0277016, -0.0611248, -0.0469275, -0.0573293,
+        qpos
+                << 0.325685, 0.00398248, 0.0609534, 0.109731, 0, -0.109664, 0, 0.0277016, -0.0611248, -0.0469275, -0.0573293,
                 -0.308679, 0.937404, -0.0370688, 0.0204076,
-                -0.325474, -0.000611338, -0.0622421, -0.109314, 0.109222, -0.0266944, 0.0600983, 0.0458314, 0.0572924,
+                -0.325474, -0.000611338, -0.0622421, -0.109314, 0, 0.109222, 0, -0.0266944, 0.0600983, 0.0458314, 0.0572924,
                 0.309157, -1.01209, 0.00156306, 0.0198919;;
         /*qpos << 0.325, 0, 0, 0, 0, -0.102, -0.07,
                 -0.325, 0, 0, 0, 0, 0.102, 0.07,
@@ -26,9 +27,9 @@ TSC_IMPL::TSC_IMPL(string urdf_file) : _robot(urdf_file, fixedBase), _iter(0) {
         qvel.setZero();
     } else {
         qpos << 0, 0, 0.95, 0, 0, 0, 1,
-                0.325685, 0.00398248, 0.0609534, 0.109731, -0.109664, 0.0277016, -0.0611248, -0.0469275, -0.0573293,
+                0.325685, 0.00398248, 0.0609534, 0.109731, 0, -0.109664, 0, 0.0277016, -0.0611248, -0.0469275, -0.0573293,
                 -0.308679, 0.937404, -0.0370688, 0.0204076,
-                -0.325474, -0.000611338, -0.0622421, -0.109314, 0.109222, -0.0266944, 0.0600983, 0.0458314, 0.0572924,
+                -0.325474, -0.000611338, -0.0622421, -0.109314, 0, 0.109222, 0, -0.0266944, 0.0600983, 0.0458314, 0.0572924,
                 0.309157, -1.01209, 0.00156306, 0.0198919;;
         /*qpos << 0, 0, 0.9, 0, 0, 0, 1,
                 0.325, 0, 0, 0, 0, -0.102, -0.07,
@@ -64,9 +65,9 @@ TSC_IMPL::TSC_IMPL(string urdf_file) : _robot(urdf_file, fixedBase), _iter(0) {
     jointsNominalTask->Kd().setIdentity();
     jointsNominalTask->Kd() = 5 * jointsNominalTask->Kd();
     jointsNominalTask->norminalPosition()
-            << 0.325685, 0.00398248, 0.0609534, 0.109731, -0.109664, 0.0277016, -0.0611248, -0.0469275, -0.0573293,
+            << 0.325685, 0.00398248, 0.0609534, 0.109731, 0, -0.109664, 0, 0.0277016, -0.0611248, -0.0469275, -0.0573293,
             -0.308679, 0.937404, -0.0370688, 0.0204076,
-            -0.325474, -0.000611338, -0.0622421, -0.109314, 0.109222, -0.0266944, 0.0600983, 0.0458314, 0.0572924,
+            -0.325474, -0.000611338, -0.0622421, -0.109314, 0, 0.109222, 0, -0.0266944, 0.0600983, 0.0458314, 0.0572924,
             0.309157, -1.01209, 0.00156306, 0.0198919;;
 //    jointsNominalTask->norminalPosition()
 //            << 0.325, 0, 0, 0, 0, -0.102, -0.07,
@@ -81,9 +82,9 @@ TSC_IMPL::TSC_IMPL(string urdf_file) : _robot(urdf_file, fixedBase), _iter(0) {
     angularMomentumTask->ref_dot().setZero();
 
     rf = new SE3MotionTask(_robot, "right_toe_roll");
-    rf->Kp() = 500 * Mat6::Identity();
+    rf->Kp().diagonal() << 100, 100, 100, 500, 500, 500;
     rf->Kd() = 2 * rf->Kp().cwiseSqrt();
-    rf->weightMatrix() = 1000 * mt_waist->weightMatrix();
+    rf->weightMatrix().diagonal() << 500, 500, 500, 1000, 1000, 1000;
     rf->SE3Ref() = _robot.frame_pose("right_toe_roll");
     lf = new SE3MotionTask(_robot, "left_toe_roll");
     lf->Kp() = 500 * Mat6::Identity();
@@ -114,7 +115,7 @@ TSC_IMPL::TSC_IMPL(string urdf_file) : _robot(urdf_file, fixedBase), _iter(0) {
 //        tsc->removeTask(rt->name());
     tsc->addTask(jointsNominalTask);
     tsc->addTask(angularMomentumTask);
-    tsc->addLinearConstraint(actuatorLimit);
+//    tsc->addLinearConstraint(actuatorLimit);
     tsc->addLinearConstraint(qaccBound);
     //    tsc.removeLinearConstraint(ccstr.name());
 
@@ -135,6 +136,12 @@ TSC_IMPL::TSC_IMPL(string urdf_file) : _robot(urdf_file, fixedBase), _iter(0) {
     link_pairs.push_back(pair<string, string>("cp_right_toe_A_rod", "cp_right_toe_roll_A"));
     link_pairs.push_back(pair<string, string>("cp_right_toe_B_rod", "cp_right_toe_roll_B"));
     _robot.setConnectVirtualLink(link_pairs);
+
+    spring_joints.push_back(pair<string, RealNum>("left_shin_joint", 6000));
+    spring_joints.push_back(pair<string, RealNum>("left_heel_spring_joint", 4375));
+    spring_joints.push_back(pair<string, RealNum>("right_shin_joint", 6000));
+    spring_joints.push_back(pair<string, RealNum>("right_heel_spring_joint", 4375));
+    _robot.setSpringJoints(spring_joints);
 
     cout << "tau limit: " << _robot.actuatorsEffortLimit().transpose() << endl;
 //    exit(0);
@@ -191,8 +198,8 @@ void TSC_IMPL::solve(ConstVecRef qpos, ConstVecRef qvel, const VecInt &mask) {
     cout << "T_dot" << T_dot << endl;*/
 
     if (_robot.isFixedBase()) {
-        /*rf->SE3Ref().translation()(2) = -0.839273 + 0.05 * sin(0.004 * _iter);
-        lf->SE3Ref().translation()(2) = -0.839273 - 0.05 * sin(0.004 * _iter);*/
+        rf->SE3Ref().translation()(2) = -0.839273 + 0.10 * sin(0.004 * _iter);
+        lf->SE3Ref().translation()(2) = -0.839273 - 0.10 * sin(0.004 * _iter);
     } else {
         mt_waist->SE3Ref().translation()(2) = 0.892442 + 0.05 * sin(0.004 * _iter);
     }
@@ -200,7 +207,7 @@ void TSC_IMPL::solve(ConstVecRef qpos, ConstVecRef qvel, const VecInt &mask) {
 //    cout << robot().frame_pose("left_toe_roll") << endl;
 
 //    cout << robot().frame_6dVel_local("torso") << endl;
-//    tsc->saveAllData("data.txt");
+    tsc->saveAllData("data.txt");
 }
 
 void TSC_IMPL::run(const Reference &ref, const RobotState &state) {
@@ -245,6 +252,7 @@ void TSC_IMPL::run(const Reference &ref, const RobotState &state) {
 //    cout << "optimal qacc: " << getOptimalQacc().transpose() << endl;
 //    cout << "optimal force: " << getOptimalContactForce().transpose() << endl;
 //    cout << "optimal torque: " << _jointsCmd.tau_ff.transpose() << endl;
+    cout << "jointSpringForce:" << _robot.jointsSpringForce().transpose() << endl;
     _iter++;
 }
 

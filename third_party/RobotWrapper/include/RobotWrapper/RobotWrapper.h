@@ -21,6 +21,10 @@ public:
 
     ConstRefVec actuatorsFriction();
 
+    void setSpringJoints(const vector<pair<string, Scalar>> spring_joints);
+
+    ConstRefVec jointsSpringForce();
+
     void setContactVirtualLink(const vector<string> &names);
 
     void setConnectVirtualLink(const vector<pair<string, string>> &link_pairs);
@@ -114,10 +118,12 @@ private:
     bool _isFixedBase;
     vector<string> _contactPoint_virtual_link;
     vector<pair<string, string>> _connect_point_pairs;
+    vector<pair<string, Scalar>> _spring_joints;
     Mat _T, _T_dot, _Jps;
     VecXi _mask;
     Mat _Jc, _K;
     Vec _contactPointsBiasAcc, _connectPointsBiasAcc;
+    Vec _jointsSpringForce;
 };
 
 

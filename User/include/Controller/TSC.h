@@ -75,6 +75,7 @@ private:
 
     vector<string> contact_virtual_link;
     vector<pair<string, string>> link_pairs;
+    vector<pair<string, RealNum>> spring_joints;
 
     JointsCmd _jointsCmd;
     size_t _iter;
