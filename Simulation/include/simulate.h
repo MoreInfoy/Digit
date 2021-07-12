@@ -28,12 +28,12 @@
 #define USE_SENSORS_DATA
 
 #ifdef FIXED_BASE
-double q_init[] = {0.325193, 0.002543, 0.039516, 0.999614, -0.002543, 0.000235, 0.027660, 0.055405, -0.056504,
-                   -0.034086, 0.999833, -0.004680, -0.000365, 0.017647, 0.018454, 0.999889, 0.011568, -0.000029,
-                   -0.009405, 0.027780, -0.026228, -0.305857, 0.946306, -0.036783, 0.019950, -0.325195, -0.002542,
-                   -0.039520, 0.999614, 0.002543, 0.000235, -0.027660, -0.055406, 0.056505, 0.034182, 0.999832,
-                   0.004680, -0.000368, -0.017697, -0.018577, 0.999888, -0.011567, -0.000025, 0.009469, -0.027895,
-                   0.026182, 0.306598, -1.035127, 0.000267, 0.019723};
+double q_init[] = {0.325685, 0.003982, 0.060953, 0.998499, -0.002613, 0.000547, 0.054705, 0.109731, -0.109664, 0.027702,
+                   0.999890, -0.004864, 0.001440, -0.013921, -0.061125, 0.999420, 0.011867, -0.002226, 0.031841,
+                   -0.046928, -0.057329, -0.308679, 0.937404, -0.037069, 0.020408, -0.325474, -0.000611, -0.062242,
+                   0.998510, 0.002614, 0.000544, -0.054497, -0.109314, 0.109222, -0.026694, 0.999897, 0.004863,
+                   0.001417, 0.013403, 0.060098, 0.999437, -0.011867, -0.002203, -0.031310, 0.045831, 0.057292,
+                   0.309157, -1.012092, 0.001563, 0.019892};
 
 //double q_init[] = {0.325, 0, 0, 0, 0, -0.102, -0.07,
 //                   -0.325, 0, 0, 0, 0, 0.102, 0.07,
@@ -41,13 +41,13 @@ double q_init[] = {0.325193, 0.002543, 0.039516, 0.999614, -0.002543, 0.000235, 
 //                   0, -0.987, 0, 0};
 
 #else
-double q_init[] = {0, 0, 0.95, 1, 0, 0, 0,
-                   0.325193, 0.002543, 0.039516, 0.999614, -0.002543, 0.000235, 0.027660, 0.055405, -0.056504,
-                   -0.034086, 0.999833, -0.004680, -0.000365, 0.017647, 0.018454, 0.999889, 0.011568, -0.000029,
-                   -0.009405, 0.027780, -0.026228, -0.305857, 0.946306, -0.036783, 0.019950, -0.325195, -0.002542,
-                   -0.039520, 0.999614, 0.002543, 0.000235, -0.027660, -0.055406, 0.056505, 0.034182, 0.999832,
-                   0.004680, -0.000368, -0.017697, -0.018577, 0.999888, -0.011567, -0.000025, 0.009469, -0.027895,
-                   0.026182, 0.306598, -1.035127, 0.000267, 0.019723};
+double q_init[] = {-0.000064, 0.000070, 0.950181, 0.999999, 0.000030, -0.000027, 0.001287,
+                   0.325685, 0.003982, 0.060953, 0.998499, -0.002613, 0.000547, 0.054705, 0.109731, -0.109664, 0.027702,
+                   0.999890, -0.004864, 0.001440, -0.013921, -0.061125, 0.999420, 0.011867, -0.002226, 0.031841,
+                   -0.046928, -0.057329, -0.308679, 0.937404, -0.037069, 0.020408, -0.325474, -0.000611, -0.062242,
+                   0.998510, 0.002614, 0.000544, -0.054497, -0.109314, 0.109222, -0.026694, 0.999897, 0.004863,
+                   0.001417, 0.013403, 0.060098, 0.999437, -0.011867, -0.002203, -0.031310, 0.045831, 0.057292,
+                   0.309157, -1.012092, 0.001563, 0.019892};
 //double q_init[] = {0, 0, 0.9, 1, 0, 0, 0,
 //                   0.325, 0, 0, 0, 0, -0.102, -0.07,
 //                   -0.325, 0, 0, 0, 0, 0.102, 0.07,
@@ -1703,17 +1703,21 @@ void getRobotState(void) {
         throw std::runtime_error("[Simulate::getRobotState] m->nu != ROBOT_NU");
     }
     printf("qpos: ");
-    mju_printMat(d->qpos, 1, m->nq);
+    for (int i = 0; i < m->nq; i++) {
+        printf("%f, ", d->qpos[i]);
+    }
+    printf("\n");
+//    mju_printMat(d->qpos, 1, m->nq);
     printf("qvel: ");
     mju_printMat(d->qvel, 1, m->nv);
     printf("floating base pose: ");
     mju_printMat(d->sensordata, 1, 7);
     printf("qJ_pos: ");
-    mju_printMat(d->sensordata+7, 1, ROBOT_NJ);
+    mju_printMat(d->sensordata + 7, 1, ROBOT_NJ);
     printf("floating base vel: ");
-    mju_printMat(d->sensordata+7+ROBOT_NJ, 1, 6);
+    mju_printMat(d->sensordata + 7 + ROBOT_NJ, 1, 6);
     printf("qJ_vel: ");
-    mju_printMat(d->sensordata+13 + ROBOT_NJ, 1, ROBOT_NJ);
+    mju_printMat(d->sensordata + 13 + ROBOT_NJ, 1, ROBOT_NJ);
 
 #ifdef USE_SENSORS_DATA
     shared_memory().robotToUser.floatingBaseState.pos << d->sensordata[0], d->sensordata[1], d->sensordata[2];
@@ -1722,10 +1726,14 @@ void getRobotState(void) {
     shared_memory().robotToUser.floatingBaseState.quat.z() = d->sensordata[6];
     shared_memory().robotToUser.floatingBaseState.quat.w() = d->sensordata[3];
     std::memcpy(shared_memory().robotToUser.jointsState.qpos.data(), d->sensordata + 7, ROBOT_NJ * sizeof(mjtNum));
-    shared_memory().robotToUser.floatingBaseState.vel << d->sensordata[7 + ROBOT_NJ], d->sensordata[8 + ROBOT_NJ], d->sensordata[9 +
-                                                                                                               ROBOT_NJ];
-    shared_memory().robotToUser.floatingBaseState.omega << d->sensordata[10 + ROBOT_NJ], d->sensordata[11 + ROBOT_NJ], d->sensordata[12 +
-                                                                                                                   ROBOT_NJ];
+    shared_memory().robotToUser.floatingBaseState.vel << d->sensordata[7 + ROBOT_NJ], d->sensordata[8 +
+                                                                                                    ROBOT_NJ], d->sensordata[
+            9 +
+            ROBOT_NJ];
+    shared_memory().robotToUser.floatingBaseState.omega << d->sensordata[10 + ROBOT_NJ], d->sensordata[11 +
+                                                                                                       ROBOT_NJ], d->sensordata[
+            12 +
+            ROBOT_NJ];
     std::memcpy(shared_memory().robotToUser.jointsState.qvel.data(), d->sensordata + 13 + ROBOT_NJ,
                 ROBOT_NJ * sizeof(mjtNum));
 

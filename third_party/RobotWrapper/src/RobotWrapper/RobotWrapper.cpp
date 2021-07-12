@@ -130,6 +130,11 @@ pin::Motion RobotWrapper::frame_6dVel_local(string frame_name) {
     return pin::getFrameVelocity(_model, _data, getFrameID(frame_name), pin::LOCAL);
 }
 
+pin::Motion RobotWrapper::frame_6dVel_localWorldAligned(string frame_name) {
+    return pin::getFrameVelocity(_model, _data, getFrameID(frame_name), pin::LOCAL_WORLD_ALIGNED);
+}
+
+
 pin::Motion RobotWrapper::frame_6dAcc_local(string frame_name) {
     return pin::getFrameAcceleration(_model, _data, getFrameID(frame_name), pin::LOCAL);
 }
@@ -204,7 +209,8 @@ void RobotWrapper::computeActiveContactPointBiasAcc() {
     for (int i = 0; i < _mask.size(); i++) {
         if (_mask(i) == 1) {
             auto acc = frame_6dClassicalAcc_world(_contactPoint_virtual_link[i]);
-            _contactPointsBiasAcc.segment(3 * ci, 3) = acc.linear();
+            _contactPointsBiasAcc.segment(3 * ci, 3) = acc.linear()
+                    + 0.0 * frame_6dVel_localWorldAligned(_contactPoint_virtual_link[i]).linear();
             if (acc.linear().hasNaN())
                 throw runtime_error(_contactPoint_virtual_link[i] + " get wrong bias acc");
             ci++;

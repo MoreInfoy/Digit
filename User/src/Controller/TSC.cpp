@@ -15,10 +15,10 @@ using namespace TSC;
 TSC_IMPL::TSC_IMPL(string urdf_file) : _robot(urdf_file, fixedBase), _iter(0) {
     Vec qpos(_robot.nq()), qvel(_robot.nv());
     if (_robot.isFixedBase()) {
-        qpos << 0.325, 0, 0, 0, 0, 0, 0, -0.102, -0.0367,
-                -0.314, 0.987, 0, 0,
-                -0.325, 0, 0, 0, 0, 0, 0, 0.102, 0.0367,
-                0.314, -0.987, 0, 0;
+        qpos << 0.325685, 0.00398248, 0.0609534, 0.109731, -0.109664, 0.0277016, -0.0611248, -0.0469275, -0.0573293,
+                -0.308679, 0.937404, -0.0370688, 0.0204076,
+                -0.325474, -0.000611338, -0.0622421, -0.109314, 0.109222, -0.0266944, 0.0600983, 0.0458314, 0.0572924,
+                0.309157, -1.01209, 0.00156306, 0.0198919;;
         /*qpos << 0.325, 0, 0, 0, 0, -0.102, -0.07,
                 -0.325, 0, 0, 0, 0, 0.102, 0.07,
                 -0.288, 0.987, 0, 0,
@@ -26,10 +26,10 @@ TSC_IMPL::TSC_IMPL(string urdf_file) : _robot(urdf_file, fixedBase), _iter(0) {
         qvel.setZero();
     } else {
         qpos << 0, 0, 0.95, 0, 0, 0, 1,
-                0.325, 0, 0, 0, 0, 0, 0, -0.102, -0.0367,
-                -0.314, 0.987, 0, 0,
-                -0.325, 0, 0, 0, 0, 0, 0, 0.102, 0.0367,
-                0.314, -0.987, 0, 0;
+                0.325685, 0.00398248, 0.0609534, 0.109731, -0.109664, 0.0277016, -0.0611248, -0.0469275, -0.0573293,
+                -0.308679, 0.937404, -0.0370688, 0.0204076,
+                -0.325474, -0.000611338, -0.0622421, -0.109314, 0.109222, -0.0266944, 0.0600983, 0.0458314, 0.0572924,
+                0.309157, -1.01209, 0.00156306, 0.0198919;;
         /*qpos << 0, 0, 0.9, 0, 0, 0, 1,
                 0.325, 0, 0, 0, 0, -0.102, -0.07,
                 -0.325, 0, 0, 0, 0, 0.102, 0.07,
@@ -64,10 +64,10 @@ TSC_IMPL::TSC_IMPL(string urdf_file) : _robot(urdf_file, fixedBase), _iter(0) {
     jointsNominalTask->Kd().setIdentity();
     jointsNominalTask->Kd() = 5 * jointsNominalTask->Kd();
     jointsNominalTask->norminalPosition()
-            << 0.325, 0, 0, 0, 0, 0, 0, -0.102, -0.0367,
-            -0.314, 0.987, 0, 0,
-            -0.325, 0, 0, 0, 0, 0, 0, 0.102, 0.0367,
-            0.314, -0.987, 0, 0;
+            << 0.325685, 0.00398248, 0.0609534, 0.109731, -0.109664, 0.0277016, -0.0611248, -0.0469275, -0.0573293,
+            -0.308679, 0.937404, -0.0370688, 0.0204076,
+            -0.325474, -0.000611338, -0.0622421, -0.109314, 0.109222, -0.0266944, 0.0600983, 0.0458314, 0.0572924,
+            0.309157, -1.01209, 0.00156306, 0.0198919;;
 //    jointsNominalTask->norminalPosition()
 //            << 0.325, 0, 0, 0, 0, -0.102, -0.07,
 //            -0.325, 0, 0, 0, 0, 0.102, 0.07,
@@ -114,7 +114,7 @@ TSC_IMPL::TSC_IMPL(string urdf_file) : _robot(urdf_file, fixedBase), _iter(0) {
 //        tsc->removeTask(rt->name());
     tsc->addTask(jointsNominalTask);
     tsc->addTask(angularMomentumTask);
-//    tsc->addLinearConstraint(actuatorLimit);
+    tsc->addLinearConstraint(actuatorLimit);
     tsc->addLinearConstraint(qaccBound);
     //    tsc.removeLinearConstraint(ccstr.name());
 
@@ -200,7 +200,7 @@ void TSC_IMPL::solve(ConstVecRef qpos, ConstVecRef qvel, const VecInt &mask) {
 //    cout << robot().frame_pose("left_toe_roll") << endl;
 
 //    cout << robot().frame_6dVel_local("torso") << endl;
-    tsc->saveAllData("data.txt");
+//    tsc->saveAllData("data.txt");
 }
 
 void TSC_IMPL::run(const Reference &ref, const RobotState &state) {
