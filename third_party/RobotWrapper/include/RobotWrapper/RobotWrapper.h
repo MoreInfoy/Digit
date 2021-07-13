@@ -19,6 +19,8 @@ public:
 
     ConstRefVec actuatorsDamping();
 
+    ConstRefVec actuatorsDampingForce();
+
     ConstRefVec actuatorsFriction();
 
     void setSpringJoints(const vector<pair<string, Scalar>> spring_joints);
@@ -123,7 +125,7 @@ private:
     VecXi _mask;
     Mat _Jc, _K;
     Vec _contactPointsBiasAcc, _connectPointsBiasAcc;
-    Vec _jointsSpringForce;
+    Vec _actuatorsDampingForce, _jointsSpringForce;
 };
 
 

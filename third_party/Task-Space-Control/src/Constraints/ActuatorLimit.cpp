@@ -24,14 +24,14 @@ void ActuatorLimit::update() {
     } else {
         _C << Ma, -Jca.transpose();
     }
+    cout << "tau lb: " << _lb.transpose() << endl;
+    cout << "tau ub: " << _ub.transpose() << endl;
 #ifdef DAMPING_TERM
-    _c_lb = _lb - ba + _robot.jointsSpringForce()
-            - _robot.actuatorsDamping().cwiseProduct(_robot.qvel().tail(_robot.na()));
-    _c_ub = _ub - ba + _robot.jointsSpringForce()
-            - _robot.actuatorsDamping().cwiseProduct(_robot.qvel().tail(_robot.na()));
+    _c_lb = _lb - ba + _robot.jointsSpringForce() + _robot.actuatorsDampingForce();
+    _c_ub = _ub - ba + _robot.jointsSpringForce() + _robot.actuatorsDampingForce();
 #else
-    _c_lb = _lb - ba;
-    _c_ub = _ub - ba;
+    _c_lb = _lb - ba + _robot.jointsSpringForce();
+    _c_ub = _ub - ba + _robot.jointsSpringForce();
 #endif
 }
 

@@ -150,6 +150,10 @@ void TaskSpaceControl::solve() {
     ce0 = -ce;
     auto state = eiquadprog_solver.solve_quadprog(H, g, Ce, ce0, Cin, cin, optimal_u);
     printf("solver state: %d\n", state);
+    if(state != eiquadprog::solvers::EIQUADPROG_FAST_OPTIMAL) {
+        saveAllData("qp_failed.txt");
+        throw runtime_error("TaskSpaceControl::solve() qp failed, related data has been saved in qp_failed.txt");
+    }
 #endif
 
 #ifdef PRINT_ERR
@@ -223,12 +227,12 @@ cout << "qJ_vel: " << _robot.qvel().tail(_robot.na()).transpose() << endl;*/
         optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects()
                       - _robot.contactJacobia().transpose() * optimal_u.segment(_robot.nv(), _robot.nc() * 3)
                       - _robot.constraintForceJacobia().transpose() * optimal_u.tail(_robot.ncf());
-        optimal_tau.tail(_robot.na()) += _robot.actuatorsDamping().cwiseProduct(_robot.qvel().tail(_robot.na()));
+        optimal_tau.tail(_robot.na()) -= _robot.actuatorsDampingForce();
         optimal_tau.tail(_robot.na()) -= _robot.jointsSpringForce();
     } else {
         optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects()
                       - _robot.contactJacobia().transpose() * optimal_u.segment(_robot.nv(), _robot.nc() * 3);
-        optimal_tau.tail(_robot.na()) += _robot.actuatorsDamping().cwiseProduct(_robot.qvel().tail(_robot.na()));
+        optimal_tau.tail(_robot.na()) -= _robot.actuatorsDampingForce();
         optimal_tau.tail(_robot.na()) -= _robot.jointsSpringForce();
     }
 #else
@@ -236,9 +240,12 @@ cout << "qJ_vel: " << _robot.qvel().tail(_robot.na()).transpose() << endl;*/
         optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects()
                       - _robot.contactJacobia().transpose() * optimal_u.segment(_robot.nv(), _robot.nc() * 3)
                       - _robot.constraintForceJacobia().transpose() * optimal_u.tail(_robot.ncf());
+        optimal_tau.tail(_robot.na()) -= _robot.jointsSpringForce();
+
     } else {
         optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects()
                       - _robot.contactJacobia().transpose() * optimal_u.segment(_robot.nv(), _robot.nc() * 3);
+        optimal_tau.tail(_robot.na()) -= _robot.jointsSpringForce();
     }
 #endif
     return ConstVecRef(optimal_tau.tail(_robot.na()));

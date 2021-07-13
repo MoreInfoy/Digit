@@ -240,7 +240,7 @@
         </collision>
     </link>
 
-    <joint name="left_shin_joint" type="revolute">
+    <joint name="left_shin_joint" type="fixed">
         <origin rpy="0 0 0" xyz="0.060677 0.047406 0"/>
         <axis xyz="0 0 1"/>
         <parent link="left_knee"/>
@@ -305,7 +305,7 @@
         </collision>
     </link>
 
-    <joint name="left_heel_spring_joint" type="revolute">
+    <joint name="left_heel_spring_joint" type="fixed">
         <origin rpy="-0.0689073 -0.0370354 2.7207176" xyz="-0.01766 -0.029456 0.00104"/>
         <axis xyz="0 0 1"/>
         <parent link="left_tarsus"/>
@@ -948,7 +948,7 @@
         </collision>
     </link>
 
-    <joint name="right_shin_joint" type="revolute">
+    <joint name="right_shin_joint" type="fixed">
         <origin rpy="0 0 0" xyz="0.060677 -0.047406 0"/>
         <axis xyz="0 0 1"/>
         <parent link="right_knee"/>
@@ -1013,7 +1013,7 @@
         </collision>
     </link>
 
-    <joint name="right_heel_spring_joint" type="revolute">
+    <joint name="right_heel_spring_joint" type="fixed">
         <origin rpy="0.0689073 -0.0370354 -2.7207176" xyz="-0.01766 0.029456 0.00104"/>
         <axis xyz="0 0 1"/>
         <parent link="right_tarsus"/>

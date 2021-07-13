@@ -21,7 +21,7 @@ RobotWrapper::RobotWrapper(string urdf_file, bool isFixedBase) : _urdf_file(urdf
     _qpos = Vec::Zero(nq());
     _qvel = Vec::Zero(nv());
     _jointsSpringForce = Vec::Zero(na());
-
+    _actuatorsDampingForce = Vec::Zero(na());
 }
 
 ConstRefVec RobotWrapper::actuatorsEffortLimit() {
@@ -39,6 +39,11 @@ ConstRefVec RobotWrapper::actuatorsFriction() {
 void RobotWrapper::setSpringJoints(const vector<pair<string, Scalar>> spring_joints) {
     _spring_joints = spring_joints;
 }
+
+ConstRefVec RobotWrapper::actuatorsDampingForce() {
+    return _actuatorsDampingForce;
+}
+
 
 ConstRefVec RobotWrapper::jointsSpringForce() {
     return _jointsSpringForce;
@@ -87,6 +92,7 @@ void RobotWrapper::computeAllData(ConstRefVec qpos, ConstRefVec qvel, const VecX
             }
         }
     }
+    _actuatorsDampingForce = -actuatorsDamping().cwiseProduct(_qvel.tail(na()));
 }
 
 Vec3 RobotWrapper::CoM_pos() {
