@@ -25,7 +25,7 @@
     </visual>
 
     <asset>
-        <material name='collision' rgba='0.1 0.5 0.9 0.4'/>
+        <material name='collision' rgba='0.1 0.5 0.9 0.1'/>
 
         <mesh name="torso" file="torso.stl"/>
         <mesh name="left-waist-cap" file="left-waist-cap.stl" scale="1 -1 1"/>
@@ -342,7 +342,8 @@
                                         <inertial pos="0.049086 -0.004739 -4.5e-05"
                                                   quat="0.494257 0.494741 0.505969 0.504912" mass="0.230018"
                                                   diaginertia="0.000740328 0.000701002 5.46701e-05"/>
-                                        <joint name="right_heel_spring_joint" type='hinge' axis='0 0 1' range='-6 6'
+                                        <joint name="right_heel_spring_joint" type='hinge' axis='0 0 1'
+                                               range='-0.1047197551 0.1047197551'
                                                limited='true' stiffness='4375'/>
                                         <geom class="viz" mesh="heel-spring1"/>
                                         <geom size="0.015" pos="0.113789 0.011056 0" contype="0" conaffinity="0"
@@ -521,12 +522,12 @@
         <motor name='left_hip_pitch_motor' joint='left_hip_pitch_joint' gear='1' ctrllimited='false'
                ctrlrange='-12.5 12.5'/>
         <motor name='left_knee_motor' joint='left_knee_joint' gear='1' ctrllimited='false' ctrlrange='-12.5 12.5'/>
-<!--        <motor name="left_shin_motor" joint="left_shin_joint" gear="1" ctrllimited='true'-->
-<!--               ctrlrange='-0.5 0.5'/>-->
+        <motor name="left_shin_motor" joint="left_shin_joint" gear="1" ctrllimited='true'
+               ctrlrange='-0.5 0.5'/>
         <motor name="left_tarsus_motor" joint="left_tarsus_joint" gear="1" ctrllimited='false'
                ctrlrange='-12.5 12.5'/>
-<!--        <motor name="left_heel_spring_motor" joint="left_heel_spring_joint" gear="1" ctrllimited='true'-->
-<!--               ctrlrange='-0.5 0.5'/>-->
+        <motor name="left_heel_spring_motor" joint="left_heel_spring_joint" gear="1" ctrllimited='true'
+               ctrlrange='-0.5 0.5'/>
         <motor name='left_toe_A_motor' joint='left_toe_A_joint' gear='1' ctrllimited='false' ctrlrange='-0.9 0.9'/>
         <motor name='left_toe_B_motor' joint='left_toe_B_joint' gear='1' ctrllimited='false' ctrlrange='-0.9 0.9'/>
         <motor name="toe_pitch_joint_left" joint="left_toe_pitch_joint" gear="1" ctrllimited='false'
@@ -549,12 +550,12 @@
         <motor name='right_hip_pitch_motor' joint='right_hip_pitch_joint' gear='1' ctrllimited='false'
                ctrlrange='-12.5 12.5'/>
         <motor name='right_knee_motor' joint='right_knee_joint' gear='1' ctrllimited='false' ctrlrange='-12.5 12.5'/>
-<!--        <motor name="right_shin_motor" joint="right_shin_joint" gear="1" ctrllimited='true'-->
-<!--               ctrlrange='-0.5 0.5'/>-->
+        <motor name="right_shin_motor" joint="right_shin_joint" gear="1" ctrllimited='true'
+               ctrlrange='-0.5 0.5'/>
         <motor name="right_tarsus_motor" joint="right_tarsus_joint" gear="1" ctrllimited='false'
                ctrlrange='-12.5 12.5'/>
-<!--        <motor name="right_heel_spring_motor" joint="right_heel_spring_joint" gear="1" ctrllimited='true'-->
-<!--               ctrlrange='-0.5 0.5'/>-->
+        <motor name="right_heel_spring_motor" joint="right_heel_spring_joint" gear="1" ctrllimited='true'
+               ctrlrange='-0.5 0.5'/>
         <motor name='right_toe_A_motor' joint='right_toe_A_joint' gear='1' ctrllimited='false' ctrlrange='-0.9 0.9'/>
         <motor name='right_toe_B_motor' joint='right_toe_B_joint' gear='1' ctrllimited='false' ctrlrange='-0.9 0.9'/>
         <motor name="toe_pitch_joint_right" joint="right_toe_pitch_joint" gear="1" ctrllimited='false'
@@ -580,9 +581,9 @@
         <jointpos name='left-hip-yaw' joint='left_hip_yaw_joint'/>
         <jointpos name='left-hip-pitch' joint='left_hip_pitch_joint'/>
         <jointpos name='left-knee' joint='left_knee_joint'/>
-<!--        <jointpos name='left-shin' joint='left_shin_joint'/>-->
+        <jointpos name='left-shin' joint='left_shin_joint'/>
         <jointpos name='left-tarsus' joint='left_tarsus_joint'/>
-<!--        <jointpos name='left-heel-spring' joint='left_heel_spring_joint'/>-->
+        <jointpos name='left-heel-spring' joint='left_heel_spring_joint'/>
         <jointpos name='left-toe-A' joint='left_toe_A_joint'/>
         <jointpos name='left-toe-B' joint='left_toe_B_joint'/>
         <jointpos name='left-toe-pitch' joint='left_toe_pitch_joint'/>
@@ -597,9 +598,9 @@
         <jointpos name='right-hip-yaw' joint='right_hip_yaw_joint'/>
         <jointpos name='right-hip-pitch' joint='right_hip_pitch_joint'/>
         <jointpos name='right-knee' joint='right_knee_joint'/>
-<!--        <jointpos name='right-shin' joint='right_shin_joint'/>-->
+        <jointpos name='right-shin' joint='right_shin_joint'/>
         <jointpos name='right-tarsus' joint='right_tarsus_joint'/>
-<!--        <jointpos name='right-heel-spring' joint='right_heel_spring_joint'/>-->
+        <jointpos name='right-heel-spring' joint='right_heel_spring_joint'/>
         <jointpos name='right-toe-A' joint='right_toe_A_joint'/>
         <jointpos name='right-toe-B' joint='right_toe_B_joint'/>
         <jointpos name='right-toe-pitch' joint='right_toe_pitch_joint'/>
@@ -617,9 +618,9 @@
         <jointvel name='left-hip-yaw-vel' joint='left_hip_yaw_joint'/>
         <jointvel name='left-hip-pitch-vel' joint='left_hip_pitch_joint'/>
         <jointvel name='left-knee-vel' joint='left_knee_joint'/>
-<!--        <jointvel name='left-shin-vel' joint='left_shin_joint'/>-->
+        <jointvel name='left-shin-vel' joint='left_shin_joint'/>
         <jointvel name='left-tarsus-vel' joint='left_tarsus_joint'/>
-<!--        <jointvel name='left-heel-spring-vel' joint='left_heel_spring_joint'/>-->
+        <jointvel name='left-heel-spring-vel' joint='left_heel_spring_joint'/>
         <jointvel name='left-toe-A-vel' joint='left_toe_A_joint'/>
         <jointvel name='left-toe-B-vel' joint='left_toe_B_joint'/>
         <jointvel name='left-toe-pitch-vel' joint='left_toe_pitch_joint'/>
@@ -634,9 +635,9 @@
         <jointvel name='right-hip-yaw-vel' joint='right_hip_yaw_joint'/>
         <jointvel name='right-hip-pitch-vel' joint='right_hip_pitch_joint'/>
         <jointvel name='right-knee-vel' joint='right_knee_joint'/>
-<!--        <jointvel name='right-shin-vel' joint='right_shin_joint'/>-->
+        <jointvel name='right-shin-vel' joint='right_shin_joint'/>
         <jointvel name='right-tarsus-vel' joint='right_tarsus_joint'/>
-<!--        <jointvel name='right-heel-spring-vel' joint='right_heel_spring_joint'/>-->
+        <jointvel name='right-heel-spring-vel' joint='right_heel_spring_joint'/>
         <jointvel name='right-toe-A-vel' joint='right_toe_A_joint'/>
         <jointvel name='right-toe-B-vel' joint='right_toe_B_joint'/>
         <jointvel name='right-toe-pitch-vel' joint='right_toe_pitch_joint'/>

@@ -122,6 +122,14 @@ void TaskSpaceControl::solve() {
     clb << c_lb, ce;
     cub << c_ub, ce;
 
+/*    Mat Par(Cin.cols() + 2, Cin.rows());
+    Par << Cin.transpose(), clb.transpose(), cub.transpose();
+    FullPivLU<Mat> rank_check(Par);
+    Mat ParN = rank_check.image(Par).transpose();
+    Eigen::Matrix<RealNum, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> _Cin = ParN.leftCols(Cin.cols());
+    Vec _clb = -ParN.col(ParN.cols() - 2);
+    Vec _cub = ParN.col(ParN.cols() - 1);*/
+
     qpOASES::QProblem *solver = new qpOASES::QProblem(_u_dims, Cin.rows(), qpOASES::HST_INDEF);
     qpOASES::Options opt;
     opt.setToMPC();

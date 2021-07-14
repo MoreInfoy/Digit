@@ -12,7 +12,7 @@ TSC::RegularizationTask::RegularizationTask(RobotWrapper &robot, string name) : 
                                                                                 _Q_isUpdated(false) {
     _Q_qacc.setZero();
     _Q_f.setZero();
-    _Q_cstrf = 1e-16;
+    _Q_cstrf = 1e-8;
 }
 
 void RegularizationTask::update() {
