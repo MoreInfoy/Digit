@@ -7,6 +7,8 @@
 
 #include "RobotWrapper/pinocchio.h"
 
+#define CONSIDER_ROTOR_INERTIA
+
 using namespace RobotWrapperMath;
 
 class RobotWrapper {

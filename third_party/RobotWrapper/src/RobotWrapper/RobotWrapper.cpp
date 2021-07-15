@@ -52,35 +52,25 @@ RobotWrapper::RobotWrapper(string urdf_file, string srdf_file, bool isFixedBase)
 }
 
 ConstRefVec RobotWrapper::homeConfigurations() {
-    if(has_srdf)
-    {
+    if (has_srdf) {
         return _model.referenceConfigurations["home"];
-    }
-    else
-    {
+    } else {
         throw runtime_error("no SRDF file has been given for home configuration");
     }
 }
 
-ConstRefVec RobotWrapper::gear_ratio()
-{
-    if(has_srdf)
-    {
+ConstRefVec RobotWrapper::gear_ratio() {
+    if (has_srdf) {
         return _model.rotorGearRatio;
-    }
-    else
-    {
+    } else {
         throw runtime_error("no SRDF file has been given for rotorGearRatio");
     }
 }
 
 ConstRefVec RobotWrapper::rotorInertia() {
-    if(has_srdf)
-    {
+    if (has_srdf) {
         return _model.rotorInertia;
-    }
-    else
-    {
+    } else {
         throw runtime_error("no SRDF file has been given for rotorInertia");
     }
 }
@@ -119,6 +109,9 @@ void RobotWrapper::computeAllData(ConstRefVec qpos, ConstRefVec qvel, const VecX
     pinocchio::computeAllTerms(_model, _data, _qpos, _qvel);
     _data.M.triangularView<Eigen::StrictlyLower>()
             = _data.M.transpose().triangularView<Eigen::StrictlyLower>();
+#ifdef CONSIDER_ROTOR_INERTIA
+    _data.M.diagonal() += _model.rotorInertia;
+#endif
     pin::computeMinverse(_model, _data, _qpos);
     _data.Minv.triangularView<Eigen::StrictlyLower>() = _data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
 

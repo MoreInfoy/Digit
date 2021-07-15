@@ -481,14 +481,20 @@
     </equality>
 
     <actuator>
-        <!--<motor name='left_hip_roll_motor' joint='left_hip_roll_joint' gear='80' ctrllimited='false'
+        <motor name='left_hip_roll_motor' joint='left_hip_roll_joint' gear='80' ctrllimited='false'
                ctrlrange='-1.4 1.4'/>
         <motor name='left_hip_yaw_motor' joint='left_hip_yaw_joint' gear='50' ctrllimited='false' ctrlrange='-1.4 1.4'/>
         <motor name='left_hip_pitch_motor' joint='left_hip_pitch_joint' gear='16' ctrllimited='false'
                ctrlrange='-12.5 12.5'/>
         <motor name='left_knee_motor' joint='left_knee_joint' gear='16' ctrllimited='false' ctrlrange='-12.5 12.5'/>
+        <motor name="left_tarsus_motor" joint="left_tarsus_joint" gear="1" ctrllimited='true'
+               ctrlrange='-0.001 0.001'/>
         <motor name='left_toe_A_motor' joint='left_toe_A_joint' gear='50' ctrllimited='false' ctrlrange='-0.9 0.9'/>
         <motor name='left_toe_B_motor' joint='left_toe_B_joint' gear='50' ctrllimited='false' ctrlrange='-0.9 0.9'/>
+        <motor name="toe_pitch_joint_left" joint="left_toe_pitch_joint" gear="1" ctrllimited='true'
+               ctrlrange='-0.001 0.001'/>
+        <motor name="toe_roll_joint_left" joint="left_toe_roll_joint" gear="1" ctrllimited='true'
+               ctrlrange='-0.001 0.001'/>
 
         <motor name='left_shoulder_roll_motor' joint='left_shoulder_roll_joint' gear='80' ctrllimited='false'
                ctrlrange='-1.4 1.4'/>
@@ -505,8 +511,15 @@
         <motor name='right_hip_pitch_motor' joint='right_hip_pitch_joint' gear='16' ctrllimited='false'
                ctrlrange='-12.5 12.5'/>
         <motor name='right_knee_motor' joint='right_knee_joint' gear='16' ctrllimited='false' ctrlrange='-12.5 12.5'/>
+        <motor name="right_tarsus_motor" joint="right_tarsus_joint" gear="1" ctrllimited='true'
+               ctrlrange='-0.001 0.001'/>
         <motor name='right_toe_A_motor' joint='right_toe_A_joint' gear='50' ctrllimited='false' ctrlrange='-0.9 0.9'/>
         <motor name='right_toe_B_motor' joint='right_toe_B_joint' gear='50' ctrllimited='false' ctrlrange='-0.9 0.9'/>
+        <motor name="toe_pitch_joint_right" joint="right_toe_pitch_joint" gear="1" ctrllimited='true'
+               ctrlrange='-0.001 0.001'/>
+        <motor name="toe_roll_joint_right" joint="right_toe_roll_joint" gear="1" ctrllimited='true'
+               ctrlrange='-0.001 0.001'/>
+
 
         <motor name='right_shoulder_roll_motor' joint='right_shoulder_roll_joint' gear='80' ctrllimited='false'
                ctrlrange='-1.4 1.4'/>
@@ -514,20 +527,20 @@
                ctrlrange='-1.4 1.4'/>
         <motor name='right_shoulder_yaw_motor' joint='shoulder_yaw_joint_right' gear='50' ctrllimited='false'
                ctrlrange='-1.4 1.4'/>
-        <motor name='right_elbow_motor' joint='right_elbow_joint' gear='80' ctrllimited='false' ctrlrange='-1.4 1.4'/>-->
+        <motor name='right_elbow_motor' joint='right_elbow_joint' gear='80' ctrllimited='false' ctrlrange='-1.4 1.4'/>
 
-        <motor name='left_hip_roll_motor' joint='left_hip_roll_joint' gear='1' ctrllimited='false'
+        <!--<motor name='left_hip_roll_motor' joint='left_hip_roll_joint' gear='1' ctrllimited='false'
                ctrlrange='-1.4 1.4'/>
         <motor name='left_hip_yaw_motor' joint='left_hip_yaw_joint' gear='1' ctrllimited='false' ctrlrange='-1.4 1.4'/>
         <motor name='left_hip_pitch_motor' joint='left_hip_pitch_joint' gear='1' ctrllimited='false'
                ctrlrange='-12.5 12.5'/>
         <motor name='left_knee_motor' joint='left_knee_joint' gear='1' ctrllimited='false' ctrlrange='-12.5 12.5'/>
-<!--        <motor name="left_shin_motor" joint="left_shin_joint" gear="1" ctrllimited='true'-->
-<!--               ctrlrange='-0.001 0.001'/>-->
+&lt;!&ndash;        <motor name="left_shin_motor" joint="left_shin_joint" gear="1" ctrllimited='true'&ndash;&gt;
+&lt;!&ndash;               ctrlrange='-0.001 0.001'/>&ndash;&gt;
         <motor name="left_tarsus_motor" joint="left_tarsus_joint" gear="1" ctrllimited='true'
                ctrlrange='-0.001 0.001'/>
-<!--        <motor name="left_heel_spring_motor" joint="left_heel_spring_joint" gear="1" ctrllimited='true'-->
-<!--               ctrlrange='-0.001 0.001'/>-->
+&lt;!&ndash;        <motor name="left_heel_spring_motor" joint="left_heel_spring_joint" gear="1" ctrllimited='true'&ndash;&gt;
+&lt;!&ndash;               ctrlrange='-0.001 0.001'/>&ndash;&gt;
         <motor name='left_toe_A_motor' joint='left_toe_A_joint' gear='1' ctrllimited='false' ctrlrange='-0.9 0.9'/>
         <motor name='left_toe_B_motor' joint='left_toe_B_joint' gear='1' ctrllimited='false' ctrlrange='-0.9 0.9'/>
         <motor name="toe_pitch_joint_left" joint="left_toe_pitch_joint" gear="1" ctrllimited='true'
@@ -550,12 +563,12 @@
         <motor name='right_hip_pitch_motor' joint='right_hip_pitch_joint' gear='1' ctrllimited='false'
                ctrlrange='-12.5 12.5'/>
         <motor name='right_knee_motor' joint='right_knee_joint' gear='1' ctrllimited='false' ctrlrange='-12.5 12.5'/>
-<!--        <motor name="right_shin_motor" joint="right_shin_joint" gear="1" ctrllimited='true'-->
-<!--               ctrlrange='-0.001 0.001'/>-->
+&lt;!&ndash;        <motor name="right_shin_motor" joint="right_shin_joint" gear="1" ctrllimited='true'&ndash;&gt;
+&lt;!&ndash;               ctrlrange='-0.001 0.001'/>&ndash;&gt;
         <motor name="right_tarsus_motor" joint="right_tarsus_joint" gear="1" ctrllimited='true'
                ctrlrange='-0.001 0.001'/>
-<!--        <motor name="right_heel_spring_motor" joint="right_heel_spring_joint" gear="1" ctrllimited='true'-->
-<!--               ctrlrange='-0.001 0.001'/>-->
+&lt;!&ndash;        <motor name="right_heel_spring_motor" joint="right_heel_spring_joint" gear="1" ctrllimited='true'&ndash;&gt;
+&lt;!&ndash;               ctrlrange='-0.001 0.001'/>&ndash;&gt;
         <motor name='right_toe_A_motor' joint='right_toe_A_joint' gear='1' ctrllimited='false' ctrlrange='-0.9 0.9'/>
         <motor name='right_toe_B_motor' joint='right_toe_B_joint' gear='1' ctrllimited='false' ctrlrange='-0.9 0.9'/>
         <motor name="toe_pitch_joint_right" joint="right_toe_pitch_joint" gear="1" ctrllimited='true'
@@ -570,7 +583,7 @@
                ctrlrange='-1.4 1.4'/>
         <motor name='right_shoulder_yaw_motor' joint='shoulder_yaw_joint_right' gear='1' ctrllimited='false'
                ctrlrange='-1.4 1.4'/>
-        <motor name='right_elbow_motor' joint='right_elbow_joint' gear='1' ctrllimited='false' ctrlrange='-1.4 1.4'/>
+        <motor name='right_elbow_motor' joint='right_elbow_joint' gear='1' ctrllimited='false' ctrlrange='-1.4 1.4'/>-->
     </actuator>
 
     <sensor>

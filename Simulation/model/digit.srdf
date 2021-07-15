@@ -70,16 +70,19 @@
         <joint name="left_knee_joint" mass="0.120576" gear_ratio="16.0"/>
         <joint name="left_toe_A_joint" mass="0.035" gear_ratio="50.0"/>
         <joint name="left_toe_B_joint"  mass="0.035" gear_ratio="50.0"/>
+
         <joint name="left_shoulder_roll_joint"  mass="0.1728" gear_ratio="80.0"/>
         <joint name="left_shoulder_pitch_joint"  mass="0.1728" gear_ratio="80.0"/>
         <joint name="shoulder_yaw_joint_left"  mass="0.0675" gear_ratio="50.0"/>
-        <joint name="right_elbow_joint" mass="0.1728" gear_ratio="80.0"/>
+        <joint name="left_elbow_joint" mass="0.1728" gear_ratio="80.0"/>
+
         <joint name="right_hip_roll_joint" mass="0.1728" gear_ratio="80.0"/>
         <joint name="right_hip_yaw_joint" mass="0.0675" gear_ratio="50.0"/>
         <joint name="right_hip_pitch_joint" mass="0.120576" gear_ratio="16.0"/>
         <joint name="right_knee_joint" mass="0.120576" gear_ratio="16.0"/>
         <joint name="right_toe_A_joint" mass="0.035" gear_ratio="50.0"/>
         <joint name="right_toe_B_joint"  mass="0.035" gear_ratio="50.0"/>
+
         <joint name="right_shoulder_roll_joint"  mass="0.1728" gear_ratio="80.0"/>
         <joint name="right_shoulder_pitch_joint"  mass="0.1728" gear_ratio="80.0"/>
         <joint name="shoulder_yaw_joint_right"  mass="0.0675" gear_ratio="50.0"/>
