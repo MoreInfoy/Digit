@@ -10,8 +10,8 @@
 #define ROBOT_NV 36
 #endif
 
-#define ROBOT_NJ 30 // Joints number, include passive joints
-#define ROBOT_NU 30 // Actuator number
+#define ROBOT_NJ 26 // Joints number, not include passive joints
+#define ROBOT_NU 26 // Actuator number
 #define RealNum double
 #define MJKEY "@THIS_COM@/Simulation/lib/mjkey.txt"
 

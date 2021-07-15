@@ -240,11 +240,12 @@
         </collision>
     </link>
 
-    <joint name="left_shin_joint" type="revolute">
+    <joint name="left_shin_joint" type="fixed">
         <origin rpy="0 0 0" xyz="0.060677 0.047406 0"/>
         <axis xyz="0 0 1"/>
         <parent link="left_knee"/>
         <child link="left_shin"/>
+        <dynamics damping="0.01" friction="0.0"/>
         <limit effort="0.001" lower="-0.35" upper="0.35" velocity="10"/>
     </joint>
 
@@ -277,7 +278,7 @@
         <axis xyz="0 0 1"/>
         <parent link="left_shin"/>
         <child link="left_tarsus"/>
-        <dynamics damping="0.0" friction="0.0"/>
+        <dynamics damping="0.01" friction="0.0"/>
         <limit effort="0.001" lower="-0.8779" upper="1.2497" velocity="20"/>
     </joint>
 
@@ -305,11 +306,12 @@
         </collision>
     </link>
 
-    <joint name="left_heel_spring_joint" type="revolute">
+    <joint name="left_heel_spring_joint" type="fixed">
         <origin rpy="-0.0689073 -0.0370354 2.7207176" xyz="-0.01766 -0.029456 0.00104"/>
         <axis xyz="0 0 1"/>
         <parent link="left_tarsus"/>
         <child link="left_heel_spring"/>
+        <dynamics damping="0.01" friction="0.0"/>
         <limit effort="0.001" lower="-0.104719753333" upper="0.104719753333" velocity="11.5"/>
     </joint>
 
@@ -508,7 +510,7 @@
         <axis xyz="0 0 1"/>
         <parent link="left_tarsus"/>
         <child link="left_toe_pitch"/>
-        <dynamics damping="0.0" friction="0.0"/>
+        <dynamics damping="0.01" friction="0.0"/>
         <limit effort="0.001" lower="-0.785398163397" upper="0.785398163397" velocity="11.5"/>
     </joint>
 
@@ -541,7 +543,7 @@
         <axis xyz="0 0 1"/>
         <parent link="left_toe_pitch"/>
         <child link="left_toe_roll"/>
-        <dynamics damping="0.0" friction="0.0"/>
+        <dynamics damping="0.01" friction="0.0"/>
         <limit effort="0.001" lower="-0.6109" upper="0.6109" velocity="11.5"/>
     </joint>
 
@@ -948,11 +950,12 @@
         </collision>
     </link>
 
-    <joint name="right_shin_joint" type="revolute">
+    <joint name="right_shin_joint" type="fixed">
         <origin rpy="0 0 0" xyz="0.060677 -0.047406 0"/>
         <axis xyz="0 0 1"/>
         <parent link="right_knee"/>
         <child link="right_shin"/>
+        <dynamics damping="0.01"/>
         <limit effort="0.001" lower="-0.35" upper="0.35" velocity="10"/>
     </joint>
 
@@ -985,7 +988,7 @@
         <axis xyz="0 0 1"/>
         <parent link="right_shin"/>
         <child link="right_tarsus"/>
-        <dynamics damping="0.0" friction="0.0"/>
+        <dynamics damping="0.01" friction="0.0"/>
         <limit effort="0.001" lower="-1.2497" upper="0.8779" velocity="20"/>
     </joint>
 
@@ -1013,11 +1016,12 @@
         </collision>
     </link>
 
-    <joint name="right_heel_spring_joint" type="revolute">
+    <joint name="right_heel_spring_joint" type="fixed">
         <origin rpy="0.0689073 -0.0370354 -2.7207176" xyz="-0.01766 0.029456 0.00104"/>
         <axis xyz="0 0 1"/>
         <parent link="right_tarsus"/>
         <child link="right_heel_spring"/>
+        <dynamics damping="0.01"/>
         <limit effort="0.001" lower="-0.104719753333" upper="0.104719753333" velocity="11.5"/>
     </joint>
 
@@ -1217,7 +1221,7 @@
         <axis xyz="0 0 1"/>
         <parent link="right_tarsus"/>
         <child link="right_toe_pitch"/>
-        <dynamics damping="0.0" friction="0.0"/>
+        <dynamics damping="0.01" friction="0.0"/>
         <limit effort="0.001" lower="-0.785398163397" upper="0.785398163397" velocity="11.5"/>
     </joint>
 
@@ -1250,7 +1254,7 @@
         <axis xyz="0 0 1"/>
         <parent link="right_toe_pitch"/>
         <child link="right_toe_roll"/>
-        <dynamics damping="0.0" friction="0.0"/>
+        <dynamics damping="0.01" friction="0.0"/>
         <limit effort="0.0" lower="-0.6109" upper="0.6109" velocity="11.5"/>
     </joint>
 

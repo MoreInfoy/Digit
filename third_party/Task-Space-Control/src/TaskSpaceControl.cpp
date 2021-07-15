@@ -204,7 +204,9 @@ void TaskSpaceControl::saveAllData(string file_name) {
             << "-----------------------optimal_torque------------------------" << endl
             << getOptimalTorque().transpose() << endl
             << "-----------------------optimal_force------------------------" << endl
-            << getOptimalContactForce().transpose() << endl;
+            << getOptimalContactForce().transpose() << endl
+            << "-----------------------spring force------------------------" << endl
+            << _robot.jointsSpringForce().transpose() << endl;
     outfile.close();
 }
 
