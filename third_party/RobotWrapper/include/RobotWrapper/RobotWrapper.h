@@ -11,9 +11,17 @@ using namespace RobotWrapperMath;
 
 class RobotWrapper {
 public:
-    explicit RobotWrapper(string urdf_file, bool isFixedBase = false);
+    RobotWrapper(string urdf_file, bool isFixedBase = false);
+
+    RobotWrapper(string urdf_file, string srdf_file, bool isFixedBase = false);
 
     void setContactMask(const VecXi &mask);
+
+    ConstRefVec homeConfigurations();
+
+    ConstRefVec gear_ratio();
+
+    ConstRefVec rotorInertia();
 
     ConstRefVec actuatorsEffortLimit();
 
@@ -115,6 +123,8 @@ private:
     pin::Model _model;
     pin::Data _data;
     string _urdf_file;
+    bool has_srdf;
+    string _srdf_file;
     Vec _qpos;
     Vec _qvel;
     bool _isFixedBase;

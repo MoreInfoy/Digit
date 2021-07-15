@@ -5,6 +5,7 @@
 #include "RobotWrapper/RobotWrapper.h"
 
 RobotWrapper::RobotWrapper(string urdf_file, bool isFixedBase) : _urdf_file(urdf_file),
+                                                                 has_srdf(false),
                                                                  _isFixedBase(isFixedBase) {
     if (isFixedBase) {
         pin::urdf::buildModel(urdf_file, _model);
@@ -22,6 +23,66 @@ RobotWrapper::RobotWrapper(string urdf_file, bool isFixedBase) : _urdf_file(urdf
     _qvel = Vec::Zero(nv());
     _jointsSpringForce = Vec::Zero(na());
     _actuatorsDampingForce = Vec::Zero(na());
+}
+
+RobotWrapper::RobotWrapper(string urdf_file, string srdf_file, bool isFixedBase) : _urdf_file(urdf_file),
+                                                                                   has_srdf(true),
+                                                                                   _srdf_file(srdf_file),
+                                                                                   _isFixedBase(isFixedBase) {
+    if (isFixedBase) {
+        pin::urdf::buildModel(urdf_file, _model);
+    } else {
+        pin::urdf::buildModel(urdf_file, pin::JointModelFreeFlyer(), _model);
+    }
+    pin::srdf::loadReferenceConfigurations(_model, srdf_file, false);
+    pin::srdf::loadRotorParameters(_model, srdf_file, false);
+    _data = pin::Data(_model);
+    for (pin::JointIndex joint_id = 0; joint_id < (pin::JointIndex) _model.njoints; ++joint_id)
+        std::cout << std::setw(24) << std::left
+                  << _model.names[joint_id] << ":" << _model.getJointId(_model.names[joint_id]) << endl;
+    cout << "Joint damping: " << _model.damping.transpose() << endl;
+    cout << "Joint friction: " << _model.friction.transpose() << endl;
+    cout << "rotor gear_ratio: " << _model.rotorGearRatio.transpose() << endl;
+    cout << "rotor inertia: " << _model.rotorInertia.transpose() << endl;
+
+    _qpos = Vec::Zero(nq());
+    _qvel = Vec::Zero(nv());
+    _jointsSpringForce = Vec::Zero(na());
+    _actuatorsDampingForce = Vec::Zero(na());
+}
+
+ConstRefVec RobotWrapper::homeConfigurations() {
+    if(has_srdf)
+    {
+        return _model.referenceConfigurations["home"];
+    }
+    else
+    {
+        throw runtime_error("no SRDF file has been given for home configuration");
+    }
+}
+
+ConstRefVec RobotWrapper::gear_ratio()
+{
+    if(has_srdf)
+    {
+        return _model.rotorGearRatio;
+    }
+    else
+    {
+        throw runtime_error("no SRDF file has been given for rotorGearRatio");
+    }
+}
+
+ConstRefVec RobotWrapper::rotorInertia() {
+    if(has_srdf)
+    {
+        return _model.rotorInertia;
+    }
+    else
+    {
+        throw runtime_error("no SRDF file has been given for rotorInertia");
+    }
 }
 
 ConstRefVec RobotWrapper::actuatorsEffortLimit() {

@@ -60,7 +60,7 @@ double q_init[] = {-0.000064, 0.000070, 0.950181, 0.999999, 0.000030, -0.000027,
                    0.325685, 0.003982, 0.060953, 0.998499, -0.002613, 0.000547, 0.054705, 0.109731, -0.109664,
                    0.027702, 0.999890, -0.004864, 0.001440, -0.013921, -0.061125, 0.999420, 0.011867, -0.002226,
                    0.031841, -0.046928, -0.057329, -0.308679, 0.937404, -0.037069, 0.020408, -0.325474, -0.000611,
-                   -0.062242, 0.998510, 0.002614, 0.000544, -0.054497, -0.109314,  0.109222,  -0.026694, 0.999897,
+                   -0.062242, 0.998510, 0.002614, 0.000544, -0.054497, -0.109314, 0.109222, -0.026694, 0.999897,
                    0.004863, 0.001417, 0.013403, 0.060098, 0.999437, -0.011867, -0.002203, -0.031310, 0.045831,
                    0.057292, 0.309157, -1.012092, 0.001563, 0.019892};
 //double q_init[] = {0, 0, 0.9, 1, 0, 0, 0,
@@ -1713,7 +1713,7 @@ void render(GLFWwindow *window) {
 
 // get robot state
 void getRobotState(void) {
-    if (m->nu != ROBOT_NU) {
+    /*if (m->nu != ROBOT_NU) {
         printf("nu = %d\n", m->nu);
         throw std::runtime_error("[Simulate::getRobotState] m->nu != ROBOT_NU");
     }
@@ -1734,7 +1734,7 @@ void getRobotState(void) {
     printf("qJ_vel: ");
     mju_printMat(d->sensordata + 13 + ROBOT_NJ, 1, ROBOT_NJ);
     printf("passive force: ");
-    mju_printMat(d->qfrc_passive, 1, m->nv);
+    mju_printMat(d->qfrc_passive, 1, m->nv);*/
 
 #ifdef USE_SENSORS_DATA
     shared_memory().robotToUser.floatingBaseState.pos << d->sensordata[0], d->sensordata[1], d->sensordata[2];
@@ -1743,25 +1743,24 @@ void getRobotState(void) {
     shared_memory().robotToUser.floatingBaseState.quat.z() = d->sensordata[6];
     shared_memory().robotToUser.floatingBaseState.quat.w() = d->sensordata[3];
     std::memcpy(shared_memory().robotToUser.jointsState.qpos.data(), d->sensordata + 7, ROBOT_NJ * sizeof(mjtNum));
-    shared_memory().robotToUser.floatingBaseState.vel << d->sensordata[7 + ROBOT_NJ], d->sensordata[8 +
-                                                                                                    ROBOT_NJ], d->sensordata[
-            9 +
-            ROBOT_NJ];
-    shared_memory().robotToUser.floatingBaseState.omega << d->sensordata[10 + ROBOT_NJ], d->sensordata[11 +
-                                                                                                       ROBOT_NJ], d->sensordata[
-            12 +
-            ROBOT_NJ];
-    std::memcpy(shared_memory().robotToUser.jointsState.qvel.data(), d->sensordata + 13 + ROBOT_NJ,
+    shared_memory().robotToUser.floatingBaseState.vel << d->sensordata[7 + ROBOT_NJ],
+            d->sensordata[8 + ROBOT_NJ],
+            d->sensordata[9 + ROBOT_NJ];
+    shared_memory().robotToUser.floatingBaseState.omega << d->sensordata[10 + ROBOT_NJ],
+            d->sensordata[11 + ROBOT_NJ],
+            d->sensordata[12 + ROBOT_NJ];
+    std::memcpy(shared_memory().robotToUser.jointsState.qvel.data(),
+                d->sensordata + 13 + ROBOT_NJ,
                 ROBOT_NJ * sizeof(mjtNum));
 
-    printf("floating base pose: ");
+    /*printf("floating base pose: ");
     cout << shared_memory().robotToUser.floatingBaseState.pos.transpose() << endl;
     printf("qJ_pos: ");
     cout << shared_memory().robotToUser.jointsState.qpos.transpose() << endl;
     printf("floating base vel: ");
     cout << shared_memory().robotToUser.floatingBaseState.vel.transpose() << endl;
     printf("qJ_vel: ");
-    cout << shared_memory().robotToUser.jointsState.qvel.transpose() << endl;
+    cout << shared_memory().robotToUser.jointsState.qvel.transpose() << endl;*/
 #else
     if (m->nq == m->nv) {
         shared_memory().robotToUser.floatingBaseState.pos.setZero();

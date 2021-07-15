@@ -12,54 +12,22 @@ bool fixedBase = false;
 #endif
 using namespace TSC;
 
-TSC_IMPL::TSC_IMPL(string urdf_file) : _robot(urdf_file, fixedBase), _iter(0) {
+TSC_IMPL::TSC_IMPL(string urdf_file, string srdf) : _robot(urdf_file, srdf, fixedBase), _iter(0) {
     Vec qpos(_robot.nq()), qvel(_robot.nv());
-    if (_robot.isFixedBase()) {
-        qpos << 0.325685, 0.00398248, 0.0609534, 0.109731, -0.109664, 0.0277016, -0.0611248, -0.0469275, -0.0573293,
-                -0.308679, 0.937404, -0.0370688, 0.0204076,
-                -0.325474, -0.000611338, -0.0622421, -0.109314, 0.109222, -0.0266944, 0.0600983, 0.0458314, 0.0572924,
-                0.309157, -1.01209, 0.00156306, 0.0198919;
-        /*qpos << 0.325685, 0.00398248, 0.0609534, 0.109731, 0, -0.109664,
-                0, 0.0277016, -0.0611248, -0.0469275, -0.0573293,
-                -0.308679, 0.937404, -0.0370688, 0.0204076,
-                -0.325474, -0.000611338, -0.0622421, -0.109314,
-                0, 0.109222, 0, -0.0266944, 0.0600983, 0.0458314, 0.0572924,
-                0.309157, -1.01209, 0.00156306, 0.0198919;;*/
-        /*qpos << 0.325, 0, 0, 0, 0, -0.102, -0.07,
-                -0.325, 0, 0, 0, 0, 0.102, 0.07,
-                -0.288, 0.987, 0, 0,
-                0.288, -0.987, 0, 0;*/
-        qvel.setZero();
-    } else {
-        qpos << 0, 0, 0.95, 0, 0, 0, 1,
-                0.325685, 0.00398248, 0.0609534, 0.109731, -0.109664, 0.0277016, -0.0611248, -0.0469275, -0.0573293,
-                -0.308679, 0.937404, -0.0370688, 0.0204076,
-                -0.325474, -0.000611338, -0.0622421, -0.109314, 0.109222, -0.0266944, 0.0600983, 0.0458314, 0.0572924,
-                0.309157, -1.01209, 0.00156306, 0.0198919;
-        /*qpos << 0, 0, 0.95, 0, 0, 0, 1,
-                0.325685, 0.00398248, 0.0609534, 0.109731, 0, -0.109664, 0, 0.0277016, -0.0611248, -0.0469275, -0.0573293,
-                -0.308679, 0.937404, -0.0370688, 0.0204076,
-                -0.325474, -0.000611338, -0.0622421, -0.109314, 0, 0.109222, 0, -0.0266944, 0.0600983, 0.0458314, 0.0572924,
-                0.309157, -1.01209, 0.00156306, 0.0198919;;*/
-        /*qpos << 0, 0, 0.9, 0, 0, 0, 1,
-                0.325, 0, 0, 0, 0, -0.102, -0.07,
-                -0.325, 0, 0, 0, 0, 0.102, 0.07,
-                -0.288, 0.987, 0, 0,
-                0.288, -0.987, 0, 0;*/
-        qvel.setZero();
-    }
+    qpos = _robot.homeConfigurations();
+    qvel.setZero();
     _robot.computeAllData(qpos, qvel);
 
     mt_waist = new SE3MotionTask(_robot, "torso");
-    mt_waist->Kp() = 500 * Mat6::Identity();
-    mt_waist->Kd() = 0.5 * mt_waist->Kp().cwiseSqrt();
+    mt_waist->Kp().diagonal() << 0, 0, 0, 500, 500, 500;
+    mt_waist->Kd() = 2 * mt_waist->Kp().cwiseSqrt();
     mt_waist->weightMatrix() = 1000 * mt_waist->weightMatrix();
     mt_waist->SE3Ref() = _robot.frame_pose("torso");
 
     com = new CoMMotionTask(_robot, "com");
     com->weightMatrix() = 500 * com->weightMatrix();
     com->Kp() = 500 * Mat3::Identity();
-    com->Kd() = 0.5 * com->Kp().cwiseSqrt();
+    com->Kd() = 2 * com->Kp().cwiseSqrt();
     com->posRef() = _robot.CoM_pos();
     com->velRef().setZero();
     com->accRef().setZero();
@@ -74,21 +42,7 @@ TSC_IMPL::TSC_IMPL(string urdf_file) : _robot(urdf_file, fixedBase), _iter(0) {
     jointsNominalTask->Kp() = 100 * jointsNominalTask->Kp();
     jointsNominalTask->Kd().setIdentity();
     jointsNominalTask->Kd() = 0.5 * jointsNominalTask->Kd();
-    jointsNominalTask->norminalPosition()
-            << 0.325685, 0.00398248, 0.0609534, 0.109731, -0.109664, 0.0277016, -0.0611248, -0.0469275, -0.0573293,
-            -0.308679, 0.937404, -0.0370688, 0.0204076,
-            -0.325474, -0.000611338, -0.0622421, -0.109314, 0.109222, -0.0266944, 0.0600983, 0.0458314, 0.0572924,
-            0.309157, -1.01209, 0.00156306, 0.0198919;
-    /*jointsNominalTask->norminalPosition()
-            << 0.325685, 0.00398248, 0.0609534, 0.109731, 0, -0.109664, 0, 0.0277016, -0.0611248, -0.0469275, -0.0573293,
-            -0.308679, 0.937404, -0.0370688, 0.0204076,
-            -0.325474, -0.000611338, -0.0622421, -0.109314, 0, 0.109222, 0, -0.0266944, 0.0600983, 0.0458314, 0.0572924,
-            0.309157, -1.01209, 0.00156306, 0.0198919;*/
-//    jointsNominalTask->norminalPosition()
-//            << 0.325, 0, 0, 0, 0, -0.102, -0.07,
-//            -0.325, 0, 0, 0, 0, 0.102, 0.07,
-//            -0.288, 0.987, 0, 0,
-//            0.288, -0.987, 0, 0;
+    jointsNominalTask->norminalPosition() = _robot.homeConfigurations().tail(_robot.na());
 
     angularMomentumTask = new AngularMomentumTask(_robot, "AngularMomentumTask");
     angularMomentumTask->weightMatrix().diagonal().fill(10);
@@ -128,12 +82,10 @@ TSC_IMPL::TSC_IMPL(string urdf_file) : _robot(urdf_file, fixedBase), _iter(0) {
     tsc->addLinearConstraint(closedChainsConstraints);
     tsc->addTask(com);
     tsc->addTask(rt);
-//        tsc->removeTask(rt->name());
     tsc->addTask(jointsNominalTask);
-    tsc->addTask(angularMomentumTask );
+    tsc->addTask(angularMomentumTask);
     tsc->addLinearConstraint(actuatorLimit);
-//    tsc->addLinearConstraint(qaccBound);
-    //    tsc.removeLinearConstraint(ccstr.name());
+    tsc->addLinearConstraint(qaccBound);
 
     contact_virtual_link.emplace_back("contact1");
     contact_virtual_link.emplace_back("contact2");
@@ -160,7 +112,6 @@ TSC_IMPL::TSC_IMPL(string urdf_file) : _robot(urdf_file, fixedBase), _iter(0) {
     _robot.setSpringJoints(spring_joints);*/
 
     cout << "tau limit: " << _robot.actuatorsEffortLimit().transpose() << endl;
-//    exit(0);
 }
 
 TSC_IMPL::~TSC_IMPL() {
@@ -201,29 +152,18 @@ void TSC_IMPL::solve(ConstVecRef qpos, ConstVecRef qvel, const VecInt &mask) {
         par = _robot.connectPointRelativeJacobia().middleRows(i * 6, 6) * qvel;
         T_dot.block<3, 1>(i * 6, i) = par.head(3);
     }
-    /*T.resize(link_pairs.size() * 6, link_pairs.size() * 3);
-    T.setZero();
-    T_dot = T;
-    for (int i = 0; i < link_pairs.size(); i++) {
-        T.block<3, 3>(i * 6, i*3).setIdentity();
-    }*/
 
     _robot.setConstraintForceSubspace(T, T_dot);
     _robot.computeClosedChainTerm();
-    /*cout << "T" << T << endl;
-    cout << "T_dot" << T_dot << endl;*/
 
     if (_robot.isFixedBase()) {
         rf->SE3Ref().translation()(2) = -0.839273 + 0.10 * sin(0.004 * _iter);
         lf->SE3Ref().translation()(2) = -0.839273 - 0.10 * sin(0.004 * _iter);
     } else {
-//        mt_waist->SE3Ref().translation()(2) = 0.892442 + 0.05 * sin(0.004 * _iter);
+        com->posRef()(2) = 0.892442 + 0.05 * sin(0.004 * _iter);
     }
     tsc->solve();
-//    cout << robot().frame_pose("left_toe_roll") << endl;
-
-//    cout << robot().frame_6dVel_local("torso") << endl;
-    tsc->saveAllData("data.txt");
+//    tsc->saveAllData("data.txt");
 }
 
 void TSC_IMPL::run(const Reference &ref, const RobotState &state) {
@@ -247,26 +187,18 @@ void TSC_IMPL::run(const Reference &ref, const RobotState &state) {
                 state.floatingBaseState.quat.toRotationMatrix().transpose() *
                 state.floatingBaseState.omega, state.jointsState.qvel;
     }
-//    for (int i = 0; i < _dataSets.robotModelData.model.nv + 1; i++) {
-//        printf("%f, ", qpos(i));
-//    }
-//    printf("\n qdot: ");
-//    for (int i = 0; i < qdot.size(); i++) {
-//        printf("%f, ", qdot(i));
-//    }
-
 
     Timer timer;
     solve(qpos, qdot, _mask);
-    cout << "time cost: " << timer.getMs() << endl;
+    cout << "time cost: " << timer.getMs() << " ms"<< endl;
 
     _jointsCmd.tau_ff = getOptimalTorque();
     /*auto tau = getOptimalTorque();
     _jointsCmd.tau_ff << tau.head(4), tau.segment(5, 2), tau.segment(9, 8), tau.segment(18, 2), tau.tail(4);*/
 //    cout << "optimal qacc: " << getOptimalQacc().transpose() << endl;
 //    cout << "optimal force: " << getOptimalContactForce().transpose() << endl;
-    cout << "optimal torque: " << _jointsCmd.tau_ff.transpose() << endl;
-    cout << "jointSpringForce:" << _robot.jointsSpringForce().transpose() << endl;
+//    cout << "optimal torque: " << _jointsCmd.tau_ff.transpose() << endl;
+//    cout << "jointSpringForce:" << _robot.jointsSpringForce().transpose() << endl;
     _iter++;
 }
 

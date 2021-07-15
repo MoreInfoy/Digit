@@ -16,5 +16,6 @@
 #define MJKEY "@THIS_COM@/Simulation/lib/mjkey.txt"
 
 #define URDF "@THIS_COM@/Simulation/model/digit_ysp_o.urdf"
+#define SRDF "@THIS_COM@/Simulation/model/digit.srdf"
 
 #endif

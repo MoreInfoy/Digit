@@ -136,7 +136,7 @@ void TaskSpaceControl::solve() {
     opt.enableEqualities = qpOASES::BT_TRUE;
     opt.enableRegularisation = qpOASES::BT_TRUE;
     opt.numRegularisationSteps = 1000;
-    opt.printLevel = qpOASES::PL_DEBUG_ITER;
+    opt.printLevel = qpOASES::PL_NONE;
     solver->setOptions(opt);
 
     qpOASES::int_t nWSR = 5000;

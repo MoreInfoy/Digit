@@ -16,7 +16,7 @@
 
 //#define USE_QPOASES
 
-#define PRINT_ERR
+//#define PRINT_ERR
 
 namespace TSC {
     class TaskSpaceControl {

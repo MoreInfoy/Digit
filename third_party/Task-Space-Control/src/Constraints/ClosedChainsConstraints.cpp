@@ -25,8 +25,8 @@ void ClosedChainsConstraints::update() {
         Mat ParN = rank_check.image(Par).transpose();
         Mat Jcf = ParN.leftCols(robot().constraintForceJacobia().cols());
 
-        cout << "constraintForceJacobia: \n" << robot().constraintForceJacobia() << endl;
-        cout << "constraintForceJacobia new: \n" << Jcf << endl;
+        /*cout << "constraintForceJacobia: \n" << robot().constraintForceJacobia() << endl;
+        cout << "constraintForceJacobia new: \n" << Jcf << endl;*/
 
         _C.noalias() = Jcf * S;
         _c_ub = ParN.rightCols(1);

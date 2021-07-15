@@ -24,8 +24,8 @@ void ActuatorLimit::update() {
     } else {
         _C << Ma, -Jca.transpose();
     }
-    cout << "tau lb: " << _lb.transpose() << endl;
-    cout << "tau ub: " << _ub.transpose() << endl;
+    /*cout << "tau lb: " << _lb.transpose() << endl;
+    cout << "tau ub: " << _ub.transpose() << endl;*/
 #ifdef DAMPING_TERM
     _c_lb = _lb - ba + _robot.jointsSpringForce() + _robot.actuatorsDampingForce();
     _c_ub = _ub - ba + _robot.jointsSpringForce() + _robot.actuatorsDampingForce();

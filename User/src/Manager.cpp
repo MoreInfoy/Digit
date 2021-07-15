@@ -6,7 +6,7 @@
 #include "Manager.h"
 
 Manager::Manager(const RobotState &state) : _state(state) {
-    tsc = new TSC_IMPL(URDF);
+    tsc = new TSC_IMPL(URDF, SRDF);
 
 }
 

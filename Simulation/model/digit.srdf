@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--This does not replace URDF, and is not an extension of URDF.
+    This is a format for representing semantic information about the robot structure.
+    A URDF file must exist for this robot as well, where the joints and the links that are referenced are defined
+-->
+<robot name="digit">
+    <group_state name="home" group="all">
+        <joint name="root_joint" value="0. 0. 0.95 0. 0. 0. 1."/>
+        <joint name="left_hip_roll_joint" value="0.325685"/>
+        <joint name="left_hip_yaw_joint" value="0.00398248"/>
+        <joint name="left_hip_pitch_joint" value="0.0609534"/>
+        <joint name="left_knee_joint" value="0.109731"/>
+        <joint name="left_tarsus_joint" value="-0.109664"/>
+        <joint name="left_toe_A_joint" value="0.0277016"/>
+        <joint name="left_toe_B_joint" value="-0.0611248"/>
+        <joint name="left_toe_pitch_joint" value="-0.0469275"/>
+        <joint name="left_toe_roll_joint" value="-0.0573293"/>
+        <joint name="left_shoulder_roll_joint" value="-0.308679"/>
+        <joint name="left_shoulder_pitch_joint" value="0.937404"/>
+        <joint name="shoulder_yaw_joint_left" value="-0.0370688"/>
+        <joint name="left_elbow_joint" value="0.0204076"/>
+        <joint name="right_hip_roll_joint" value="-0.325474"/>
+        <joint name="right_hip_yaw_joint" value="-0.000611338"/>
+        <joint name="right_hip_pitch_joint" value="-0.0622421"/>
+        <joint name="right_knee_joint" value="-0.109314"/>
+        <joint name="right_tarsus_joint" value="0.109222"/>
+        <joint name="right_toe_A_joint" value="-0.0266944"/>
+        <joint name="right_toe_B_joint" value="0.0600983"/>
+        <joint name="right_toe_pitch_joint" value="0.0458314"/>
+        <joint name="right_toe_roll_joint" value="0.0572924"/>
+        <joint name="right_shoulder_roll_joint" value="0.309157"/>
+        <joint name="right_shoulder_pitch_joint" value="-0.937404"/>
+        <joint name="shoulder_yaw_joint_right" value="-0.0370688"/>
+        <joint name="right_elbow_joint" value="0.0204076"/>
+    </group_state>
+
+    <!--<group_state name="init_pos" group="all">
+        <joint name="left_hip_roll_joint" value="0.325685" />
+        <joint name="left_hip_yaw_joint"  value="0.00398248" />
+        <joint name="left_hip_pitch_joint"  value="0.0609534" />
+        <joint name="left_knee_joint"  value="0.109731" />
+        <joint name="left_tarsus_joint"  value="-0.109664" />
+        <joint name="left_toe_A_joint"  value="0.0277016" />
+        <joint name="left_toe_B_joint"  value="-0.0611248" />
+        <joint name="left_toe_pitch_joint"  value="-0.0469275" />
+        <joint name="left_toe_roll_joint"  value="-0.0573293" />
+        <joint name="left_shoulder_roll_joint"  value="-0.308679" />
+        <joint name="left_shoulder_pitch_joint"  value="0.937404" />
+        <joint name="shoulder_yaw_joint_left"  value="-0.0370688" />
+        <joint name="left_elbow_joint"  value="0.0204076" />
+        <joint name="right_hip_roll_joint"  value="-0.325474" />
+        <joint name="right_hip_yaw_joint"  value="-0.000611338" />
+        <joint name="right_hip_pitch_joint"  value="-0.0622421" />
+        <joint name="right_knee_joint"  value="-0.109314" />
+        <joint name="right_tarsus_joint"  value="0.109222" />
+        <joint name="right_toe_A_joint"  value="-0.0266944" />
+        <joint name="right_toe_B_joint"  value="0.0600983" />
+        <joint name="right_toe_pitch_joint"  value="0.0458314" />
+        <joint name="right_toe_roll_joint"  value="0.0572924" />
+        <joint name="right_shoulder_roll_joint"  value="0.309157" />
+        <joint name="right_shoulder_pitch_joint"  value="-0.937404" />
+        <joint name="shoulder_yaw_joint_right"  value="-0.0370688" />
+        <joint name="right_elbow_joint"  value="0.0204076" />
+    </group_state>-->
+
+    <rotor_params>
+        <joint name="left_hip_roll_joint" mass="0.1728" gear_ratio="80.0"/>
+        <joint name="left_hip_yaw_joint" mass="0.0675" gear_ratio="50.0"/>
+        <joint name="left_hip_pitch_joint" mass="0.120576" gear_ratio="16.0"/>
+        <joint name="left_knee_joint" mass="0.120576" gear_ratio="16.0"/>
+        <joint name="left_toe_A_joint" mass="0.035" gear_ratio="50.0"/>
+        <joint name="left_toe_B_joint"  mass="0.035" gear_ratio="50.0"/>
+        <joint name="left_shoulder_roll_joint"  mass="0.1728" gear_ratio="80.0"/>
+        <joint name="left_shoulder_pitch_joint"  mass="0.1728" gear_ratio="80.0"/>
+        <joint name="shoulder_yaw_joint_left"  mass="0.0675" gear_ratio="50.0"/>
+        <joint name="right_elbow_joint" mass="0.1728" gear_ratio="80.0"/>
+        <joint name="right_hip_roll_joint" mass="0.1728" gear_ratio="80.0"/>
+        <joint name="right_hip_yaw_joint" mass="0.0675" gear_ratio="50.0"/>
+        <joint name="right_hip_pitch_joint" mass="0.120576" gear_ratio="16.0"/>
+        <joint name="right_knee_joint" mass="0.120576" gear_ratio="16.0"/>
+        <joint name="right_toe_A_joint" mass="0.035" gear_ratio="50.0"/>
+        <joint name="right_toe_B_joint"  mass="0.035" gear_ratio="50.0"/>
+        <joint name="right_shoulder_roll_joint"  mass="0.1728" gear_ratio="80.0"/>
+        <joint name="right_shoulder_pitch_joint"  mass="0.1728" gear_ratio="80.0"/>
+        <joint name="shoulder_yaw_joint_right"  mass="0.0675" gear_ratio="50.0"/>
+        <joint name="right_elbow_joint" mass="0.1728" gear_ratio="80.0"/>
+    </rotor_params>
+
+</robot>

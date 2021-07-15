@@ -23,7 +23,7 @@ using namespace TSC;
 
 class TSC_IMPL : public Controller {
 public:
-    TSC_IMPL(string urdf_file);
+    TSC_IMPL(string urdf_file, string srdf);
 
     ~TSC_IMPL();
 
