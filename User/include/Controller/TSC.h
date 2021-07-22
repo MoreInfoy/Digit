@@ -6,18 +6,7 @@
 #define POPLARDIGIT_TSC_H
 
 #include "Controller/Controller.h"
-
-#include "TaskSpaceControl.h"
-#include "Task/SE3MotionTask.h"
-#include "Task/RegularizationTask.h"
-#include "Constraints/ContactPointsConstraints.h"
-#include "Constraints/ContactForceConstraints.h"
-#include "Constraints/ActuatorLimit.h"
-#include "Constraints/ClosedChainsConstraints.h"
-#include "Task/CoMMotionTask.h"
-#include "Constraints/QaccBound.h"
-#include "Task/JointsNominalTask.h"
-#include "Task/AngularMomentumTask.h"
+#include "PoplarLib.h"
 
 using namespace TSC;
 

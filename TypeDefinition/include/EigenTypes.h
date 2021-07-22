@@ -8,7 +8,7 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
 
-#include "ConfigurationTSC.h"
+#include "Configuration.h"
 
 namespace Poplar {
 

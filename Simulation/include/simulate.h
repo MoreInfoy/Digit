@@ -9,7 +9,7 @@
 
 #include "mjxmacro.h"
 #include "uitools.h"
-#include "ConfigurationTSC.h"
+#include "Configuration.h"
 #include "stdio.h"
 #include "string.h"
 

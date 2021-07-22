@@ -1,0 +1,2 @@
+add_subdirectory(eiquadprog)
+add_subdirectory(qpOASES)
