@@ -25,7 +25,7 @@ int main() {
     x0 << 0, 0, 0, 0, 0, 0.41, 0, 0, 0, 0, 0, 0;
     srgbMpc.setCurrentState(x0);
 
-    Mat contactTable(4, 10);
+    MatInt contactTable(4, 10);
     contactTable.setOnes();
     srgbMpc.setContactTable(contactTable);
 

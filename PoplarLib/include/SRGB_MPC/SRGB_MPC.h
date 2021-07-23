@@ -7,10 +7,10 @@
 
 #include "Trajectory/TrajectoryInterpolation.h"
 #include "qpOASES.hpp"
+#include "eiquadprog/eiquadprog-fast.hpp"
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
 
-using namespace qpOASES;
 
 namespace SRGB_MPC {
 
@@ -28,19 +28,23 @@ namespace SRGB_MPC {
 
     using Mat = typename Eigen::Matrix<RealNum, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 
+    using MatInt = typename Eigen::Matrix<int, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+
     using Mat6 = typename Eigen::Matrix<RealNum, 6, 6, Eigen::RowMajor>;
 
     using Mat12 = typename Eigen::Matrix<RealNum, 12, 12, Eigen::RowMajor>;
 
     using Mat13 = typename Eigen::Matrix<RealNum, 13, 13, Eigen::RowMajor>;
 
-    using Mat3 = typename Eigen::Matrix<RealNum, 3, 3, Eigen::RowMajor>;
+    using Mat3 = typename Eigen::Matrix<RealNum, 3, 3>;
 
     typedef const Eigen::Ref<const Vec> ConstVecRef;
 
     typedef const Eigen::Ref<const VecInt> ConstVecIntRef;
 
     typedef const Eigen::Ref<const Mat> ConstMatRef;
+
+    typedef const Eigen::Ref<const MatInt> ConstMatIntRef;
 
     typedef Eigen::Ref<Vec> VecRef;
 
@@ -80,7 +84,7 @@ namespace SRGB_MPC {
 
         void setVelocityCmd(Vec6 vel_des);
 
-        void setContactTable(ConstMatRef &contactTable);
+        void setContactTable(ConstMatIntRef &contactTable);
 
         void setContactPointPos(vector<Vec3> contactPointPos);
 
@@ -92,6 +96,8 @@ namespace SRGB_MPC {
 
         void setDesiredTrajectory(const SixDimsPose_Trajectory &traj);
 
+        void setDesiredDiscreteTrajectory(ConstVecRef traj);
+
         void solve(RealNum t_now);
 
         const SixDimsPose_Trajectory &getContinuousOptimizedTrajectory();
@@ -99,6 +105,10 @@ namespace SRGB_MPC {
         ConstVecRef getDiscreteOptimizedTrajectory();
 
         ConstVecRef getOptimalContactForce();
+
+        ConstVecRef getCurrentDesiredContactForce();
+
+        ConstVecRef getXDot();
 
     private:
         void computeSxSu();
@@ -114,24 +124,27 @@ namespace SRGB_MPC {
         RealNum _mass;
         Mat3 _inertia;
         SixDimsPose_Trajectory _continuousOptimizedTraj, _desiredTraj;
-        bool _setDesiredTraj;
+        bool _setDesiredTraj, _setDesiredDiscreteTraj;
         Vec _desiredDiscreteTraj;
         Vec _discreteOptimizedTraj, _optimalContactForce;
-        Mat _contactTable;
+        Vec12 _force_des;
+        MatInt _contactTable;
         vector<Vec3> _contactPointPos;
         Vec6 _vel_des;
         Vec13 _x0;
         Mat _At, _Bt, _Ak, _Bk, Sx, Su;
         Mat _C;
         Vec _ub, _lb;
+        Vec _xDot;
 
-        Mat13 _Qx;
-        Mat12 _Qf;
+        Vec13 _Qx;
+        Vec3 _Qf;
         Mat _Q, _R;
         Mat _H, _g;
+        size_t _n_contact;
 
-        qpOASES::QProblem solver;
-
+        qpOASES::QProblem *solver;
+        eiquadprog::solvers::EiquadprogFast eiquadprog_solver;
     };
 
 }

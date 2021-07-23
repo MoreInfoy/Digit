@@ -11,7 +11,7 @@ using namespace SRGB_MPC;
 
 SRGB_MPC_IMPL::SRGB_MPC_IMPL(size_t horizon, RealNum dt) : _horizon(horizon), _dt(dt), _gravity(-9.81), _mu(0.4),
                                                            _fmax(500), _setDesiredTraj(false),
-                                                           solver(12 * horizon, 20 * horizon) {
+                                                           _setDesiredDiscreteTraj(false) {
 
     _mass = 0;
     _inertia.setZero();
@@ -20,7 +20,7 @@ SRGB_MPC_IMPL::SRGB_MPC_IMPL(size_t horizon, RealNum dt) : _horizon(horizon), _d
     _Qf.diagonal().fill(1e-3);
     _Q.resize(13 * _horizon, 13 * _horizon);
     _R.resize(12 * _horizon, 12 * _horizon);
-    _contactTable = Mat::Ones(4, horizon);
+    _contactTable = MatInt::Ones(4, horizon);
     _desiredDiscreteTraj = Vec::Zero(13 * horizon);
     _vel_des.setZero();
 
@@ -29,13 +29,6 @@ SRGB_MPC_IMPL::SRGB_MPC_IMPL(size_t horizon, RealNum dt) : _horizon(horizon), _d
     _Bt.resize(13, 12);
     _Bt.setZero();
 
-    _C.resize(20 * _horizon, 12 * _horizon);
-    _C.setZero();
-    _ub.resize(20 * _horizon);
-    _ub.setZero();
-    _lb.resize(20 * _horizon);
-    _lb.setZero();
-
     Sx.resize(13 * _horizon, 13);
     Sx.setZero();
     Su.resize(13 * _horizon, 12 * _horizon);
@@ -43,20 +36,25 @@ SRGB_MPC_IMPL::SRGB_MPC_IMPL(size_t horizon, RealNum dt) : _horizon(horizon), _d
 
     _optimalContactForce.resize(12 * _horizon);
     _optimalContactForce.setZero();
+    _xDot.resize(13 * _horizon);
     _x0.setZero();
     _x0.tail(1) << _gravity;
 }
 
 void SRGB_MPC_IMPL::setCurrentState(ConstVecRef x0) {
-    assert(x0.size() == 12);
-    _x0 << x0, _gravity;
+    assert(x0.size() == 12 || x0.size() == 13);
+    if (x0.size() == 12) {
+        _x0 << x0, _gravity;
+    } else {
+        _x0 = x0;
+    }
 }
 
 void SRGB_MPC_IMPL::setVelocityCmd(Vec6 vel_des) {
     _vel_des = vel_des;
 }
 
-void SRGB_MPC_IMPL::setContactTable(ConstMatRef &contactTable) {
+void SRGB_MPC_IMPL::setContactTable(ConstMatIntRef &contactTable) {
     if (contactTable.rows() != 4 || contactTable.cols() != _horizon) {
         throw std::runtime_error("[SRGB_MPC_IMPL::setContactTable] contactTable size is wrong");
     }
@@ -64,9 +62,9 @@ void SRGB_MPC_IMPL::setContactTable(ConstMatRef &contactTable) {
 }
 
 void SRGB_MPC_IMPL::setWeight(ConstVecRef Qx, ConstVecRef Qf) {
-    assert(Qx.size() == 12 && Qf.size() == 12);
-    _Qx.diagonal() << Qx, 0.0;
-    _Qf.diagonal() << Qf;
+    assert(Qx.size() == 12 && Qf.size() == 3);
+    _Qx << Qx, 0.0;
+    _Qf = Qf;
 }
 
 void SRGB_MPC_IMPL::setDesiredTrajectory(const SixDimsPose_Trajectory &traj) {
@@ -79,12 +77,23 @@ const SixDimsPose_Trajectory &SRGB_MPC_IMPL::getContinuousOptimizedTrajectory() 
 }
 
 ConstVecRef SRGB_MPC_IMPL::getDiscreteOptimizedTrajectory() {
-    _discreteOptimizedTraj = Sx * _x0 + Su * _optimalContactForce;
     return SRGB_MPC::ConstVecRef(_discreteOptimizedTraj);
 }
 
 ConstVecRef SRGB_MPC_IMPL::getOptimalContactForce() {
     return SRGB_MPC::ConstVecRef(_optimalContactForce);
+}
+
+ConstVecRef SRGB_MPC_IMPL::getCurrentDesiredContactForce() {
+    _force_des.setZero();
+    int k = 0;
+    for (int i = 0; i < 4; i++) {
+        if (_contactTable.col(0)(i) == 1) {
+            _force_des.segment(i * 3, 3) = _optimalContactForce.segment(3 * k, 3);
+            k++;
+        }
+    }
+    return SRGB_MPC::ConstVecRef(_force_des);
 }
 
 void SRGB_MPC_IMPL::setMassAndInertia(RealNum mass, Mat3Ref inertia) {
@@ -111,14 +120,29 @@ void SRGB_MPC_IMPL::solve(RealNum t_now) {
                     _gravity;
         }
     } else {
-        for (int i = 0; i < _horizon; i++) {
-            _desiredDiscreteTraj.segment(i * 13, 13) << _x0.head(6) + RealNum(i) * _vel_des * _dt, _vel_des, _gravity;
+        if (!_setDesiredDiscreteTraj) {
+            for (int i = 0; i < _horizon; i++) {
+                _desiredDiscreteTraj.segment(i * 13, 13)
+                        << _x0.head(6) + RealNum(i) * _vel_des * _dt, _vel_des, _gravity;
+            }
+        } else {
+            _setDesiredDiscreteTraj = false;
         }
     }
+
+//    std::cout << "_desiredDiscreteTraj: " << _desiredDiscreteTraj.transpose() << std::endl;
+    _n_contact = _contactTable.sum();
 
     computeSxSu();
 
     // set input constraints
+    _C.resize(5 * _n_contact, 3 * _n_contact);
+    _C.setZero();
+    _ub.resize(5 * _n_contact);
+    _ub.setZero();
+    _lb.resize(5 * _n_contact);
+    _lb.setZero();
+
     double mu = 1 / _mu;
     Mat Ci(5, 3);
     Ci << mu, 0, 1.,
@@ -127,45 +151,65 @@ void SRGB_MPC_IMPL::solve(RealNum t_now) {
             0, -mu, 1.,
             0, 0, 1.;
 
-    for (int i = 0; i < _horizon * 4; i++) {
+    for (int i = 0; i < _n_contact; i++) {
         _C.block(i * 5, i * 3, 5, 3) = Ci;
+        _ub(5 * i + 0) = BIG_NUMBER;
+        _ub(5 * i + 1) = BIG_NUMBER;
+        _ub(5 * i + 2) = BIG_NUMBER;
+        _ub(5 * i + 3) = BIG_NUMBER;
+        _ub(5 * i + 4) = _fmax;
     }
-    int k = 0;
-    for (int i = 0; i < _horizon; i++) {
-        for (int j = 0; j < 4; j++) {
-            _ub(5 * k + 0) = BIG_NUMBER;
-            _ub(5 * k + 1) = BIG_NUMBER;
-            _ub(5 * k + 2) = BIG_NUMBER;
-            _ub(5 * k + 3) = BIG_NUMBER;
-            _ub(5 * k + 4) = _contactTable.col(i)(j) * _fmax;
-            k++;
-        }
-    }
+
     // set weight matrix
-    _Q.diagonal() = _Qx.diagonal().replicate(_horizon, 1);
-    _R.diagonal() = _Qf.diagonal().replicate(_horizon, 1);
+    _Q.resize(13 * _horizon, 13 * _horizon);
+    _Q.setZero();
+    _Q.diagonal() = _Qx.replicate(_horizon, 1);
+    _R.resize(3 * _n_contact, 3 * _n_contact);
+    _R.setZero();
+    _R.diagonal() = _Qf.replicate(_n_contact, 1);
 
     // formulate QP
     _H.noalias() = _R + Su.transpose() * _Q * Su;
     _g.noalias() = Su.transpose() * _Q * Sx * _x0 - Su.transpose() * _Q * _desiredDiscreteTraj;
 
-    int_t nWSR = 1000;
-    solver.reset();
-    Options opt;
+
+    solver = new qpOASES::QProblem(3 * _n_contact, 5 * _n_contact);
+    qpOASES::int_t nWSR = 1000;
+    solver->reset();
+    qpOASES::Options opt;
     opt.setToMPC();
-    opt.enableEqualities = BT_TRUE;
-    opt.printLevel = PL_NONE;
-    solver.setOptions(opt);
-    solver.init(_H.data(), _g.data(), _C.data(), nullptr, nullptr, _lb.data(), _ub.data(), nWSR, nullptr,
-                _optimalContactForce.data());
-    if (solver.isSolved()) {
-        solver.getPrimalSolution(_optimalContactForce.data());
+    opt.enableEqualities = qpOASES::BT_TRUE;
+    opt.printLevel = qpOASES::PL_NONE;
+    solver->setOptions(opt);
+    solver->init(_H.data(), _g.data(), _C.data(), nullptr, nullptr, _lb.data(), _ub.data(), nWSR);
+    _optimalContactForce.resize(3 * _n_contact);
+    if (solver->isSolved()) {
+        solver->getPrimalSolution(_optimalContactForce.data());
     } else {
         throw std::runtime_error("qp solver failed");
     }
+    _discreteOptimizedTraj = Sx * _x0 + Su * _optimalContactForce;
+    for (int i = 0; i < _horizon; i++) {
+        computeAtBt(i);
+        if (i == 0) {
+            _xDot.segment(i * 13, 13) =
+                    _At * _x0 + _Bt * _optimalContactForce.segment(0, _contactTable.col(i).sum() * 3);
+        } else {
+            _xDot.segment(i * 13, 13) =
+                    _At * _discreteOptimizedTraj.segment(i * 13 - 13, 13) +
+                    _Bt * _optimalContactForce.segment(_contactTable.rightCols(i).sum() * 3,
+                                                       _contactTable.col(i).sum() * 3);
+        }
+    }
+    delete solver;
 }
 
 void SRGB_MPC_IMPL::computeSxSu() {
+
+    Sx.resize(13 * _horizon, 13);
+    Sx.setZero();
+    Su.resize(13 * _horizon, 3 * _n_contact);
+    Su.setZero();
 
     for (size_t k = 0; k < _horizon; k++) {
         computeAtBt(k);
@@ -179,15 +223,15 @@ void SRGB_MPC_IMPL::computeSxSu() {
 
         if (k == 0) {
             Sx.middleRows(k * 13, 13).noalias() = _Ak;
-            Su.topLeftCorner<13, 12>().noalias() = _Bk;
+            Su.topLeftCorner(13, _contactTable.col(k).sum() * 3).noalias() = _Bk;
         } else {
             Sx.middleRows(k * 13, 13).noalias() = _Ak * Sx.middleRows((k - 1) * 13, 13);
-            Su.block(k * 13, 0, 13, k * 12).noalias()
-                    = _Ak * (Su.block((k - 1) * 13, 0, 13, k * 12));
-            Su.block<13, 12>(k * 13, k * 12).noalias() = _Bk;
+            size_t sc = 3 * _contactTable.rightCols(k).sum();
+            Su.block(k * 13, 0, 13, sc).noalias() =
+                    _Ak * Su.block((k - 1) * 13, 0, 13, sc);
+            Su.block(k * 13, sc, 13, _contactTable.col(k).sum() * 3).noalias() = _Bk;
         }
     }
-
 }
 
 void SRGB_MPC_IMPL::setFrictionCoefficient(double mu) {
@@ -203,8 +247,9 @@ void SRGB_MPC_IMPL::setMaxForce(double fmax) {
     _fmax = fmax;
 }
 
-void SRGB_MPC_IMPL::computeAtBt(size_t) {
+void SRGB_MPC_IMPL::computeAtBt(size_t t) {
     // TODO: compute At, Bt
+
 
     double pc = cos(_x0(1));
     double yc = cos(_x0(2));
@@ -216,8 +261,9 @@ void SRGB_MPC_IMPL::computeAtBt(size_t) {
             -ys, yc, 0,
             yc * pt, ys * pt, 1;
 
-    R_wb = rpyToRotMat(_x0.head(3));
+    R_wb = rpyToRotMat(_x0.head(3)).transpose();
 
+    _At.resize(13, 13);
     _At.setZero();
     _At.block(0, 6, 3, 3) = T_inv;
     _At.block(3, 9, 3, 3).setIdentity();
@@ -227,17 +273,22 @@ void SRGB_MPC_IMPL::computeAtBt(size_t) {
     Iworld = R_wb * _inertia * R_wb.transpose();
     auto Iw_inv = Iworld.inverse();
 
+    size_t n_support_contact = _contactTable.col(t).sum();
+    _Bt.resize(13, 3 * n_support_contact);
     _Bt.setZero();
     Vec3 r;
+    int k = 0;
     for (int leg(0); leg < 4; leg++) {
-        r = _contactPointPos[leg] - _x0.segment(3, 3);
-        // std::cout << "r " << leg << ": " << r.transpose() << "\n";
-        Mat3 r_skew;
-        r_skew << 0., -r(2), r(1),
-                r(2), 0., -r(0),
-                -r(1), r(0), 0.;
-        _Bt.block(6, leg * 3, 3, 3) = Iw_inv * r_skew;
-        _Bt.block(9, leg * 3, 3, 3) = 1 / _mass * Mat3::Identity();
+        if (_contactTable(leg, t) == 1) {
+            r = _contactPointPos[leg] - _x0.segment(3, 3);
+            Mat3 r_skew;
+            r_skew << 0., -r(2), r(1),
+                    r(2), 0., -r(0),
+                    -r(1), r(0), 0.;
+            _Bt.block(6, k * 3, 3, 3) = Iw_inv * r_skew;
+            _Bt.block(9, k * 3, 3, 3) = 1 / _mass * Mat3::Identity();
+            k++;
+        }
     }
 }
 
@@ -265,4 +316,15 @@ Mat3 SRGB_MPC_IMPL::rpyToRotMat(Vec3Ref v) {
              coordinateRotation(CoordinateAxis::Y, v[1]) *
              coordinateRotation(CoordinateAxis::Z, v[2]);
     return m;
+}
+
+ConstVecRef SRGB_MPC_IMPL::getXDot() {
+
+    return _xDot;
+}
+
+void SRGB_MPC_IMPL::setDesiredDiscreteTrajectory(ConstVecRef traj) {
+    assert(traj.size() == 13 * _horizon);
+    _desiredDiscreteTraj = traj;
+    _setDesiredDiscreteTraj = true;
 }
