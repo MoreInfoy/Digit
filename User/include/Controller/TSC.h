@@ -7,11 +7,15 @@
 
 #include "Controller/Controller.h"
 #include "Poplar.h"
+#include <shared_mutex>
 
 using namespace TSC;
 
-class TSC_IMPL : public Controller {
+class TSC_IMPL : public Controller
+{
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     TSC_IMPL(string urdf_file, string srdf);
 
     ~TSC_IMPL();
@@ -24,43 +28,45 @@ public:
 
     virtual const JointsCmd &jointsCmd();
 
-    RobotWrapper &robot() {
+    RobotWrapper &robot()
+    {
         return ref(_robot);
     }
 
-
-    ConstVecRef getOptimalContactForce() {
+    ConstVecRef getOptimalContactForce()
+    {
         return tsc->getOptimalContactForce();
     }
 
-    ConstVecRef getOptimalQacc() {
+    ConstVecRef getOptimalQacc()
+    {
         return tsc->getOptimalQacc();
     }
-
 
 private:
     void solve(ConstVecRef qpos, ConstVecRef qvel, const VecXi &mask);
 
-    ConstVecRef getOptimalTorque() {
+    ConstVecRef getOptimalTorque()
+    {
         return tsc->getOptimalTorque();
     }
 
     RobotWrapper _robot;
     Vec _lb, _ub;
     VecXi _mask;
-    SE3MotionTask *mt_waist;
-    SE3MotionTask *rf;
-    SE3MotionTask *lf;
-    CoMMotionTask *com;
-    RegularizationTask *rt;
-    JointsNominalTask *jointsNominalTask;
-    AngularMomentumTask *angularMomentumTask;
-    ContactPointsConstraints *cpcstr;
-    ContactForceConstraints *cfcstr;
-    ClosedChainsConstraints *closedChainsConstraints;
-    ActuatorLimit *actuatorLimit;
-    QaccBound *qaccBound;
-    TaskSpaceControl *tsc;
+    shared_ptr<SE3MotionTask> mt_waist;
+    shared_ptr<SE3MotionTask> rf;
+    shared_ptr<SE3MotionTask> lf;
+    shared_ptr<CoMMotionTask> com;
+    shared_ptr<RegularizationTask> rt;
+    shared_ptr<JointsNominalTask> jointsNominalTask;
+    shared_ptr<AngularMomentumTask> angularMomentumTask;
+    shared_ptr<ContactPointsConstraints> cpcstr;
+    shared_ptr<ContactForceConstraints> cfcstr;
+    shared_ptr<ClosedChainsConstraints> closedChainsConstraints;
+    shared_ptr<ActuatorLimit> actuatorLimit;
+    shared_ptr<QaccBound> qaccBound;
+    shared_ptr<TaskSpaceControl> tsc;
 
     vector<string> contact_virtual_link;
     vector<pair<string, string>> link_pairs;
@@ -69,6 +75,5 @@ private:
     JointsCmd _jointsCmd;
     size_t _iter;
 };
-
 
 #endif //POPLARDIGIT_TSC_H

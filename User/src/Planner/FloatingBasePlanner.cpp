@@ -9,5 +9,5 @@ FloatingBasePlanner::FloatingBasePlanner() {
 }
 
 void FloatingBasePlanner::plan(size_t iter, const RobotState &state, const GaitData &gaitData, Tasks &tasks) {
-    tasks.floatingBaseTask.pos(2) = 0.892442 + 0.08 * sin(0.008 * iter);
+    tasks.floatingBaseTask.pos(2) = 0.892442 + 0.08 * sin(0.006 * iter);
 }

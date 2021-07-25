@@ -12,19 +12,19 @@ using namespace TSC;
 TaskSpaceControl::TaskSpaceControl(RobotWrapper &robot) : _robot(robot), _u_dims(0) {
 }
 
-void TaskSpaceControl::addTask(Task *task) {
-    if (!existTask(task->name())) {
-        _tasks.push_back(task);
+void TaskSpaceControl::addTask(shared_ptr<Task> task_ptr) {
+    if (!existTask(task_ptr->name())) {
+        _tasks.push_back(task_ptr);
     } else {
-        throw runtime_error("Task " + task->name() + " exists");
+        throw runtime_error("Task " + task_ptr->name() + " exists");
     }
 }
 
-void TaskSpaceControl::addLinearConstraint(LinearConstraints *constraints) {
-    if (!existLinearConstraint(constraints->name())) {
-        _linearConstraints.push_back(constraints);
+void TaskSpaceControl::addLinearConstraint(shared_ptr<LinearConstraints> constraints_ptr) {
+    if (!existLinearConstraint(constraints_ptr->name())) {
+        _linearConstraints.push_back(constraints_ptr);
     } else {
-        throw runtime_error("Constraints " + constraints->name() + " exists");
+        throw runtime_error("Constraints " + constraints_ptr->name() + " exists");
     }
 }
 
@@ -38,9 +38,8 @@ bool TaskSpaceControl::existLinearConstraint(string name) {
 }
 
 void TaskSpaceControl::solve() {
-/*    FullPivLU<Mat> rank_check(_robot.contactJacobia().topRows(12));
+    /*    FullPivLU<Mat> rank_check(_robot.contactJacobia().topRows(12));
     cout << "rank of Jc: " << rank_check.rank() << endl;*/
-
 
     _u_dims = _robot.nv() + 3 * _robot.nc() + _robot.ncf();
 
@@ -52,7 +51,7 @@ void TaskSpaceControl::solve() {
     g.resize(_u_dims);
     H.setZero();
     g.setZero();
-    for (auto &task: _tasks) {
+    for (auto &task : _tasks) {
         task->update();
         if (task->H().rows() != _u_dims || task->H().cols() != _u_dims || task->g().size() != _u_dims) {
             throw runtime_error(task->name() + " task  matrix (H,g) dimension is wrong");
@@ -64,10 +63,9 @@ void TaskSpaceControl::solve() {
     /*FullPivLU<Mat> rank_check(H);
     cout << "rank of H: " << rank_check.rank() << endl;*/
 
-
     size_t nDims_cstrs = 0;
     size_t nDims_cstrs_eq = 0;
-    for (auto &cstr: _linearConstraints) {
+    for (auto &cstr : _linearConstraints) {
         cstr->update();
         if (cstr->isEqual()) {
             assert(cstr->c_lb() == cstr->c_ub());
@@ -130,11 +128,9 @@ void TaskSpaceControl::solve() {
     }
 
 #ifdef USE_QPOASES
-    if (solver != nullptr) {
-        delete solver;
-    }
     int add_DoF = 6;
-    if (_robot.isFixedBase()) {
+    if (_robot.isFixedBase())
+    {
         add_DoF = 0;
     }
     Mat_R Cin(nDims_cstrs + nDims_cstrs_eq + add_DoF, _u_dims);
@@ -144,7 +140,7 @@ void TaskSpaceControl::solve() {
     clb << c_lb, ce;
     cub << c_ub, ce;
 
-/*    Mat Par(Cin.cols() + 2, Cin.rows());
+    /*    Mat Par(Cin.cols() + 2, Cin.rows());
     Par << Cin.transpose(), clb.transpose(), cub.transpose();
     FullPivLU<Mat> rank_check(Par);
     Mat ParN = rank_check.image(Par).transpose();
@@ -152,10 +148,9 @@ void TaskSpaceControl::solve() {
     Vec _clb = -ParN.col(ParN.cols() - 2);
     Vec _cub = ParN.col(ParN.cols() - 1);*/
 
-
-    solver = new qpOASES::QProblem(_u_dims, Cin.rows(), qpOASES::HST_INDEF);
+    solver = make_shared<qpOASES::QProblem>(_u_dims, Cin.rows(), qpOASES::HST_INDEF);
     qpOASES::Options opt;
-    opt.setToFast();
+    opt.setToMPC();
     opt.enableEqualities = qpOASES::BT_TRUE;
     opt.enableRegularisation = qpOASES::BT_TRUE;
     opt.numRegularisationSteps = 1000;
@@ -165,14 +160,16 @@ void TaskSpaceControl::solve() {
     qpOASES::int_t nWSR = 5000;
     solver->init(H.data(), g.data(), Cin.data(), NULL, NULL, clb.data(), cub.data(), nWSR);
     optimal_u.resize(_u_dims);
-    if (solver->isSolved()) {
+    if (solver->isSolved())
+    {
         solver->getPrimalSolution(optimal_u.data());
-    } else {
+    }
+    else
+    {
         saveAllData("qp_failed.txt");
-//        throw runtime_error("TaskSpaceControl::solve() qp failed, related data has been saved in qp_failed.txt");
+        //        throw runtime_error("TaskSpaceControl::solve() qp failed, related data has been saved in qp_failed.txt");
         std::cerr << "TaskSpaceControl::solve() qp failed, related data has been saved in qp_failed.txt" << endl;
     }
-    delete solver;
 #else
     eiquadprog_solver.reset(_u_dims, ce.size(), 2 * c_lb.size());
     Mat Cin(C.rows() * 2, _u_dims);
@@ -184,7 +181,7 @@ void TaskSpaceControl::solve() {
     printf("solver state: %d\n", solver_state);
     if (solver_state != eiquadprog::solvers::EIQUADPROG_FAST_OPTIMAL) {
         saveAllData("qp_failed.txt");
-//      throw runtime_error("TaskSpaceControl::solve() qp failed, related data has been saved in qp_failed.txt");
+        //      throw runtime_error("TaskSpaceControl::solve() qp failed, related data has been saved in qp_failed.txt");
         std::cerr << "TaskSpaceControl::solve() qp failed, related data has been saved in qp_failed.txt" << endl;
     }
 #endif
@@ -269,19 +266,20 @@ ConstVecRef TaskSpaceControl::getOptimalTorque() {
 
 #ifdef DAMPING_TERM
 #ifdef USE_QPOASES
-    if (solver->isSolved()) {
+    if (solver->isSolved())
+    {
 #else
     if (solver_state == eiquadprog::solvers::EIQUADPROG_FAST_OPTIMAL) {
 #endif
         if (_robot.ncf() > 0) {
-            optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects()
-                          - _robot.contactJacobia().transpose() * optimal_u.segment(_robot.nv(), _robot.nc() * 3)
-                          - _robot.constraintForceJacobia().transpose() * optimal_u.tail(_robot.ncf());
+            optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects() -
+                          _robot.contactJacobia().transpose() * optimal_u.segment(_robot.nv(), _robot.nc() * 3) -
+                          _robot.constraintForceJacobia().transpose() * optimal_u.tail(_robot.ncf());
             optimal_tau.tail(_robot.na()) -= _robot.actuatorsDampingForce();
             optimal_tau.tail(_robot.na()) -= _robot.jointsSpringForce();
         } else {
-            optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects()
-                          - _robot.contactJacobia().transpose() * optimal_u.segment(_robot.nv(), _robot.nc() * 3);
+            optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects() -
+                          _robot.contactJacobia().transpose() * optimal_u.segment(_robot.nv(), _robot.nc() * 3);
             optimal_tau.tail(_robot.na()) -= _robot.actuatorsDampingForce();
             optimal_tau.tail(_robot.na()) -= _robot.jointsSpringForce();
         }
@@ -290,22 +288,25 @@ ConstVecRef TaskSpaceControl::getOptimalTorque() {
     }
 #else
 #ifdef USE_QPOASES
-    if(solver->isSolved()){
+    if (solver->isSolved())
+    {
 #else
-    if (solver_state == eiquadprog::solvers::EIQUADPROG_FAST_OPTIMAL) {
+    if (solver_state == eiquadprog::solvers::EIQUADPROG_FAST_OPTIMAL)
+    {
 #endif
-        if (_robot.ncf() > 0) {
-        optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects()
-                      - _robot.contactJacobia().transpose() * optimal_u.segment(_robot.nv(), _robot.nc() * 3)
-                      - _robot.constraintForceJacobia().transpose() * optimal_u.tail(_robot.ncf());
-        optimal_tau.tail(_robot.na()) -= _robot.jointsSpringForce();
-
-        } else {
-            optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects()
-                          - _robot.contactJacobia().transpose() * optimal_u.segment(_robot.nv(), _robot.nc() * 3);
+        if (_robot.ncf() > 0)
+        {
+            optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects() - _robot.contactJacobia().transpose() * optimal_u.segment(_robot.nv(), _robot.nc() * 3) - _robot.constraintForceJacobia().transpose() * optimal_u.tail(_robot.ncf());
             optimal_tau.tail(_robot.na()) -= _robot.jointsSpringForce();
         }
-    } else {
+        else
+        {
+            optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects() - _robot.contactJacobia().transpose() * optimal_u.segment(_robot.nv(), _robot.nc() * 3);
+            optimal_tau.tail(_robot.na()) -= _robot.jointsSpringForce();
+        }
+    }
+    else
+    {
         optimal_tau = Vec::Zero(_robot.nv());
     }
 
@@ -318,11 +319,7 @@ ConstVecRef TaskSpaceControl::getOptimalContactForce() {
 }
 
 void TaskSpaceControl::printCstrsErr() {
-    for (auto &cstr: _linearConstraints) {
+    for (auto &cstr : _linearConstraints) {
         cstr->errPrint(optimal_u);
     }
 }
-
-
-
-

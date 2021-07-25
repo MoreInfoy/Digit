@@ -6,7 +6,8 @@
 
 using namespace TSC;
 
-JointsNominalTask::JointsNominalTask(RobotWrapper &robot, string name) : Task(robot, name) {
+JointsNominalTask::JointsNominalTask(RobotWrapper &robot, string name) : Task(robot, name)
+{
     _q_n.resize(robot.na());
     _q_n.setZero();
     _Kp.resize(robot.na(), robot.na());
@@ -17,36 +18,47 @@ JointsNominalTask::JointsNominalTask(RobotWrapper &robot, string name) : Task(ro
     _Q.setZero();
 }
 
-void JointsNominalTask::update() {
-    int u_dims = robot().nv() + 3 * robot().nc()+ robot().ncf();
+void JointsNominalTask::update()
+{
+    int u_dims = robot().nv() + 3 * robot().nc() + robot().ncf();
     Mat S(robot().na(), u_dims);
     S.setZero();
-    S.middleCols(robot().nv()-robot().na(), robot().na()).setIdentity();
+    S.middleCols(robot().nv() - robot().na(), robot().na()).setIdentity();
     Vec qa_acc_des = _Kp * (_q_n - robot().qpos().tail(robot().na())) - _Kd * robot().qvel().tail(robot().na());
     _H = S.transpose() * _Q * S;
     _g = -S.transpose() * _Q * qa_acc_des;
+    /* cout << "------------JointsNominalTask: H ----------------\n"
+         << _H << endl;
+    cout << "------------JointsNominalTask: g ----------------\n"
+         << _g.transpose() << endl; */
 }
 
-ConstMatRef JointsNominalTask::H() {
+ConstMatRef JointsNominalTask::H()
+{
     return ConstMatRef(_H);
 }
 
-ConstVecRef JointsNominalTask::g() {
+ConstVecRef JointsNominalTask::g()
+{
     return ConstVecRef(_g);
 }
 
-MatRef JointsNominalTask::Kp() {
+MatRef JointsNominalTask::Kp()
+{
     return MatRef(_Kp);
 }
 
-MatRef JointsNominalTask::Kd() {
+MatRef JointsNominalTask::Kd()
+{
     return MatRef(_Kd);
 }
 
-MatRef JointsNominalTask::weightMatrix() {
+MatRef JointsNominalTask::weightMatrix()
+{
     return MatRef(_Q);
 }
 
-VecRef JointsNominalTask::norminalPosition() {
+VecRef JointsNominalTask::norminalPosition()
+{
     return VecRef(_q_n);
 }

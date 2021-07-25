@@ -14,18 +14,28 @@ using namespace TSC;
 
 TSC_IMPL::TSC_IMPL(string urdf_file, string srdf) : _robot(urdf_file, srdf, fixedBase), _iter(0)
 {
-    Vec qpos(_robot.nq()), qvel(_robot.nv());
-    qpos = _robot.homeConfigurations();
-    qvel.setZero();
-    _robot.computeAllData(qpos, qvel);
+    if (_robot.isFixedBase())
+    {
+        Vec qpos(_robot.nq()), qvel(_robot.nv());
+        qpos = _robot.homeConfigurations().tail(_robot.na());
+        qvel.setZero();
+        _robot.computeAllData(qpos, qvel);
+    }
+    else
+    {
+        Vec qpos(_robot.nq()), qvel(_robot.nv());
+        qpos = _robot.homeConfigurations();
+        qvel.setZero();
+        _robot.computeAllData(qpos, qvel);
+    }
 
-    mt_waist = new SE3MotionTask(_robot, "torso");
+    mt_waist = make_shared<SE3MotionTask>(_robot, "torso");
     mt_waist->Kp().diagonal() << 0, 0, 0, 500, 500, 500;
     mt_waist->Kd() = 2 * mt_waist->Kp().cwiseSqrt();
     mt_waist->weightMatrix() = 1000 * mt_waist->weightMatrix();
     mt_waist->SE3Ref() = _robot.frame_pose("torso");
 
-    com = new CoMMotionTask(_robot, "com");
+    com = make_shared<CoMMotionTask>(_robot, "com");
     com->weightMatrix() = 500 * com->weightMatrix();
     com->Kp() = 500 * Mat3::Identity();
     com->Kd() = 2 * com->Kp().cwiseSqrt();
@@ -33,49 +43,46 @@ TSC_IMPL::TSC_IMPL(string urdf_file, string srdf) : _robot(urdf_file, srdf, fixe
     com->velRef().setZero();
     com->accRef().setZero();
 
-    rt = new RegularizationTask(_robot, "RegularizationTask");
+    rt = make_shared<RegularizationTask>(_robot, "RegularizationTask");
     rt->qaccWeight().diagonal().fill(1e-5);
     rt->forceWeight().diagonal().fill(1e-8);
 
-    jointsNominalTask = new JointsNominalTask(_robot, "JointsNominalTask");
-    jointsNominalTask->weightMatrix().diagonal().fill(10);
+    jointsNominalTask = make_shared<JointsNominalTask>(_robot, "JointsNominalTask");
+    jointsNominalTask->weightMatrix().setZero();
+    jointsNominalTask->weightMatrix().diagonal().segment(9, 4).fill(2);
+    jointsNominalTask->weightMatrix().diagonal().segment(22, 4).fill(2);
     jointsNominalTask->Kp().setIdentity();
-    jointsNominalTask->Kp() = 100 * jointsNominalTask->Kp();
-    jointsNominalTask->Kp().diagonal().segment(0, 9).fill(0);
-    jointsNominalTask->Kp().diagonal().segment(13, 9).fill(0);
-    jointsNominalTask->Kd().setIdentity();
-    jointsNominalTask->Kd() = 0.5 * jointsNominalTask->Kd();
-    jointsNominalTask->Kd().diagonal().segment(0, 9).fill(0);
-    jointsNominalTask->Kd().diagonal().segment(13, 9).fill(0);
+    jointsNominalTask->Kp() = 200 * jointsNominalTask->Kp();
+    jointsNominalTask->Kd() = 2 * jointsNominalTask->Kp().cwiseSqrt();
     jointsNominalTask->norminalPosition() = _robot.homeConfigurations().tail(_robot.na());
 
-    angularMomentumTask = new AngularMomentumTask(_robot, "AngularMomentumTask");
+    angularMomentumTask = make_shared<AngularMomentumTask>(_robot, "AngularMomentumTask");
     angularMomentumTask->weightMatrix().diagonal().fill(10);
     angularMomentumTask->Kp().diagonal().fill(100);
     angularMomentumTask->ref().setZero();
     angularMomentumTask->ref_dot().setZero();
 
-    rf = new SE3MotionTask(_robot, "right_toe_roll");
+    rf = make_shared<SE3MotionTask>(_robot, "right_toe_roll");
     rf->Kp().diagonal() << 100, 100, 100, 500, 500, 500;
     rf->Kd() = 2 * rf->Kp().cwiseSqrt();
     rf->weightMatrix().diagonal() << 500, 500, 500, 1000, 1000, 1000;
     rf->SE3Ref() = _robot.frame_pose("right_toe_roll");
-    lf = new SE3MotionTask(_robot, "left_toe_roll");
+    lf = make_shared<SE3MotionTask>(_robot, "left_toe_roll");
     lf->Kp().diagonal() << 100, 100, 100, 500, 500, 500;
-    lf->Kd() = 2 * rf->Kp().cwiseSqrt();
+    lf->Kd() = 2 * lf->Kp().cwiseSqrt();
     lf->weightMatrix().diagonal() << 500, 500, 500, 1000, 1000, 1000;
     lf->SE3Ref() = _robot.frame_pose("left_toe_roll");
 
-    cpcstr = new ContactPointsConstraints(_robot, "cpcstr");
-    cfcstr = new ContactForceConstraints(_robot, "cfcstr");
-    closedChainsConstraints = new ClosedChainsConstraints(_robot, "ClosedChainsConstraints");
-    actuatorLimit = new ActuatorLimit(_robot, "ActuatorLimit");
+    cpcstr = make_shared<ContactPointsConstraints>(_robot, "cpcstr");
+    cfcstr = make_shared<ContactForceConstraints>(_robot, "cfcstr");
+    closedChainsConstraints = make_shared<ClosedChainsConstraints>(_robot, "ClosedChainsConstraints");
+    actuatorLimit = make_shared<ActuatorLimit>(_robot, "ActuatorLimit");
 
-    qaccBound = new QaccBound(_robot, "QaccBound");
-    qaccBound->lb().fill(-100);
-    qaccBound->ub().fill(100);
+    qaccBound = make_shared<QaccBound>(_robot, "QaccBound");
+    qaccBound->lb().fill(-200);
+    qaccBound->ub().fill(200);
 
-    tsc = new TaskSpaceControl(_robot);
+    tsc = make_shared<TaskSpaceControl>(_robot);
     if (_robot.isFixedBase())
     {
         tsc->addTask(lf);
@@ -125,17 +132,6 @@ TSC_IMPL::TSC_IMPL(string urdf_file, string srdf) : _robot(urdf_file, srdf, fixe
 
 TSC_IMPL::~TSC_IMPL()
 {
-    delete mt_waist;
-    delete com;
-    delete rt;
-    delete jointsNominalTask;
-    delete angularMomentumTask;
-    delete cpcstr;
-    delete cfcstr;
-    delete actuatorLimit;
-    delete qaccBound;
-    delete tsc;
-    delete closedChainsConstraints;
 }
 
 void TSC_IMPL::setContactMask(const VecXi &mask)
@@ -258,7 +254,10 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
     _jointsCmd.tau_ff << tau.head(4), tau.segment(5, 2), tau.segment(9, 8), tau.segment(18, 2), tau.tail(4);*/
     //    cout << "optimal qacc: " << getOptimalQacc().transpose() << endl;
     //    cout << "optimal force: " << getOptimalContactForce().transpose() << endl;
-    //    cout << "optimal torque: " << _jointsCmd.tau_ff.transpose() << endl;
+//    cout << "qpos: " << qpos.transpose() << endl;
+//    cout << "qvel: " << qdot.transpose() << endl;
+//    cout << "optimal torque: " << _jointsCmd.tau_ff.transpose() << endl;
+    // getchar();
     //    cout << "jointSpringForce:" << _robot.jointsSpringForce().transpose() << endl;
     _iter++;
 }

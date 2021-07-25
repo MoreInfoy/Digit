@@ -24,13 +24,13 @@ namespace TSC {
 
         explicit TaskSpaceControl(RobotWrapper &robot);
 
-        void addTask(Task *task);
+        void addTask(shared_ptr<Task> task_ptr);
 
         void removeTask(string name);
 
         bool existTask(string name);
 
-        void addLinearConstraint(LinearConstraints *constraints);
+        void addLinearConstraint(shared_ptr<LinearConstraints> constraints_ptr);
 
         bool existLinearConstraint(string name);
 
@@ -52,8 +52,8 @@ namespace TSC {
 
     private:
         RobotWrapper &_robot;
-        vector<Task *> _tasks;
-        vector<LinearConstraints *> _linearConstraints;
+        vector<shared_ptr<Task>> _tasks;
+        vector<shared_ptr<LinearConstraints>> _linearConstraints;
 #ifdef USE_QPOASES
         Mat_R H, C, Ce;
 #else
@@ -66,10 +66,9 @@ namespace TSC {
         eiquadprog::solvers::EiquadprogFast eiquadprog_solver;
         eiquadprog::solvers::EiquadprogFast_status solver_state;
 #else
-        qpOASES::QProblem *solver;
+        shared_ptr<qpOASES::QProblem> solver;
 #endif
     };
 }
-
 
 #endif //TASK_SPACE_CONTROL_TASKSPACECONTROL_H

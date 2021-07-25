@@ -6,10 +6,10 @@
 #include "Manager.h"
 
 Manager::Manager(const RobotState &state) : _state(state), _iter(0) {
-    tsc = new TSC_IMPL(URDF, SRDF);
     gaitScheduler = new GaitScheduler();
     floatingBasePlanner = new FloatingBasePlanner();
     footPlanner = new FootPlanner();
+    tsc = new TSC_IMPL(URDF, SRDF);
     tasks.floatingBaseTask.link_name = "torso";
     tasks.leftFootTask.link_name = "left_toe_roll";
     tasks.rightFootTask.link_name = "right_toe_roll";
