@@ -88,21 +88,21 @@
             <camera name='track' pos='0 -3 1' zaxis='0 -1 0.5' mode='trackcom'/>
             <inertial pos="-0.00148645 0.000175054 0.252154" quat="0.999974 8.03746e-05 -0.00708699 -0.000904934"
                       mass="17.17" diaginertia="0.492749 0.439332 0.127268"/>
-            <joint type="free" limited='false' damping="0" stiffness="0" armature="0"/>
+           <!-- <joint type="free" limited='false' damping="0" stiffness="0" armature="0"/> -->
 
             <geom class="viz" mesh="torso"/>
             <geom type='box' size='0.0975 0.087 0.245' pos='0.008 0 0.21' euler='0 0 0' class='collision'/>
             <geom type='cylinder' size='0.05 0.0325' pos='0.02 0 0.49' euler='0 0 0' class='collision'/>
             <site name='context' pos='0.06425 0 0.38' euler='180 0 0' size='0.01'/>
             <site name='imu' pos='0 0 0' euler='0 -90 0' size='0.01'/>
-            <geom pos="-0.001 0.09 0" quat="0.000281544 -0.707107 -0.000281544 0.707107" type="mesh" contype="0"
-                  conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="left-waist-cap"/>
-            <geom pos="0.001 0.12 0.4" quat="0.704416 -0.0616285 -0.704416 0.0616285" type="mesh" contype="0"
-                  conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="left-shoulder-cap"/>
-            <geom pos="-0.001 -0.09 0" quat="0.000281544 0.707107 -0.000281544 -0.707107" type="mesh" contype="0"
-                  conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="right-waist-cap"/>
-            <geom pos="0.001 -0.12 0.4" quat="0.704416 0.0616285 -0.704416 -0.0616285" type="mesh" contype="0"
-                  conaffinity="0" group="1" rgba="0.7 0.7 0.7 1" mesh="right-shoulder-cap"/>
+            <geom class="viz"  pos="-0.001 0.09 0" quat="0.000281544 -0.707107 -0.000281544 0.707107" type="mesh" contype="0"
+                  conaffinity="0" group="1" mesh="left-waist-cap"/>
+            <geom class="viz" pos="0.001 0.12 0.4" quat="0.704416 -0.0616285 -0.704416 0.0616285" type="mesh" contype="0"
+                  conaffinity="0" group="1" mesh="left-shoulder-cap"/>
+            <geom class="viz" pos="-0.001 -0.09 0" quat="0.000281544 0.707107 -0.000281544 -0.707107" type="mesh" contype="0"
+                  conaffinity="0" group="1" mesh="right-waist-cap"/>
+            <geom class="viz" pos="0.001 -0.12 0.4" quat="0.704416 0.0616285 -0.704416 -0.0616285" type="mesh" contype="0"
+                  conaffinity="0" group="1" mesh="right-shoulder-cap"/>
 
             <body name="left_hip_roll" pos="-0.001 0.091 0" quat="0.694697 0.131892 -0.694697 -0.131892">
                 <inertial pos="-0.001967 0.000244 0.031435" quat="0.698229 -0.0219238 -0.0143848 0.715394"
@@ -594,9 +594,9 @@
         <jointpos name='left-hip-yaw' joint='left_hip_yaw_joint'/>
         <jointpos name='left-hip-pitch' joint='left_hip_pitch_joint'/>
         <jointpos name='left-knee' joint='left_knee_joint'/>
-<!--        <jointpos name='left-shin' joint='left_shin_joint'/>-->
+        <!--        <jointpos name='left-shin' joint='left_shin_joint'/>-->
         <jointpos name='left-tarsus' joint='left_tarsus_joint'/>
-<!--        <jointpos name='left-heel-spring' joint='left_heel_spring_joint'/>-->
+        <!--        <jointpos name='left-heel-spring' joint='left_heel_spring_joint'/>-->
         <jointpos name='left-toe-A' joint='left_toe_A_joint'/>
         <jointpos name='left-toe-B' joint='left_toe_B_joint'/>
         <jointpos name='left-toe-pitch' joint='left_toe_pitch_joint'/>
@@ -611,9 +611,9 @@
         <jointpos name='right-hip-yaw' joint='right_hip_yaw_joint'/>
         <jointpos name='right-hip-pitch' joint='right_hip_pitch_joint'/>
         <jointpos name='right-knee' joint='right_knee_joint'/>
-<!--        <jointpos name='right-shin' joint='right_shin_joint'/>-->
+        <!--        <jointpos name='right-shin' joint='right_shin_joint'/>-->
         <jointpos name='right-tarsus' joint='right_tarsus_joint'/>
-<!--        <jointpos name='right-heel-spring' joint='right_heel_spring_joint'/>-->
+        <!--        <jointpos name='right-heel-spring' joint='right_heel_spring_joint'/>-->
         <jointpos name='right-toe-A' joint='right_toe_A_joint'/>
         <jointpos name='right-toe-B' joint='right_toe_B_joint'/>
         <jointpos name='right-toe-pitch' joint='right_toe_pitch_joint'/>
@@ -631,9 +631,9 @@
         <jointvel name='left-hip-yaw-vel' joint='left_hip_yaw_joint'/>
         <jointvel name='left-hip-pitch-vel' joint='left_hip_pitch_joint'/>
         <jointvel name='left-knee-vel' joint='left_knee_joint'/>
-<!--        <jointvel name='left-shin-vel' joint='left_shin_joint'/>-->
+        <!--        <jointvel name='left-shin-vel' joint='left_shin_joint'/>-->
         <jointvel name='left-tarsus-vel' joint='left_tarsus_joint'/>
-<!--        <jointvel name='left-heel-spring-vel' joint='left_heel_spring_joint'/>-->
+        <!--        <jointvel name='left-heel-spring-vel' joint='left_heel_spring_joint'/>-->
         <jointvel name='left-toe-A-vel' joint='left_toe_A_joint'/>
         <jointvel name='left-toe-B-vel' joint='left_toe_B_joint'/>
         <jointvel name='left-toe-pitch-vel' joint='left_toe_pitch_joint'/>
@@ -648,9 +648,9 @@
         <jointvel name='right-hip-yaw-vel' joint='right_hip_yaw_joint'/>
         <jointvel name='right-hip-pitch-vel' joint='right_hip_pitch_joint'/>
         <jointvel name='right-knee-vel' joint='right_knee_joint'/>
-<!--        <jointvel name='right-shin-vel' joint='right_shin_joint'/>-->
+        <!--        <jointvel name='right-shin-vel' joint='right_shin_joint'/>-->
         <jointvel name='right-tarsus-vel' joint='right_tarsus_joint'/>
-<!--        <jointvel name='right-heel-spring-vel' joint='right_heel_spring_joint'/>-->
+        <!--        <jointvel name='right-heel-spring-vel' joint='right_heel_spring_joint'/>-->
         <jointvel name='right-toe-A-vel' joint='right_toe_A_joint'/>
         <jointvel name='right-toe-B-vel' joint='right_toe_B_joint'/>
         <jointvel name='right-toe-pitch-vel' joint='right_toe_pitch_joint'/>

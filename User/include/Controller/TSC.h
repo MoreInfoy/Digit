@@ -6,7 +6,7 @@
 #define POPLARDIGIT_TSC_H
 
 #include "Controller/Controller.h"
-#include "PoplarLib.h"
+#include "Poplar.h"
 
 using namespace TSC;
 
@@ -16,11 +16,11 @@ public:
 
     ~TSC_IMPL();
 
-    void setContactMask(const VecInt &mask);
+    void setContactMask(const VecXi &mask);
 
     void setContactVirtualLink(vector<string> &contact_virtual_link);
 
-    virtual void run(const Reference &ref, const RobotState &state);
+    virtual void run(size_t iter, const RobotState &state, const GaitData &gaitData, const Tasks &tasks);
 
     virtual const JointsCmd &jointsCmd();
 
@@ -39,7 +39,7 @@ public:
 
 
 private:
-    void solve(ConstVecRef qpos, ConstVecRef qvel, const VecInt &mask);
+    void solve(ConstVecRef qpos, ConstVecRef qvel, const VecXi &mask);
 
     ConstVecRef getOptimalTorque() {
         return tsc->getOptimalTorque();
@@ -47,7 +47,7 @@ private:
 
     RobotWrapper _robot;
     Vec _lb, _ub;
-    VecInt _mask;
+    VecXi _mask;
     SE3MotionTask *mt_waist;
     SE3MotionTask *rf;
     SE3MotionTask *lf;
@@ -64,7 +64,7 @@ private:
 
     vector<string> contact_virtual_link;
     vector<pair<string, string>> link_pairs;
-    vector<pair<string, RealNum>> spring_joints;
+    vector<pair<string, Scalar>> spring_joints;
 
     JointsCmd _jointsCmd;
     size_t _iter;

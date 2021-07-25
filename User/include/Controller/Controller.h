@@ -11,7 +11,7 @@ class Controller {
 public:
     Controller();
 
-    virtual void run(const Reference &ref, const RobotState &state) = 0;
+    virtual void run(size_t iter, const RobotState &state, const GaitData &gaitData, const Tasks &tasks) = 0;
 
     virtual const JointsCmd &jointsCmd() = 0;
 };

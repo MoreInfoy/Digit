@@ -17,12 +17,10 @@
 /*!
  * All the data shared between the robot and the simulator
  */
-template <typename UserToRobotMessage, typename RobotToUserMessage>
-class SharedMessage
-{
+template<typename UserToRobotMessage, typename RobotToUserMessage>
+class SharedMessage {
 public:
-    SharedMessage() : userToRobot(), robotToUser()
-    {
+    SharedMessage() : userToRobot(), robotToUser() {
     }
 
     UserToRobotMessage userToRobot;
@@ -44,33 +42,36 @@ public:
  *  - robot: waitForSimulator()
  *  ...
  */
-template <typename UserToRobotMessage, typename RobotToUserMessage>
-class SyncronizedSharedMessage : public SharedMessage<UserToRobotMessage, RobotToUserMessage>
-{
+template<typename UserToRobotMessage, typename RobotToUserMessage>
+class SyncronizedSharedMessage : public SharedMessage<UserToRobotMessage, RobotToUserMessage> {
 public:
-    SyncronizedSharedMessage() : SharedMessage<UserToRobotMessage, RobotToUserMessage>()
-    {
+    SyncronizedSharedMessage() : SharedMessage<UserToRobotMessage, RobotToUserMessage>() {
     }
 
     /*!
      * The init() method should only be called *after* shared memory is connected!
      */
-    void init()
-    {
+    void init() {
         robotToUserSemaphore.init(0);
         userToRobotSemaphore.init(0);
     }
 
-    void reset()
-    {
+    void robotToUserInit() {
+        robotToUserSemaphore.init(0);
+    }
+
+    void userToRobotInit() {
+        userToRobotSemaphore.init(0);
+    }
+
+    void reset() {
         robotToUserSemaphore.reset();
         userToRobotSemaphore.reset();
     }
 
     void waitForRobot() { robotToUserSemaphore.decrement(); }
 
-    bool waitForRobotWithTimeout(unsigned int seconds, unsigned int nanoseconds)
-    {
+    bool waitForRobotWithTimeout(unsigned int seconds, unsigned int nanoseconds) {
         return robotToUserSemaphore.decrementTimeout(seconds, nanoseconds);
     }
 
@@ -80,8 +81,7 @@ public:
 
     bool tryWaitForUser() { return userToRobotSemaphore.tryDecrement(); }
 
-    bool waitForUserWithTimeout(unsigned int seconds, unsigned int nanoseconds)
-    {
+    bool waitForUserWithTimeout(unsigned int seconds, unsigned int nanoseconds) {
         return userToRobotSemaphore.decrementTimeout(seconds, nanoseconds);
     }
 

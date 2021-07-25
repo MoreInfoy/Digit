@@ -11,7 +11,12 @@ class GaitScheduler {
 public:
     GaitScheduler();
 
-    void run(const RobotState &state);
+    void run(size_t iter, const RobotState &state);
+
+    const GaitData &data();
+
+private:
+    GaitData _gaitData;
 };
 
 

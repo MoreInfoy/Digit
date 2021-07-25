@@ -7,7 +7,8 @@
 
 #include "Controller/TSC.h"
 #include "GaitScheduler/GaitScheduler.h"
-#include "Planner/Planner.h"
+#include "Planner/FootPlanner.h"
+#include "Planner/FloatingBasePlanner.h"
 
 class Manager {
 public:
@@ -23,8 +24,12 @@ public:
 
 private:
     const RobotState &_state;
-    TSC_IMPL* tsc;
-
+    GaitScheduler* gaitScheduler;
+    FloatingBasePlanner *floatingBasePlanner;
+    FootPlanner *footPlanner;
+    TSC_IMPL *tsc;
+    Tasks tasks;
+    size_t _iter;
 };
 
 

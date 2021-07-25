@@ -8,19 +8,19 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
 
+#include "PoplarConfig.h"
 #include "Configuration.h"
-#include "EigenTypes.h"
 
-using namespace Eigen;
+using namespace Poplar;
 
 struct JointsState {
-    Matrix<RealNum, ROBOT_NJ, 1> qpos;
-    Matrix<RealNum, ROBOT_NJ, 1> qvel;
+    Matrix<Scalar, ROBOT_NJ, 1> qpos;
+    Matrix<Scalar, ROBOT_NJ, 1> qvel;
 };
 
 struct FloatingBaseState {
     Poplar::Vec3 pos, vel, omega; // vel in world frame, omega in local frame;
-    Quaternion<RealNum> quat;
+    Quaternion<Scalar> quat;
 };
 
 struct RobotState {
@@ -28,17 +28,61 @@ struct RobotState {
     JointsState jointsState;
 };
 
-struct Reference {
-    // TODO:
+struct GaitData {
+    void zero() {
+        swingTime.setZero();
+        nextStanceTime.setZero();
+        swingTimeRemain.setZero();
+        stanceTimeRemain.setZero();
+    }
+
+    Vec2 swingTime;
+    Vec2 nextStanceTime;
+    Vec2 swingTimeRemain;
+    Vec2 stanceTimeRemain;
+};
+
+
+struct Tasks {
+    // pos in world frame, vel,acc in local frame
+    struct {
+        string link_name;
+        Vec3 pos = Vec3::Zero();
+        Vec3 vel = Vec3::Zero();
+        Vec3 acc = Vec3::Zero();
+        Mat3 R_wb = Mat3::Identity();
+        Vec3 omega = Vec3::Zero();
+        Vec3 omega_dot = Vec3::Zero();
+    } floatingBaseTask;
+
+    struct {
+        string link_name;
+        Vec3 pos = Vec3::Zero();
+        Vec3 vel = Vec3::Zero();
+        Vec3 acc = Vec3::Zero();
+        Mat3 R_wb = Mat3::Identity();
+        Vec3 omega = Vec3::Zero();
+        Vec3 omega_dot = Vec3::Zero();
+    } leftFootTask;
+
+    struct {
+        string link_name;
+        Vec3 pos = Vec3::Zero();
+        Vec3 vel = Vec3::Zero();
+        Vec3 acc = Vec3::Zero();
+        Mat3 R_wb = Mat3::Identity();
+        Vec3 omega = Vec3::Zero();
+        Vec3 omega_dot = Vec3::Zero();
+    } rightFootTask;
 };
 
 struct JointsCmd {
     // TODO:
-    Matrix<RealNum, ROBOT_NU, 1> tau_ff;
+    Matrix<Scalar, ROBOT_NU, 1> tau_ff;
 };
 
 struct UserCmd {
-    Matrix<RealNum, ROBOT_NU, 1> tau;
+    Matrix<Scalar, ROBOT_NU, 1> tau;
 };
 
 #endif //POPLARDIGIT_STATEANDCOMMAND_H

@@ -5,9 +5,13 @@
 #include "GaitScheduler/GaitScheduler.h"
 
 GaitScheduler::GaitScheduler() {
+    _gaitData.zero();
+}
+
+void GaitScheduler::run(size_t iter, const RobotState &state) {
 
 }
 
-void GaitScheduler::run(const RobotState &state) {
-
+const GaitData &GaitScheduler::data() {
+    return _gaitData;
 }

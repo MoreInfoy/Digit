@@ -8,4 +8,4 @@ add_executable(User ${user_source})
 
 include_directories(include)
 
-target_link_libraries(User rt pthread PoplarLib)
+target_link_libraries(User rt pthread Poplar)

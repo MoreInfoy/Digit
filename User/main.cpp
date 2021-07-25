@@ -5,8 +5,10 @@
 #include "StateAndCommand.h"
 #include "SharedMessages.h"
 #include "Manager.h"
-#include "EigenTypes.h"
+#include "PoplarConfig.h"
 #include <csignal>
+
+using namespace Poplar;
 
 bool exitrequest = false;
 

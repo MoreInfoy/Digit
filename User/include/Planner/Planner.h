@@ -11,9 +11,8 @@ class Planner {
 public:
     Planner();
 
-    virtual void plan(const RobotState &state) = 0;
+    virtual void plan(size_t iter, const RobotState &state, const GaitData &gaitData, Tasks &tasks) = 0;
 
-    virtual void trajectory() = 0;
 };
 
 #endif //POPLARDIGIT_PLANNER_H

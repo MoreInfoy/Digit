@@ -9,7 +9,7 @@
 
 #include "mjxmacro.h"
 #include "uitools.h"
-#include "Configuration.h"
+#include "PoplarConfig.h"
 #include "stdio.h"
 #include "string.h"
 
@@ -22,6 +22,8 @@
 #include "Configuration.h"
 
 #include <iostream>
+
+using namespace Poplar;
 
 #define SET_INIT_QPOS
 
@@ -80,10 +82,12 @@ const double refreshfactor = 0.7; // fraction of refresh available for simulatio
 // model and data
 mjModel *m = NULL;
 mjData *d = NULL;
-char filename[1000] = "";
+char filename[2000] = "";
 
 SharedMemoryObject<SyncronizedSharedMessage<UserCmd, RobotState>> shared_memory;
-Array<RealNum, Dynamic, 1> gear, tau_user;
+Array<Scalar, Dynamic, 1> gear, tau_user;
+bool controllerIsDone = true;
+bool first_run = true;
 
 // abstract visualization
 mjvScene scn;
@@ -1066,6 +1070,8 @@ void loadmodel(void) {
 #ifdef SET_INIT_QPOS
     std::memcpy(d->qpos, q_init, m->nq * sizeof(mjtNum));
 #endif
+    controllerIsDone = true;
+    first_run = true;
     if (shared_memory.is_created()) {
         //            shared_memory.closeNew();
         //            shared_memory.createNew(SHAREDMEMORY_CONTROLLER, true);
@@ -1265,6 +1271,8 @@ void uiEvent(mjuiState *state) {
                 case 1: // Reset
                     if (m) {
                         mj_resetData(m, d);
+                        controllerIsDone = true;
+                        first_run = true;
 #ifdef SET_INIT_QPOS
                         std::memcpy(d->qpos, q_init, m->nq * sizeof(mjtNum));
 #endif
@@ -1807,6 +1815,69 @@ void getRobotState(void) {
      */
 }
 
+void step() {
+    if (first_run) {
+        if (controllerIsDone) {
+            mj_step1(m, d);
+            getRobotState();
+            shared_memory().robotDone();
+            controllerIsDone = false;
+        } else {
+            shared_memory().robotToUserInit();
+            shared_memory().robotDone();
+        }
+        ArrayXd tau;
+        if (shared_memory().waitForUserWithTimeout(0, 1e8)) {
+            if (m->nu != ROBOT_NU) {
+                throw std::runtime_error("m->nu != ROBOT_NU");
+            } else {
+                std::memcpy(tau_user.data(), shared_memory().userToRobot.tau.data(),
+                            m->nu * sizeof(mjtNum));
+
+                tau = 1 / gear * tau_user;
+                std::memcpy(d->ctrl, tau.data(), m->nu * sizeof(mjtNum));
+            }
+            controllerIsDone = true;
+            first_run = false;
+            mj_step2(m, d);
+
+        } else {
+            std::cout << "[" << glfwGetTime() << "]"
+                      << "wait for user but time out" << std::endl;
+        }
+    } else {
+        mj_step1(m, d);
+        getRobotState();
+        shared_memory().robotDone();
+        ArrayXd tau;
+        if (shared_memory().waitForUserWithTimeout(0, 1e8)) {
+            if (m->nu != ROBOT_NU) {
+                throw std::runtime_error("m->nu != ROBOT_NU");
+            } else {
+                std::memcpy(tau_user.data(), shared_memory().userToRobot.tau.data(),
+                            m->nu * sizeof(mjtNum));
+
+                tau = 1 / gear * tau_user;
+                std::memcpy(d->ctrl, tau.data(), m->nu * sizeof(mjtNum));
+            }
+
+        } else {
+            shared_memory().robotToUserInit();
+            std::cout << "[" << glfwGetTime() << "]"
+                      << "wait for user but time out, use last joints tau cmds" << std::endl;
+        }
+        mj_step2(m, d);
+    }
+
+    /*std::cout << "[" << glfwGetTime() << "]"
+              << "user_cmd: " << shared_memory().userToRobot.tau.transpose() << std::endl;
+    std::cout << "[" << glfwGetTime() << "]"
+              << "tau: " << tau.transpose() << std::endl;
+    std::cout << "[" << glfwGetTime() << "]"
+              << "gear: " << gear.transpose() << std::endl;*/
+
+}
+
 // simulate in background thread (while rendering in main thread)
 void simulate(void) {
     // cpu-sim syncronization point
@@ -1847,35 +1918,7 @@ void simulate(void) {
                     mjv_applyPerturbForce(m, d, &pert);
 
                     // run single step, let next iteration deal with timing
-                    mj_step1(m, d);
-                    getRobotState();
-                    shared_memory().robotDone();
-
-                    ArrayXd tau;
-                    if (shared_memory().waitForUserWithTimeout(0, 1e8)) {
-                        if (m->nu != ROBOT_NU) {
-                            throw std::runtime_error("m->nu != ROBOT_NU");
-                        } else {
-                            std::memcpy(tau_user.data(), shared_memory().userToRobot.tau.data(),
-                                        m->nu * sizeof(mjtNum));
-
-                            tau = 1 / gear * tau_user;
-                            std::memcpy(d->ctrl, tau.data(), m->nu * sizeof(mjtNum));
-                        }
-                    } else {
-                        std::cout << "[" << glfwGetTime() << "]"
-                                  << "wait for user but time out, use last joints tau cmds" << std::endl;
-                        shared_memory().waitForRobot();
-                    }
-
-//                    std::cout << "[" << glfwGetTime() << "]"
-//                              << "user_cmd: " << shared_memory().userToRobot.tau.transpose() << std::endl;
-                    std::cout << "[" << glfwGetTime() << "]"
-                              << "tau: " << tau.transpose() << std::endl;
-//                    std::cout << "[" << glfwGetTime() << "]"
-//                              << "gear: " << gear.transpose() << std::endl;
-
-                    mj_step2(m, d);
+                    step();
 
                     // printf("[%f] out-of-sync\n", d->time);
                 }
@@ -1892,35 +1935,8 @@ void simulate(void) {
 
                         // run mj_step
                         mjtNum prevtm = d->time;
-                        mj_step1(m, d);
-                        getRobotState();
-                        shared_memory().robotDone();
-                        ArrayXd tau;
-                        if (shared_memory().waitForUserWithTimeout(0, 1e8)) {
-                            if (m->nu != ROBOT_NU) {
-                                throw std::runtime_error("m->nu != ROBOT_NU");
-                            } else {
-                                std::memcpy(tau_user.data(), shared_memory().userToRobot.tau.data(),
-                                            m->nu * sizeof(mjtNum));
 
-                                tau = 1 / gear * tau_user;
-                                std::memcpy(d->ctrl, tau.data(), m->nu * sizeof(mjtNum));
-                            }
-                        } else {
-                            std::cout << "[" << glfwGetTime() << "]"
-                                      << "wait for user but time out, use last joints tau cmds" << std::endl;
-                            shared_memory().waitForRobot();
-                        }
-
-
-//                        std::cout << "[" << glfwGetTime() << "]"
-//                                  << "user_cmd: " << shared_memory().userToRobot.tau.transpose() << std::endl;
-                        std::cout << "[" << glfwGetTime() << "]"
-                                  << "tau: " << tau.transpose() << std::endl;
-//                        std::cout << "[" << glfwGetTime() << "]"
-//                                  << "gear: " << gear.transpose() << std::endl;
-
-                        mj_step2(m, d);
+                        step();
 
                         // break on reset
                         if (d->time < prevtm)
