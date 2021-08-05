@@ -65,7 +65,6 @@ private:
     shared_ptr<ContactForceConstraints> cfcstr;
     shared_ptr<ClosedChainsConstraints> closedChainsConstraints;
     shared_ptr<ActuatorLimit> actuatorLimit;
-    shared_ptr<QaccBound> qaccBound;
     shared_ptr<TaskSpaceControl> tsc;
 
     vector<string> contact_virtual_link;

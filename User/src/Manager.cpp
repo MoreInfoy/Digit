@@ -6,7 +6,7 @@
 #include "Manager.h"
 
 Manager::Manager(const RobotState &state) : _state(state), _iter(0) {
-    gaitScheduler = new GaitScheduler();
+    gaitScheduler = new GaitScheduler(0.001);
     floatingBasePlanner = new FloatingBasePlanner();
     footPlanner = new FootPlanner();
     tsc = new TSC_IMPL(URDF, SRDF);

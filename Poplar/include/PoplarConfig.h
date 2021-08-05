@@ -39,6 +39,10 @@ namespace Poplar {
     typedef Eigen::Matrix<Index, Eigen::Dynamic, Eigen::Dynamic> MatInt;
     typedef Eigen::Matrix<Index, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatInt_R;
     typedef Eigen::Matrix<Index, Eigen::Dynamic, 1> VecXi;
+    typedef Eigen::Matrix<Index, 4, 1> Vec4i;
+    typedef Eigen::Array<Index, 4, 1> Array4i;
+    typedef Eigen::Matrix<Index, 2, 1> Vec2i;
+    typedef Eigen::Array<Index, 2, 1> Array2i;
     typedef Eigen::Matrix<bool, Eigen::Dynamic, 1> VecXb;
     typedef Eigen::Matrix<Scalar, 2, 1> Vec2;
     typedef Eigen::Matrix<Scalar, 3, 1> Vec3;

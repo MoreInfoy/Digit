@@ -6,17 +6,23 @@
 #define POPLARDIGIT_GAITSCHEDULER_H
 
 #include "StateAndCommand.h"
+#include "GaitScheduler/Gait.h"
 
 class GaitScheduler {
 public:
-    GaitScheduler();
+    GaitScheduler(Scalar dt);
 
     void run(size_t iter, const RobotState &state);
 
     const GaitData &data();
 
+    ConstMatIntRef contactTable(size_t n_pre, size_t n_per);
+
 private:
+    Scalar _dt;
     GaitData _gaitData;
+    Gait standing, walking;
+    Gait *gait = nullptr;
 };
 
 

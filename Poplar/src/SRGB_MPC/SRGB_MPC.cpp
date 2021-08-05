@@ -216,7 +216,7 @@ void SRGB_MPC_IMPL::solve(Scalar t_now) {
         } else {
             _xDot.segment(i * 13, 13) =
                     _At * _discreteOptimizedTraj.segment(i * 13 - 13, 13) +
-                    _Bt * _optimalContactForce.segment(_contactTable.rightCols(i).sum() * 3,
+                    _Bt * _optimalContactForce.segment(_contactTable.leftCols(i).sum() * 3,
                                                        _contactTable.col(i).sum() * 3);
         }
     }
@@ -246,7 +246,7 @@ void SRGB_MPC_IMPL::computeSxSu() {
             Su.topLeftCorner(13, _contactTable.col(k).sum() * 3).noalias() = _Bk;
         } else {
             Sx.middleRows(k * 13, 13).noalias() = _Ak * Sx.middleRows((k - 1) * 13, 13);
-            size_t sc = 3 * _contactTable.rightCols(k).sum();
+            size_t sc = 3 * _contactTable.leftCols(k).sum();
             Su.block(k * 13, 0, 13, sc).noalias() =
                     _Ak * Su.block((k - 1) * 13, 0, 13, sc);
             Su.block(k * 13, sc, 13, _contactTable.col(k).sum() * 3).noalias() = _Bk;

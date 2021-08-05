@@ -31,13 +31,13 @@ struct RobotState {
 struct GaitData {
     void zero() {
         swingTime.setZero();
-        nextStanceTime.setZero();
+        stanceTime.setZero();
         swingTimeRemain.setZero();
         stanceTimeRemain.setZero();
     }
 
     Vec2 swingTime;
-    Vec2 nextStanceTime;
+    Vec2 stanceTime;
     Vec2 swingTimeRemain;
     Vec2 stanceTimeRemain;
 };
