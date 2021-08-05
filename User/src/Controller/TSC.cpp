@@ -191,7 +191,9 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
             lf->spatialAccRef()
                     << tasks.leftFootTask.acc,
                     tasks.leftFootTask.omega_dot; // TODO: analytical acc to spatial acc
-            tsc->addTask(lf);
+            if (!tsc->existTask(lf->name())) {
+                tsc->addTask(lf);
+            }
         } else {
             tsc->removeTask(tasks.leftFootTask.link_name);
         }
@@ -204,11 +206,13 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
             rf->spatialAccRef()
                     << tasks.rightFootTask.acc,
                     tasks.rightFootTask.omega_dot; // TODO: analytical acc to spatial acc
-            tsc->addTask(rf);
+            if (!tsc->existTask(rf->name())) {
+                tsc->addTask(rf);
+            }
         } else {
             tsc->removeTask(tasks.rightFootTask.link_name);
         }
-
+        _mask.setOnes();
         _robot.setContactMask(_mask);
         com->posRef() = tasks.floatingBaseTask.pos;
         com->velRef() = tasks.floatingBaseTask.vel;

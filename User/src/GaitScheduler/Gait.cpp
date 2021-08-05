@@ -54,7 +54,7 @@ ConstMatIntRef Gait::getContactTable(size_t n_pre, size_t n_per) {
 
 void Gait::run(size_t iter) {
     _iteration = iter % _nSegment;
-    _phase = (double) (_iteration / _nSegment);
+    _phase = double(_iteration) / double(_nSegment);
 
     Array2d leg_process = _phase - _offsetsDouble;
     for (int i(0); i < 2; i++) {

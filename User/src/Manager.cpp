@@ -36,6 +36,18 @@ void Manager::run() {
     tsc->setContactMask(mask);
 #endif
     tsc->run(_iter, _state, gaitScheduler->data(), tasks);
+
+    robotMsg.timeStamp = 0.001 * _iter;
+    robotMsg.data_size = 2;
+    robotMsg.data.resize(2);
+    /*robotMsg.data[0] = gaitScheduler->data().swingTimeRemain(0) > 0 ? 0 : 1;
+    robotMsg.data[1] = gaitScheduler->data().swingTimeRemain(1) > 0 ? 0 : 1;*/
+    robotMsg.data[0] = tasks.floatingBaseTask.pos[2];
+    robotMsg.data[1] = tsc->robot().CoM_pos()(2);
+
+    if (lcm.good()) {
+        lcm.publish("ROBOT_MESSAGE_TOPIC", &robotMsg);
+    }
     _iter++;
 }
 

@@ -6,13 +6,13 @@
 
 GaitScheduler::GaitScheduler(Scalar dt) : _dt(dt),
                                           standing(500, Vec2i(0, 0), Vec2i(500, 500), "standing"),
-                                          walking(1000, Vec2i(0, 500), Vec2i(500, 500), "standing") {
+                                          walking(2000, Vec2i(0, 1000), Vec2i(1000, 1000), "standing") {
     _gaitData.zero();
     gait = &standing;
 }
 
 void GaitScheduler::run(size_t iter, const RobotState &state) {
-    gait = &standing;
+    gait = &walking;
     if (gait != nullptr) {
         gait->run(iter);
         Vec2 swPhase = gait->getSwingState();
