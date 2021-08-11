@@ -25,7 +25,10 @@ public:
     Poplar::Vec output();
 
 private:
+    void update();
+
     const RobotState &_state;
+    RobotWrapper robot;
     GaitScheduler *gaitScheduler;
     FloatingBasePlanner *floatingBasePlanner;
     FootPlanner *footPlanner;
@@ -35,6 +38,9 @@ private:
 
     lcm::LCM lcm;
     RobotMessage robotMsg;
+
+    Poplar::Index mpc_horizon;
+    Scalar mpc_dt, dt;
 };
 
 

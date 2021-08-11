@@ -9,7 +9,7 @@
 using namespace TSC;
 
 RegularizationTask::RegularizationTask(RobotWrapper &robot, string name) : Task(robot, name),
-                                                                                _Q_isUpdated(false) {
+                                                                           _Q_isUpdated(false) {
     _Q_qacc.setZero();
     _Q_f.setZero();
     _Q_cstrf = 1e-12;
@@ -50,6 +50,8 @@ void RegularizationTask::update() {
     _H = _Q;
     _g.setZero();
 #endif
+
+
 }
 
 ConstMatRef RegularizationTask::H() {
@@ -76,6 +78,7 @@ MatRef RegularizationTask::qaccWeight() {
 }
 
 
-Scalar& RegularizationTask::constraintForceWeight() {
+Scalar &RegularizationTask::constraintForceWeight() {
     return ref(_Q_cstrf);
 }
+

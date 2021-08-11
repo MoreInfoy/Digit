@@ -25,13 +25,14 @@ def my_handler(channel, data):
     # plt.plot(msg.timeStamp, msg.data[2], 'k*')
     index = 0
     plt.plot([t_last, msg.timeStamp], [x_last, msg.data[index]], 'k-')
-    plt.plot([t_last, msg.timeStamp], [y_last, msg.data[index+1]], 'r-')
+    plt.plot([t_last, msg.timeStamp], [y_last, msg.data[index + 3]], 'r-')
 
-    # plt.plot([t_last, msg.timeStamp], [x_last, msg.data[index]], 'k-', [t_last, msg.timeStamp], [y_last, msg.data[index+3]], 'r-')
-    
+    # plt.plot([t_last, msg.timeStamp], [x_last, msg.data[index]], 'k-', [t_last, msg.timeStamp],
+    #          [y_last, msg.data[index + 3]], 'r-')
+
     t_last = msg.timeStamp
     x_last = msg.data[index]
-    y_last = msg.data[index+1]
+    y_last = msg.data[index + 1]
     plt.pause(0.0001)
 
 

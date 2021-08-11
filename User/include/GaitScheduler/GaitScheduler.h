@@ -7,16 +7,17 @@
 
 #include "StateAndCommand.h"
 #include "GaitScheduler/Gait.h"
+#include "Poplar.h"
 
 class GaitScheduler {
 public:
     GaitScheduler(Scalar dt);
 
-    void run(size_t iter, const RobotState &state);
+    void run(size_t iter, const RobotState &state, RobotWrapper& robot);
 
     const GaitData &data();
 
-    ConstMatIntRef contactTable(size_t n_pre, size_t n_per);
+    void updateContactTable(size_t n_pre, size_t n_per);
 
 private:
     Scalar _dt;

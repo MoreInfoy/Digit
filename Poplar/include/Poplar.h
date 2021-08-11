@@ -8,6 +8,7 @@
 #include "TaskSpaceControl/TaskSpaceControl.h"
 #include "TaskSpaceControl/Task/SE3MotionTask.h"
 #include "TaskSpaceControl/Task/RegularizationTask.h"
+#include "TaskSpaceControl/Task/ForceTask.h"
 #include "TaskSpaceControl/Constraints/ContactPointsConstraints.h"
 #include "TaskSpaceControl/Constraints/ContactForceConstraints.h"
 #include "TaskSpaceControl/Constraints/ActuatorLimit.h"

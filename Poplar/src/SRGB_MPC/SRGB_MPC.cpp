@@ -10,10 +10,11 @@ using namespace SRGB_MPC;
 
 #define BIG_NUMBER 1e10
 
-SRGB_MPC_IMPL::SRGB_MPC_IMPL(size_t horizon, Scalar dt) : _horizon(horizon), _dt(dt), _gravity(-9.81), _mu(0.4),
-                                                           _fmax(500), _setDesiredTraj(false),
-                                                           _setDesiredDiscreteTraj(false),
-                                                           _ext_wrench(horizon) {
+SRGB_MPC_IMPL::SRGB_MPC_IMPL(size_t horizon, Scalar dt, size_t ns_contact) : _horizon(horizon), _ns_contact(ns_contact),
+                                                                             _dt(dt), _gravity(-9.81), _mu(0.4),
+                                                                             _fmax(500), _setDesiredTraj(false),
+                                                                             _setDesiredDiscreteTraj(false),
+                                                                             _ext_wrench(horizon) {
 
     _mass = 0;
     _inertia.setZero();
@@ -22,7 +23,7 @@ SRGB_MPC_IMPL::SRGB_MPC_IMPL(size_t horizon, Scalar dt) : _horizon(horizon), _dt
     _Qf.diagonal().fill(1e-3);
     _Q.resize(13 * _horizon, 13 * _horizon);
     _R.resize(12 * _horizon, 12 * _horizon);
-    _contactTable = MatInt::Ones(4, horizon);
+    _contactTable = MatInt::Ones(ns_contact, horizon);
     _desiredDiscreteTraj = Vec::Zero(13 * horizon);
     _desiredDiscreteTraj_bias = Vec::Zero(13 * horizon);
     _vel_des.setZero();
@@ -68,7 +69,7 @@ void SRGB_MPC_IMPL::setVelocityCmd(Vec6 vel_des) {
 }
 
 void SRGB_MPC_IMPL::setContactTable(ConstMatIntRef &contactTable) {
-    if (contactTable.rows() != 4 || contactTable.cols() != _horizon) {
+    if (contactTable.rows() != _ns_contact || contactTable.cols() != _horizon) {
         throw std::runtime_error("[SRGB_MPC_IMPL::setContactTable] contactTable size is wrong");
     }
     _contactTable = contactTable;
@@ -98,15 +99,20 @@ ConstVecRef SRGB_MPC_IMPL::getOptimalContactForce() {
 }
 
 ConstVecRef SRGB_MPC_IMPL::getCurrentDesiredContactForce() {
+    _force_des.resize(_ns_contact * 3);
     _force_des.setZero();
     int k = 0;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < _ns_contact; i++) {
         if (_contactTable.col(0)(i) == 1) {
             _force_des.segment(i * 3, 3) = _optimalContactForce.segment(3 * k, 3);
             k++;
         }
     }
     return ConstVecRef(_force_des);
+}
+
+ConstVecRef SRGB_MPC_IMPL::getCurrentDesiredActiveContactForce() {
+    return ConstVecRef(_optimalContactForce.head(3 * _contactTable.col(0).sum()));
 }
 
 void SRGB_MPC_IMPL::setMassAndInertia(Scalar mass, Mat3Ref inertia) {
@@ -259,7 +265,7 @@ void SRGB_MPC_IMPL::setFrictionCoefficient(double mu) {
 }
 
 void SRGB_MPC_IMPL::setContactPointPos(vector<Vec3> contactPointPos) {
-    assert(contactPointPos.size() == 4);
+    assert(contactPointPos.size() == _ns_contact);
     _contactPointPos = contactPointPos;
 }
 
@@ -295,9 +301,9 @@ void SRGB_MPC_IMPL::computeAtBt(size_t t) {
     _Bt.setZero();
     Vec3 r;
     int k = 0;
-    for (int leg(0); leg < 4; leg++) {
-        if (_contactTable(leg, t) == 1) {
-            r = _contactPointPos[leg] - _x0.segment(3, 3);
+    for (int l(0); l < _ns_contact; l++) {
+        if (_contactTable(l, t) == 1) {
+            r = _contactPointPos[l] - _x0.segment(3, 3);
             Mat3 r_skew;
             r_skew << 0., -r(2), r(1),
                     r(2), 0., -r(0),
@@ -358,9 +364,9 @@ void SRGB_MPC_IMPL::computeAtBtAndBiasTraj(size_t t) {
     _Bt.setZero();
     Vec3 r;
     int k = 0;
-    for (int leg(0); leg < 4; leg++) {
-        if (_contactTable(leg, t) == 1) {
-            r = _contactPointPos[leg] - _x0.segment(3, 3);
+    for (int l(0); l < _ns_contact; l++) {
+        if (_contactTable(l, t) == 1) {
+            r = _contactPointPos[l] - _x0.segment(3, 3);
             Mat3 r_skew;
             r_skew << 0., -r(2), r(1),
                     r(2), 0., -r(0),
@@ -407,4 +413,12 @@ void SRGB_MPC_IMPL::setDesiredDiscreteTrajectory(ConstVecRef traj) {
     assert(traj.size() == 13 * _horizon);
     _desiredDiscreteTraj = traj;
     _setDesiredDiscreteTraj = true;
+}
+
+size_t SRGB_MPC_IMPL::horizon() {
+    return _horizon;
+}
+
+Scalar SRGB_MPC_IMPL::dt() {
+    return _dt;
 }

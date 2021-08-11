@@ -40,40 +40,29 @@ struct GaitData {
     Vec2 stanceTime;
     Vec2 swingTimeRemain;
     Vec2 stanceTimeRemain;
+    MatInt contactTable;
+};
+
+struct LinkTask {
+    string link_name;
+    Vec3 pos = Vec3::Zero();
+    Vec3 vel = Vec3::Zero();
+    Vec3 acc = Vec3::Zero();
+    Mat3 R_wb = Mat3::Identity();
+    Vec3 omega = Vec3::Zero();
+    Vec3 omega_dot = Vec3::Zero();
 };
 
 
 struct Tasks {
     // pos in world frame, vel,acc in local frame
-    struct {
-        string link_name;
-        Vec3 pos = Vec3::Zero();
-        Vec3 vel = Vec3::Zero();
-        Vec3 acc = Vec3::Zero();
-        Mat3 R_wb = Mat3::Identity();
-        Vec3 omega = Vec3::Zero();
-        Vec3 omega_dot = Vec3::Zero();
-    } floatingBaseTask;
+    LinkTask floatingBaseTask;
 
-    struct {
-        string link_name;
-        Vec3 pos = Vec3::Zero();
-        Vec3 vel = Vec3::Zero();
-        Vec3 acc = Vec3::Zero();
-        Mat3 R_wb = Mat3::Identity();
-        Vec3 omega = Vec3::Zero();
-        Vec3 omega_dot = Vec3::Zero();
-    } leftFootTask;
+    LinkTask leftFootTask;
 
-    struct {
-        string link_name;
-        Vec3 pos = Vec3::Zero();
-        Vec3 vel = Vec3::Zero();
-        Vec3 acc = Vec3::Zero();
-        Mat3 R_wb = Mat3::Identity();
-        Vec3 omega = Vec3::Zero();
-        Vec3 omega_dot = Vec3::Zero();
-    } rightFootTask;
+    LinkTask rightFootTask;
+
+    Vec forceTask;
 };
 
 struct JointsCmd {

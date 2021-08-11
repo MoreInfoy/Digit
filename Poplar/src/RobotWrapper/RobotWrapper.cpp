@@ -118,6 +118,7 @@ void RobotWrapper::computeAllData(ConstVecRef qpos, ConstVecRef qvel, const VecX
     pinocchio::updateFramePlacements(_model, _data);
     pinocchio::centerOfMass(_model, _data, _qpos, _qvel, Eigen::VectorXd::Zero(_model.nv));
     pinocchio::ccrba(_model, _data, _qpos, _qvel);
+    pin::computeTotalMass(_model, _data);
 
     computeContactJacobia();
     computeActiveContactPointBiasAcc();
@@ -254,6 +255,10 @@ void RobotWrapper::setContactVirtualLink(const vector<string> &names) {
     _mask = VecXi::Ones(_contactPoint_virtual_link.size());
 }
 
+const vector<string> &RobotWrapper::contactVirtualLinks() {
+    return _contactPoint_virtual_link;
+}
+
 void RobotWrapper::setContactMask(const VecXi &mask) {
     assert(mask.size() == _contactPoint_virtual_link.size());
     _mask = mask;
@@ -388,6 +393,14 @@ void RobotWrapper::computeClosedChainTerm() {
     }
     computeConstraintForceJacobia();
     computeConnectPointBiasAcc();
+}
+
+Scalar RobotWrapper::totalMass() {
+    return _data.mass[0];
+}
+
+Mat3 RobotWrapper::Ig() {
+    return _data.Ig.inertia();
 }
 
 

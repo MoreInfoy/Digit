@@ -7,7 +7,7 @@
 using namespace SRGB_MPC;
 
 int main() {
-    SRGB_MPC::SRGB_MPC_IMPL srgbMpc(10, 0.03);
+    SRGB_MPC::SRGB_MPC_IMPL srgbMpc(10, 0.03, 4);
     Vec Qx(12);
     Qx << 2.5, 2.5, 10, 10, 10, 50, 0, 0, 0.3, 0.2, 0.2, 0.1;
     Vec Qf(3);

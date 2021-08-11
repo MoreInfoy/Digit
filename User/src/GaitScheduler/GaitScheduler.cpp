@@ -11,8 +11,8 @@ GaitScheduler::GaitScheduler(Scalar dt) : _dt(dt),
     gait = &standing;
 }
 
-void GaitScheduler::run(size_t iter, const RobotState &state) {
-    gait = &walking;
+void GaitScheduler::run(size_t iter, const RobotState &state, RobotWrapper &robot) {
+    gait = &standing;
     if (gait != nullptr) {
         gait->run(iter);
         Vec2 swPhase = gait->getSwingState();
@@ -40,6 +40,6 @@ const GaitData &GaitScheduler::data() {
     return _gaitData;
 }
 
-ConstMatIntRef GaitScheduler::contactTable(size_t n_pre, size_t n_per) {
-    return gait->getContactTable(n_pre, n_per);
+void GaitScheduler::updateContactTable(size_t n_pre, size_t n_per) {
+    _gaitData.contactTable = gait->getContactTable(n_pre, n_per);
 }

@@ -16,11 +16,9 @@ class TSC_IMPL : public Controller
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    TSC_IMPL(string urdf_file, string srdf);
+    TSC_IMPL(RobotWrapper& robot);
 
     ~TSC_IMPL();
-
-    void setContactMask(const VecXi &mask);
 
     void setContactVirtualLink(vector<string> &contact_virtual_link);
 
@@ -44,21 +42,19 @@ public:
     }
 
 private:
-    void solve(ConstVecRef qpos, ConstVecRef qvel, const VecXi &mask);
-
     ConstVecRef getOptimalTorque()
     {
         return tsc->getOptimalTorque();
     }
 
-    RobotWrapper _robot;
+    RobotWrapper &_robot;
     Vec _lb, _ub;
-    VecXi _mask;
     shared_ptr<SE3MotionTask> mt_waist;
     shared_ptr<SE3MotionTask> rf;
     shared_ptr<SE3MotionTask> lf;
     shared_ptr<CoMMotionTask> com;
     shared_ptr<RegularizationTask> rt;
+    shared_ptr<ForceTask> forceTask;
     shared_ptr<JointsNominalTask> jointsNominalTask;
     shared_ptr<AngularMomentumTask> angularMomentumTask;
     shared_ptr<ContactPointsConstraints> cpcstr;

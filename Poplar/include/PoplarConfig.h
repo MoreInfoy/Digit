@@ -22,6 +22,8 @@
 #include <pinocchio/algorithm/aba.hpp>
 #include <pinocchio/algorithm/centroidal.hpp>
 #include <pinocchio/algorithm/joint-configuration.hpp>
+#include <pinocchio/math/rpy.hpp>
+#include <pinocchio/math/quaternion.hpp>
 
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
@@ -63,6 +65,7 @@ namespace Poplar {
     typedef Eigen::Ref<Mat3> Mat3Ref;
     typedef Eigen::Ref<Mat6> Mat6Ref;
     typedef Eigen::Ref<Mat> MatRef;
+    typedef Eigen::Ref<MatInt> MatIntRef;
     typedef Eigen::Ref<VecXi> VecXiRef;
     typedef const Eigen::Ref<const Vec3> ConstVec3Ref;
     typedef const Eigen::Ref<const Vec6> ConstVec6Ref;

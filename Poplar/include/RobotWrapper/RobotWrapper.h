@@ -39,6 +39,8 @@ public:
 
     void setContactVirtualLink(const vector<string> &names);
 
+    const vector<string> &contactVirtualLinks();
+
     void setConnectVirtualLink(const vector<pair<string, string>> &link_pairs);
 
     void setConstraintForceSubspace(ConstMatRef T, ConstMatRef T_dot); // in local frame
@@ -83,6 +85,10 @@ public:
 
     Vec6 momentumTimeVariation();
 
+    Scalar totalMass();
+
+    Mat3 Ig();
+
     int nq();
 
     int nv();
@@ -118,7 +124,8 @@ private:
 
     void computeActiveContactPointBiasAcc();
 
-    void computeConnectPointBiasAcc(); // call this function after computeConstraintForceJacobia() because _T is updated in lateral one
+    void
+    computeConnectPointBiasAcc(); // call this function after computeConstraintForceJacobia() because _T is updated in lateral one
 
     pin::FrameIndex getFrameID(string frame_name);
 

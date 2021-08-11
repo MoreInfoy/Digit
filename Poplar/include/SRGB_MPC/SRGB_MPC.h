@@ -30,7 +30,7 @@ namespace SRGB_MPC {
     class SRGB_MPC_IMPL {
     public:
 
-        explicit SRGB_MPC_IMPL(size_t horizon, Scalar dt);
+        explicit SRGB_MPC_IMPL(size_t horizon, Scalar dt, size_t ns_contact);
 
         void setMassAndInertia(Scalar mass, Mat3Ref inertia);
 
@@ -66,7 +66,13 @@ namespace SRGB_MPC {
 
         ConstVecRef getCurrentDesiredContactForce();
 
+        ConstVecRef getCurrentDesiredActiveContactForce();
+
         ConstVecRef getXDot();
+
+        size_t horizon();
+
+        Scalar dt();
 
     private:
         void computeSxSu();
@@ -79,7 +85,7 @@ namespace SRGB_MPC {
 
         Mat3 rpyToRotMat(Vec3Ref v);
 
-        size_t _horizon;
+        size_t _horizon, _ns_contact;
         Scalar _dt, _gravity, _mu, _fmax;
         Scalar _mass;
         Mat3 _inertia;
@@ -87,7 +93,7 @@ namespace SRGB_MPC {
         bool _setDesiredTraj, _setDesiredDiscreteTraj;
         Vec _desiredDiscreteTraj, _desiredDiscreteTraj_bias;
         Vec _discreteOptimizedTraj, _optimalContactForce;
-        Vec12 _force_des;
+        Vec _force_des;
         MatInt _contactTable;
         vector<Vec3> _contactPointPos;
         Vec6 _vel_des;

@@ -1823,6 +1823,7 @@ void step() {
             shared_memory().robotDone();
             controllerIsDone = false;
         } else {
+            getRobotState();
             shared_memory().robotToUserInit();
             shared_memory().robotDone();
         }
