@@ -25,6 +25,8 @@
 
 using namespace Poplar;
 
+#define LCM_TRAJ
+
 #define SET_INIT_QPOS
 
 #define USE_SENSORS_DATA
@@ -88,6 +90,10 @@ SharedMemoryObject<SyncronizedSharedMessage<UserCmd, RobotState>> shared_memory;
 Array<Scalar, Dynamic, 1> gear, tau_user;
 bool controllerIsDone = true;
 bool first_run = true;
+
+// trajectory sample points
+vector<Vec3> trajectory;
+mutex traj_mutex;
 
 // abstract visualization
 mjvScene scn;
@@ -1649,6 +1655,49 @@ void prepare(void) {
     cleartimers();
 }
 
+// make default abstract geom
+void v_defaultLine(mjvGeom *geom) {
+    geom->rgba[0] = 1;
+    geom->rgba[1] = 0;
+    geom->rgba[2] = 1;
+    geom->rgba[3] = 0.4;
+    geom->type = mjGEOM_SPHERE;
+    geom->dataid = -1;
+    geom->objtype = mjOBJ_GEOM;
+    geom->category = mjCAT_DECOR;
+    geom->texid = -1;
+    geom->texuniform = 0;
+    geom->segid = -1;
+    geom->texrepeat[0] = 1;
+    geom->texrepeat[1] = 1;
+    geom->emission = 0;
+    geom->specular = 0.5;
+    geom->shininess = 0.5;
+    geom->reflectance = 0;
+    geom->label[0] = 0;
+}
+
+// draw a line
+void drawLine(vector<Vec3> points) {
+    for (int i = 0; i < points.size(); i++) {
+        if (i + scn.ngeom < scn.maxgeom) {
+            mjvGeom *g = scn.geoms + scn.ngeom;
+            v_defaultLine(g);
+            g->objid = scn.ngeom + i;
+            g->size[0] = 0.01;
+            g->size[1] = 0.01;
+            g->size[2] = 0.01;
+            g->mat[0] = 1;
+            g->mat[4] = 1;
+            g->mat[8] = 1;
+            g->pos[0] = points[i].x();
+            g->pos[1] = points[i].y();
+            g->pos[2] = points[i].z();
+            scn.ngeom++;
+        }
+    }
+}
+
 // render im main thread (while simulating in background thread)
 void render(GLFWwindow *window) {
     // get 3D rectangle and reduced for profiler
@@ -1681,6 +1730,11 @@ void render(GLFWwindow *window) {
 
         return;
     }
+
+    // draw line
+    traj_mutex.lock();
+    drawLine(trajectory);
+    traj_mutex.unlock();
 
     // render scene
     mjr_render(rect, &scn, &con);

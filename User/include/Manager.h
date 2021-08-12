@@ -9,7 +9,8 @@
 #include "GaitScheduler/GaitScheduler.h"
 #include "Planner/FootPlanner.h"
 #include "Planner/FloatingBasePlanner.h"
-#include "lcm/RobotMessage.hpp"
+#include "RobotMessage.hpp"
+#include "Trajectory_LCM.hpp"
 #include <lcm/lcm-cpp.hpp>
 
 class Manager {
@@ -27,6 +28,8 @@ public:
 private:
     void update();
 
+    void runLCM();
+
     const RobotState &_state;
     RobotWrapper robot;
     GaitScheduler *gaitScheduler;
@@ -38,6 +41,7 @@ private:
 
     lcm::LCM lcm;
     RobotMessage robotMsg;
+    Trajectory_LCM trajectoryLcm;
 
     Poplar::Index mpc_horizon;
     Scalar mpc_dt, dt;

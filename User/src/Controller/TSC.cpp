@@ -24,6 +24,7 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
     mt_waist->Kp().diagonal() << 0, 0, 0, 500, 500, 500;
     mt_waist->Kd() = 2 * mt_waist->Kp().cwiseSqrt();
     mt_waist->weightMatrix() = 1000 * mt_waist->weightMatrix();
+    mt_waist->weightMatrix().diagonal().head(3).setZero();
     mt_waist->SE3Ref() = _robot.frame_pose("torso");
 
     com = make_shared<CoMMotionTask>(_robot, "com");
@@ -35,7 +36,7 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
     com->accRef().setZero();
 
     forceTask = make_shared<ForceTask>(_robot, "ForceTask");
-    forceTask->weightMatrix().diagonal().fill(1e2);
+    forceTask->weightMatrix().diagonal().fill(2e3);
 
     rt = make_shared<RegularizationTask>(_robot, "RegularizationTask");
     rt->qaccWeight().diagonal().fill(1e-5);
@@ -156,14 +157,18 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
         } else {
             tsc->removeTask(tasks.rightFootTask.link_name);
         }
+        auto base_frame = robot().frame_pose("torso");
         com->posRef() = tasks.floatingBaseTask.pos;
         com->velRef() = tasks.floatingBaseTask.vel;
         com->accRef() = tasks.floatingBaseTask.acc;
+//        mt_waist->SE3Ref().translation() = tasks.floatingBaseTask.pos;
+//        mt_waist->spatialVelRef().head(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.vel;
+//        mt_waist->spatialAccRef().head(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.acc;
         mt_waist->SE3Ref().rotation() = tasks.floatingBaseTask.R_wb;
-        mt_waist->spatialVelRef().tail(3) = tasks.floatingBaseTask.omega;
-        mt_waist->spatialAccRef().tail(3) = tasks.floatingBaseTask.omega_dot;
+        mt_waist->spatialVelRef().tail(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.omega;
+        mt_waist->spatialAccRef().tail(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.omega_dot;
         forceTask->setForceRef(tasks.forceTask);
-        std::cout << "force ref: " << tasks.forceTask.transpose() << std::endl;
+//        std::cout << "force ref: " << tasks.forceTask.transpose() << std::endl;
     }
 
     Timer timer;
@@ -185,7 +190,7 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
     cout << "time cost: " << timer.getMs() << " ms" << endl;
     _jointsCmd.tau_ff = getOptimalTorque();
 
-    cout << "contact force: " << tsc->getOptimalContactForce().transpose() << endl;
+//    cout << "contact force: " << tsc->getOptimalContactForce().transpose() << endl;
 
     //    tsc->saveAllData("data.txt");
 

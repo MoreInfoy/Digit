@@ -12,13 +12,22 @@
 
 class FloatingBasePlanner : public Planner {
 public:
-    FloatingBasePlanner(Poplar::Index horizon, Scalar mpc_dt, Scalar dt);
+    FloatingBasePlanner(Poplar::Index horizon,
+                        Scalar mpc_dt, Scalar dt);
 
-    virtual void
-    plan(size_t iter, const RobotState &state, RobotWrapper &robot, const GaitData &gaitData, Tasks &tasks);
+    virtual void plan(size_t iter,
+                      const RobotState &state,
+                      RobotWrapper &robot,
+                      const GaitData &gaitData,
+                      Tasks &tasks);
+
+    ConstVecRef getOptimalTraj();
+
+    ConstVecRef getDesiredTraj();
 
 private:
-    void generateRefTraj(const RobotState &state, RobotWrapper &robot);
+    void generateRefTraj(const RobotState &state,
+                         RobotWrapper &robot);
 
     void generateContactTable(const GaitData &gaitData);
 

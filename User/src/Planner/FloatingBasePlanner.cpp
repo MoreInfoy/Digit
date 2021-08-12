@@ -42,10 +42,10 @@ FloatingBasePlanner::FloatingBasePlanner(Poplar::Index horizon, Scalar mpc_dt, S
     mass = 15.8198;
 
     Vec Qx(12);
-    Qx.segment(0, 3) << 1.5, 1.5, 10.0;
+    Qx.segment(0, 3) << 100.5, 100.5, 10.0;
     Qx.segment(3, 3) << 10, 10, 50;
     Qx.segment(6, 3) << 0.1, 0.1, 0.3;
-    Qx.segment(9, 3) << 0.1, 0.1, 0.3;
+    Qx.segment(9, 3) << 10.1, 10.1, 0.3;
     Vec Qf(3);
     Qf.fill(4e-5);
     srgbMpc.setWeight(Qx, Qf);
@@ -67,6 +67,8 @@ void FloatingBasePlanner::plan(size_t iter, const RobotState &state, RobotWrappe
     Vec3 rpy = pin::rpy::matrixToRpy(base_pose.rotation());
     Vec3 c = robot.CoM_pos();
     Vec3 cdot = robot.CoM_vel();
+//    Vec3 c = base_pose.translation();
+//    Vec3 cdot = robot.frame_6dVel_localWorldAligned(base).linear();
 
     Vec3 vBodyDes(0, 0, 0); // TODO:
     Scalar yawd_des = 0;
@@ -112,11 +114,11 @@ void FloatingBasePlanner::plan(size_t iter, const RobotState &state, RobotWrappe
     auto xdd = srgbMpc.getXDot();
     tasks.floatingBaseTask.pos = xopt.segment(3, 3);
     tasks.forceTask = srgbMpc.getCurrentDesiredActiveContactForce();
-    /*tasks.floatingBaseTask.vel = xopt.segment(9, 3);
+    tasks.floatingBaseTask.vel = xopt.segment(9, 3);
     tasks.floatingBaseTask.acc = xdd.segment(9, 3);
     tasks.floatingBaseTask.omega_dot = xdd.segment(6, 3);
-    tasks.floatingBaseTask.R_wb.setIdentity();
-    tasks.floatingBaseTask.omega << 0., 0., 0.;*/
+    tasks.floatingBaseTask.R_wb = pin::rpy::rpyToMatrix(xopt.segment(0, 3));
+    tasks.floatingBaseTask.omega = xopt.segment(6, 3);
 }
 
 void FloatingBasePlanner::generateRefTraj(const RobotState &state, RobotWrapper &robot) {
@@ -160,4 +162,12 @@ void FloatingBasePlanner::generateContactTable(const GaitData &gaitData) {
             contactTable.col(i).tail(4).fill(1);
         }
     }
+}
+
+ConstVecRef FloatingBasePlanner::getOptimalTraj() {
+    return srgbMpc.getDiscreteOptimizedTrajectory();
+}
+
+ConstVecRef FloatingBasePlanner::getDesiredTraj() {
+    return ConstVecRef(X_d);
 }

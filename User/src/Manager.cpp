@@ -84,8 +84,17 @@ void Manager::run() {
     floatingBasePlanner->plan(_iter, _state, robot, gaitScheduler->data(), tasks);
     tsc->run(_iter, _state, gaitScheduler->data(), tasks);
 
+    runLCM();
+    _iter++;
+}
+
+Poplar::Vec Manager::output() {
+    return tsc->jointsCmd().tau_ff;
+}
+
+void Manager::runLCM() {
     robotMsg.timeStamp = 0.001 * _iter;
-    robotMsg.data_size = 6;
+    robotMsg.data_size = 3 * mpc_horizon;
     robotMsg.data.resize(robotMsg.data_size);
     /*robotMsg.data[0] = gaitScheduler->data().swingTimeRemain(0) > 0 ? 0 : 1;
     robotMsg.data[1] = gaitScheduler->data().swingTimeRemain(1) > 0 ? 0 : 1;*/
@@ -96,12 +105,26 @@ void Manager::run() {
     robotMsg.data[4] = robot.CoM_pos().y();
     robotMsg.data[5] = robot.CoM_pos().z();
 
+    trajectoryLcm.n_point = mpc_horizon;
+    trajectoryLcm.data.resize(6 * mpc_horizon);
+    auto x_opt = floatingBasePlanner->getOptimalTraj();
+    auto x_des = floatingBasePlanner->getDesiredTraj();
+
+    for (int i = 0; i < mpc_horizon; i++) {
+        trajectoryLcm.data[i * 3 + 0] = x_des(13 * i + 3);
+        trajectoryLcm.data[i * 3 + 1] = x_des(13 * i + 4);
+        trajectoryLcm.data[i * 3 + 2] = x_des(13 * i + 5);
+        robotMsg.data[i * 6 + 0] = x_des(13 * i + 3);
+        robotMsg.data[i * 6 + 1] = x_des(13 * i + 4);
+        robotMsg.data[i * 6 + 2] = x_des(13 * i + 5);
+        robotMsg.data[i * 6 + 3] = x_opt(13 * i + 3);
+        robotMsg.data[i * 6 + 4] = x_opt(13 * i + 4);
+        robotMsg.data[i * 6 + 5] = x_opt(13 * i + 5);
+    }
+
     if (lcm.good()) {
         lcm.publish("ROBOT_MESSAGE_TOPIC", &robotMsg);
+        lcm.publish("TRAJECTORY_LCM", &trajectoryLcm);
     }
-    _iter++;
 }
 
-Poplar::Vec Manager::output() {
-    return tsc->jointsCmd().tau_ff;
-}
