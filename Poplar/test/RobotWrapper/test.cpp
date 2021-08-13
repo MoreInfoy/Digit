@@ -19,7 +19,8 @@ int main() {
     Vec qpos(robot.nq()), qvel(robot.nv());
     qpos.setZero();
     qvel.fill(0.2);
-    robot.computeAllData(qpos, qvel);
+    robot.update(qpos, qvel);
+    robot.compute();
     cout << robot.M() << endl;
     return 0;
 }

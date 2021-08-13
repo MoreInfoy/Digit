@@ -13,6 +13,8 @@ using namespace std;
 
 class Trajectory {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     Trajectory(size_t dims);
 
     virtual SamplePoint operator()(Scalar t) = 0;

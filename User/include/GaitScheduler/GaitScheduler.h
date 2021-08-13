@@ -11,6 +11,8 @@
 
 class GaitScheduler {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     GaitScheduler(Scalar dt);
 
     void run(size_t iter, const RobotState &state, RobotWrapper& robot);

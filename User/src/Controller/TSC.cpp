@@ -12,12 +12,12 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
         Vec qpos(_robot.nq()), qvel(_robot.nv());
         qpos = _robot.homeConfigurations().tail(_robot.na());
         qvel.setZero();
-        _robot.computeAllData(qpos, qvel);
+        _robot.update(qpos, qvel);
     } else {
         Vec qpos(_robot.nq()), qvel(_robot.nv());
         qpos = _robot.homeConfigurations();
         qvel.setZero();
-        _robot.computeAllData(qpos, qvel);
+        _robot.update(qpos, qvel);
     }
 
     mt_waist = make_shared<SE3MotionTask>(_robot, "torso");
@@ -36,7 +36,7 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
     com->accRef().setZero();
 
     forceTask = make_shared<ForceTask>(_robot, "ForceTask");
-    forceTask->weightMatrix().diagonal().fill(2e3);
+    forceTask->weightMatrix().diagonal().fill(1e3);
 
     rt = make_shared<RegularizationTask>(_robot, "RegularizationTask");
     rt->qaccWeight().diagonal().fill(1e-5);
@@ -44,10 +44,10 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
 
     jointsNominalTask = make_shared<JointsNominalTask>(_robot, "JointsNominalTask");
     jointsNominalTask->weightMatrix().setZero();
-    jointsNominalTask->weightMatrix().diagonal().segment(9, 4).fill(2);
-    jointsNominalTask->weightMatrix().diagonal().segment(22, 4).fill(2);
+    jointsNominalTask->weightMatrix().diagonal().segment(9, 4).fill(100);
+    jointsNominalTask->weightMatrix().diagonal().segment(22, 4).fill(100);
     jointsNominalTask->Kp().setIdentity();
-    jointsNominalTask->Kp() = 200 * jointsNominalTask->Kp();
+    jointsNominalTask->Kp() = 50 * jointsNominalTask->Kp();
     jointsNominalTask->Kd() = 2 * jointsNominalTask->Kp().cwiseSqrt();
     jointsNominalTask->norminalPosition() = _robot.homeConfigurations().tail(_robot.na());
 
@@ -126,7 +126,11 @@ void TSC_IMPL::setContactVirtualLink(vector<string> &contact_virtual_link) {
 
 void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitData, const Tasks &tasks) {
 
+    VecXi mask = VecXi::Ones(8);
+
     if (_robot.isFixedBase()) {
+        mask.setZero();
+        _robot.setContactMask(mask);
         rf->SE3Ref().translation()(2) = -0.839273 + 0.10 * sin(0.004 * _iter);
         lf->SE3Ref().translation()(2) = -0.839273 - 0.10 * sin(0.004 * _iter);
     } else {
@@ -140,6 +144,7 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
             if (!tsc->existTask(lf->name())) {
                 tsc->addTask(lf);
             }
+            mask.head(4).setZero();
         } else {
             tsc->removeTask(tasks.leftFootTask.link_name);
         }
@@ -154,16 +159,20 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
             if (!tsc->existTask(rf->name())) {
                 tsc->addTask(rf);
             }
+            mask.tail(4).setZero();
         } else {
             tsc->removeTask(tasks.rightFootTask.link_name);
         }
+//        mask.setOnes();
+        _robot.compute(mask);
+
         auto base_frame = robot().frame_pose("torso");
         com->posRef() = tasks.floatingBaseTask.pos;
         com->velRef() = tasks.floatingBaseTask.vel;
         com->accRef() = tasks.floatingBaseTask.acc;
-//        mt_waist->SE3Ref().translation() = tasks.floatingBaseTask.pos;
-//        mt_waist->spatialVelRef().head(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.vel;
-//        mt_waist->spatialAccRef().head(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.acc;
+        /*mt_waist->SE3Ref().translation() = tasks.floatingBaseTask.pos;
+        mt_waist->spatialVelRef().head(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.vel;
+        mt_waist->spatialAccRef().head(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.acc;*/
         mt_waist->SE3Ref().rotation() = tasks.floatingBaseTask.R_wb;
         mt_waist->spatialVelRef().tail(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.omega;
         mt_waist->spatialAccRef().tail(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.omega_dot;
@@ -190,19 +199,17 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
     cout << "time cost: " << timer.getMs() << " ms" << endl;
     _jointsCmd.tau_ff = getOptimalTorque();
 
-//    cout << "contact force: " << tsc->getOptimalContactForce().transpose() << endl;
-
+    /*cout << "contact force: " << tsc->getOptimalContactForce().transpose() << endl;*/
     //    tsc->saveAllData("data.txt");
-
     /*auto tau = getOptimalTorque();
-    _jointsCmd.tau_ff << tau.head(4), tau.segment(5, 2), tau.segment(9, 8), tau.segment(18, 2), tau.tail(4);*/
-    //    cout << "optimal qacc: " << getOptimalQacc().transpose() << endl;
-    //    cout << "optimal force: " << getOptimalContactForce().transpose() << endl;
-    //    cout << "qpos: " << qpos.transpose() << endl;
-    //    cout << "qvel: " << qdot.transpose() << endl;
-    //    cout << "optimal torque: " << _jointsCmd.tau_ff.transpose() << endl;
-    // getchar();
-    //    cout << "jointSpringForce:" << _robot.jointsSpringForce().transpose() << endl;
+    _jointsCmd.tau_ff << tau.head(4), tau.segment(5, 2), tau.segment(9, 8), tau.segment(18, 2), tau.tail(4);
+    cout << "optimal qacc: " << getOptimalQacc().transpose() << endl;
+    cout << "optimal force: " << getOptimalContactForce().transpose() << endl;
+    cout << "qpos: " << qpos.transpose() << endl;
+    cout << "qvel: " << qdot.transpose() << endl;
+    cout << "optimal torque: " << _jointsCmd.tau_ff.transpose() << endl;
+    getchar();
+    cout << "jointSpringForce:" << _robot.jointsSpringForce().transpose() << endl;*/
     _iter++;
 }
 

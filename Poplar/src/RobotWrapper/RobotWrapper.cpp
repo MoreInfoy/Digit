@@ -100,11 +100,10 @@ ConstVecRef RobotWrapper::jointsSpringForce() {
     return _jointsSpringForce;
 }
 
-void RobotWrapper::computeAllData(ConstVecRef qpos, ConstVecRef qvel, const VecXi &mask) {
+void RobotWrapper::update(Vec qpos, Vec qvel) {
     _qpos = qpos;
     _qvel = qvel;
     pin::normalize(_model, _qpos);
-    setContactMask(mask);
 
     pinocchio::computeAllTerms(_model, _data, _qpos, _qvel);
     _data.M.triangularView<Eigen::StrictlyLower>()
@@ -119,6 +118,10 @@ void RobotWrapper::computeAllData(ConstVecRef qpos, ConstVecRef qvel, const VecX
     pinocchio::centerOfMass(_model, _data, _qpos, _qvel, Eigen::VectorXd::Zero(_model.nv));
     pinocchio::ccrba(_model, _data, _qpos, _qvel);
     pin::computeTotalMass(_model, _data);
+}
+
+void RobotWrapper::compute(const VecXi &mask) {
+    setContactMask(mask);
 
     computeContactJacobia();
     computeActiveContactPointBiasAcc();

@@ -13,6 +13,8 @@ using namespace Poplar;
 
 class RobotWrapper {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     RobotWrapper(string urdf_file, bool isFixedBase = false);
 
     RobotWrapper(string urdf_file, string srdf_file, bool isFixedBase = false);
@@ -45,7 +47,9 @@ public:
 
     void setConstraintForceSubspace(ConstMatRef T, ConstMatRef T_dot); // in local frame
 
-    void computeAllData(ConstVecRef qpos, ConstVecRef qvel, const VecXi &mask = VecXi::Zero(0));
+    void update(Vec qpos, Vec qvel);
+
+    void compute(const VecXi &mask = VecXi::Zero(0));
 
     void computeClosedChainTerm(); // call this function after call computeAllData
 

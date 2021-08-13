@@ -1661,7 +1661,7 @@ void v_defaultLine(mjvGeom *geom) {
     geom->rgba[1] = 0;
     geom->rgba[2] = 1;
     geom->rgba[3] = 0.4;
-    geom->type = mjGEOM_SPHERE;
+    geom->type = mjGEOM_BOX;
     geom->dataid = -1;
     geom->objtype = mjOBJ_GEOM;
     geom->category = mjCAT_DECOR;

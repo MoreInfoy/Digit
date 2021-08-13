@@ -9,7 +9,7 @@ set(BUILD_TYPE_RELEASE TRUE)
 SET(THIS_COM "${PROJECT_SOURCE_DIR}")
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_BINARY_DIR}/Configuration.h)
 set(CMAKE_CXX_FLAGS "-O3 -mavx -mfma -march=native -no-pie -fPIC")
-set(CMAKE_C_FLAGS "-O3  -ggdb  -march=native -std=gnu99 -I.")
+set(CMAKE_C_FLAGS "-O3 -ggdb -march=native -std=gnu99 -I.")
 
 list(APPEND CMAKE_PREFIX_PATH "/opt/openrobots/")
 find_package(pinocchio REQUIRED)

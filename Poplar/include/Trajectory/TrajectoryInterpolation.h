@@ -13,6 +13,8 @@ using namespace tk;
 
 class TrajectoryInterpolation : public Trajectory {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     TrajectoryInterpolation(size_t dims = 1, Spline::spline_type line_type = Spline::spline_type::cspline_hermite);
 
     virtual SamplePoint operator()(Scalar t);

@@ -27,8 +27,8 @@ void CoMMotionTask::update() {
 
     Mat A = robot().Jacobia_CoM() * S;
     Vec a = acc_fb - robot().CoM_acc();
-    _H = A.transpose() * _Q * A;
-    _g = -A.transpose() * _Q * a;
+    _H.noalias() = A.transpose() * _Q * A;
+    _g.noalias() = -A.transpose() * _Q * a;
 //     std::cout << "acc_fb:\n" << acc_fb.transpose() << std::endl;
 }
 
@@ -37,7 +37,7 @@ ConstMatRef CoMMotionTask::H() {
 }
 
 ConstVecRef CoMMotionTask::g() {
-    return ConstMatRef(_g);
+    return ConstVecRef(_g);
 }
 
 Mat3Ref CoMMotionTask::Kp() {

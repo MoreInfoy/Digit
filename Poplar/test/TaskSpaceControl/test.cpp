@@ -17,11 +17,9 @@
 
 using namespace TSC;
 
-class TSC_IMPL_TEST
-{
+class TSC_IMPL_TEST {
 public:
-    TSC_IMPL_TEST(string urdf_file) : _robot(urdf_file)
-    {
+    TSC_IMPL_TEST(string urdf_file) : _robot(urdf_file) {
         mt = make_shared<SE3MotionTask>(_robot, "pelvis");
         mt->Kp() = 100 * Mat6::Identity();
         mt->Kd() = 2 * mt->Kp().cwiseSqrt();
@@ -55,10 +53,10 @@ public:
         jointsNominalTask->Kd().setIdentity();
         jointsNominalTask->Kd() = 5 * jointsNominalTask->Kd();
         jointsNominalTask->norminalPosition() << 0, 0.127, 0,
-            0.785, -1.15, 2.33, 2.09, 0.452, 1.02, -1.13,
-            -0.785, 1.15, 2.33, -2.09, 0.452, -1.02, -1.13,
-            0, 0.0785, -0.545, 1.05, -0.54, -0.096,
-            0, -0.0785, -0.545, 1.05, -0.54, 0.096;
+                0.785, -1.15, 2.33, 2.09, 0.452, 1.02, -1.13,
+                -0.785, 1.15, 2.33, -2.09, 0.452, -1.02, -1.13,
+                0, 0.0785, -0.545, 1.05, -0.54, -0.096,
+                0, -0.0785, -0.545, 1.05, -0.54, 0.096;
 
         angularMomentumTask = make_shared<AngularMomentumTask>(_robot, "AngularMomentumTask");
         angularMomentumTask->weightMatrix().diagonal().fill(10);
@@ -88,45 +86,38 @@ public:
         //    tsc.removeLinearConstraint(ccstr.name());
     }
 
-    ~TSC_IMPL_TEST()
-    {
+    ~TSC_IMPL_TEST() {
     }
 
-    void setContactMask(const VecXi &mask)
-    {
+    void setContactMask(const VecXi &mask) {
         _robot.setContactMask(mask);
     }
 
-    void setContactVirtualLink(vector<string> &contact_virtual_link)
-    {
+    void setContactVirtualLink(vector<string> &contact_virtual_link) {
         _robot.setContactVirtualLink(contact_virtual_link);
     }
 
-    void solve(ConstVecRef qpos, ConstVecRef qvel, const VecXi &mask)
-    {
-        _robot.computeAllData(qpos, qvel, mask);
+    void solve(ConstVecRef qpos, ConstVecRef qvel, const VecXi &mask) {
+        _robot.update(qpos, qvel);
+        _robot.compute(mask);
         tsc->solve();
         cout << robot().frame_pose("utorso") << endl;
         //        tsc->saveAllData("data.txt");
     }
 
-    RobotWrapper &robot()
-    {
+    RobotWrapper &robot() {
         return ref(_robot);
     }
 
-    ConstVecRef getOptimalTorque()
-    {
+    ConstVecRef getOptimalTorque() {
         return tsc->getOptimalTorque();
     }
 
-    ConstVecRef getOptimalContactForce()
-    {
+    ConstVecRef getOptimalContactForce() {
         return tsc->getOptimalContactForce();
     }
 
-    ConstVecRef getOptimalQacc()
-    {
+    ConstVecRef getOptimalQacc() {
         return tsc->getOptimalQacc();
     }
 
@@ -149,8 +140,7 @@ private:
     shared_ptr<TaskSpaceControl> tsc;
 };
 
-int main()
-{
+int main() {
     // build robot model
     string urdf = string(PoplarLib_PATH) + "/test/TaskSpaceControl/atlas.urdf";
     vector<string> contact_virtual_link;
@@ -182,11 +172,11 @@ int main()
     //            0, -0.0785, -0.545, 1.05, -0.54, 0.096;
 
     q << 0.058076, 0.000003, 0.833132, -0.000039, 0.012975, 0.000006, 0.999916,
-        0.000020, 0.191004, -0.000259,
-        0.783068, -1.150820, 2.333116, 2.082421, 0.451311, 1.020247, -1.130018,
-        -0.783097, 1.150791, 2.333089, -2.082408, 0.451315, -1.020245, -1.130017,
-        -0.000404, 0.091643, -0.549629, 1.122151, -0.596475, -0.092708,
-        0.000471, -0.091532, -0.549393, 1.121983, -0.596545, 0.092730;
+            0.000020, 0.191004, -0.000259,
+            0.783068, -1.150820, 2.333116, 2.082421, 0.451311, 1.020247, -1.130018,
+            -0.783097, 1.150791, 2.333089, -2.082408, 0.451315, -1.020245, -1.130017,
+            -0.000404, 0.091643, -0.549629, 1.122151, -0.596475, -0.092708,
+            0.000471, -0.091532, -0.549393, 1.121983, -0.596545, 0.092730;
     qdot.resize(robot.nv());
     qdot.setZero();
 

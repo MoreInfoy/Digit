@@ -198,18 +198,18 @@ void SRGB_MPC_IMPL::solve(Scalar t_now) {
     _g.noalias() = Su.transpose() * _Q * Sx * _x0 - Su.transpose() * _Q * _desiredDiscreteTraj;
 
 
-    solver = new qpOASES::QProblem(3 * _n_contact, 5 * _n_contact);
+    solver = qpOASES::QProblem(3 * _n_contact, 5 * _n_contact);
     qpOASES::int_t nWSR = 1000;
-    solver->reset();
+    solver.reset();
     qpOASES::Options opt;
     opt.setToMPC();
     opt.enableEqualities = qpOASES::BT_TRUE;
     opt.printLevel = qpOASES::PL_NONE;
-    solver->setOptions(opt);
-    solver->init(_H.data(), _g.data(), _C.data(), nullptr, nullptr, _lb.data(), _ub.data(), nWSR);
+    solver.setOptions(opt);
+    solver.init(_H.data(), _g.data(), _C.data(), nullptr, nullptr, _lb.data(), _ub.data(), nWSR);
     _optimalContactForce.resize(3 * _n_contact);
-    if (solver->isSolved()) {
-        solver->getPrimalSolution(_optimalContactForce.data());
+    if (solver.isSolved()) {
+        solver.getPrimalSolution(_optimalContactForce.data());
     } else {
         throw std::runtime_error("qp solver failed");
     }
@@ -226,7 +226,6 @@ void SRGB_MPC_IMPL::solve(Scalar t_now) {
                                                        _contactTable.col(i).sum() * 3);
         }
     }
-    delete solver;
     fill(_ext_wrench.begin(), _ext_wrench.end(), Vec6::Zero());
 }
 
@@ -236,14 +235,14 @@ void SRGB_MPC_IMPL::computeSxSu() {
     Sx.setZero();
     Su.resize(13 * _horizon, 3 * _n_contact);
     Su.setZero();
-
+    Mat P0_exp;
     for (size_t k = 0; k < _horizon; k++) {
         computeAtBtAndBiasTraj(k);
         Mat P0(_At.rows() + _Bt.cols(), _At.cols() + _Bt.cols());
         P0.setZero();
         P0.topRows(_At.rows()) << _At, _Bt;
         P0 *= _dt;
-        Mat P0_exp = P0.exp();
+        P0_exp.noalias() = P0.exp();
         _Ak = P0_exp.topLeftCorner(_At.rows(), _At.cols());
         _Bk = P0_exp.topRightCorner(_Bt.rows(), _Bt.cols());
 

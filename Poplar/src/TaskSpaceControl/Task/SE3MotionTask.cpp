@@ -30,10 +30,10 @@ void SE3MotionTask::update()
     acc_fb = _Kp * log6(_SE3.actInv(_SE3Ref)).toVector() +
              _Kd * (_spatialVelRef - robot().frame_6dVel_local(Task::name()).toVector()) + _spatialAccRef;
 
-    A = J * S;
+    A.noalias() = J * S;
     a = acc_fb - robot().frame_6dAcc_local(Task::name()).toVector();
-    _H = A.transpose() * _Q * A;
-    _g = -A.transpose() * _Q * a;
+    _H.noalias() = A.transpose() * _Q * A;
+    _g.noalias() = -A.transpose() * _Q * a;
 /*     std::cout << "acc_fb:\n"
               << acc_fb.transpose() << std::endl;
     std::cout << "J*qdot\n"

@@ -28,6 +28,8 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
 
+#define NeedsToAlign false
+
 using namespace std;
 using namespace Eigen;
 namespace pin = pinocchio;

@@ -15,6 +15,8 @@
 
 class Manager {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     explicit Manager(const RobotState &state);
 
     ~Manager();
@@ -23,7 +25,7 @@ public:
 
     void run();
 
-    Poplar::Vec output();
+    Poplar::ConstVecRef output();
 
 private:
     void update();
@@ -31,20 +33,23 @@ private:
     void runLCM();
 
     const RobotState &_state;
+    Poplar::Index mpc_horizon;
+    Scalar mpc_dt, dt;
+
     RobotWrapper robot;
-    GaitScheduler *gaitScheduler;
-    FloatingBasePlanner *floatingBasePlanner;
-    FootPlanner *footPlanner;
-    TSC_IMPL *tsc;
+    GaitScheduler gaitScheduler;
+    FootPlanner footPlanner;
+    FloatingBasePlanner floatingBasePlanner;
+    TSC_IMPL tsc;
     Tasks tasks;
     size_t _iter;
 
-    lcm::LCM lcm;
+    lcm::LCM lcm1, lcm2;
     RobotMessage robotMsg;
     Trajectory_LCM trajectoryLcm;
 
-    Poplar::Index mpc_horizon;
-    Scalar mpc_dt, dt;
+    Poplar::Vec qpos, qdot;
+
 };
 
 

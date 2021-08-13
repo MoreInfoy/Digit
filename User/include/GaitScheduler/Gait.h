@@ -11,6 +11,8 @@ using namespace Poplar;
 
 class Gait {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     Gait(size_t nSegment, Vec2i offset, Vec2i durations, const std::string &name);
 
     ~Gait();

@@ -11,24 +11,21 @@ bool fixedBase = true;
 bool fixedBase = false;
 #endif
 
-Manager::Manager(const RobotState &state) : _state(state), robot(URDF, SRDF, fixedBase), _iter(0) {
-    mpc_horizon = 10;
-    mpc_dt = 0.1;
-    dt = 0.001;
-    gaitScheduler = new GaitScheduler(dt);
-    floatingBasePlanner = new FloatingBasePlanner(mpc_horizon, mpc_dt, dt);
-    footPlanner = new FootPlanner();
-    tsc = new TSC_IMPL(robot);
+Manager::Manager(const RobotState &state) : _state(state), mpc_horizon(10), mpc_dt(0.1), dt(0.001),
+                                            robot(URDF, SRDF, fixedBase),
+                                            gaitScheduler(dt),
+                                            footPlanner(),
+                                            tsc(robot),
+                                            floatingBasePlanner(mpc_horizon, mpc_dt, dt),
+                                            _iter(0) {
     tasks.floatingBaseTask.link_name = "torso";
     tasks.leftFootTask.link_name = "left_toe_roll";
     tasks.rightFootTask.link_name = "right_toe_roll";
+    qpos.resize(_state.jointsState.qpos.size() + 7);
+    qdot.resize(_state.jointsState.qvel.size() + 6);
 }
 
 Manager::~Manager() {
-    delete gaitScheduler;
-    delete floatingBasePlanner;
-    delete footPlanner;
-    delete tsc;
 }
 
 void Manager::init() {
@@ -36,7 +33,6 @@ void Manager::init() {
 }
 
 void Manager::update() {
-    Vec qpos, qdot;
     if (robot.isFixedBase()) {
         qpos = _state.jointsState.qpos;
         qdot = _state.jointsState.qvel;
@@ -57,39 +53,23 @@ void Manager::update() {
                 _state.floatingBaseState.omega,
                 _state.jointsState.qvel;
     }
+    robot.update(ConstVecRef(qpos), ConstVecRef(qdot));
 
-    VecXi mask(8);
-    if (robot.isFixedBase()) {
-        mask.setZero();
-        robot.setContactMask(mask);
-    } else {
-        mask.setOnes();
-        if (gaitScheduler->data().swingTimeRemain(0) > 0) {
-            mask.head(4).setZero();
-        }
-
-        if (gaitScheduler->data().swingTimeRemain(1) > 0) {
-            mask.tail(4).setZero();
-        }
-        mask.setOnes();
-        robot.computeAllData(qpos, qdot, mask);
-    }
 }
 
 void Manager::run() {
-    gaitScheduler->run(_iter, _state, robot);
-    gaitScheduler->updateContactTable(mpc_horizon, mpc_dt / dt);
     update();
-    footPlanner->plan(_iter, _state, robot, gaitScheduler->data(), tasks);
-    floatingBasePlanner->plan(_iter, _state, robot, gaitScheduler->data(), tasks);
-    tsc->run(_iter, _state, gaitScheduler->data(), tasks);
-
+    gaitScheduler.run(_iter, _state, robot);
+    gaitScheduler.updateContactTable(mpc_horizon, mpc_dt / dt);
+    footPlanner.plan(_iter, _state, robot, gaitScheduler.data(), tasks);
+    floatingBasePlanner.plan(_iter, _state, robot, gaitScheduler.data(), tasks);
+    tsc.run(_iter, _state, gaitScheduler.data(), tasks);
     runLCM();
     _iter++;
 }
 
-Poplar::Vec Manager::output() {
-    return tsc->jointsCmd().tau_ff;
+Poplar::ConstVecRef Manager::output() {
+    return tsc.jointsCmd().tau_ff;
 }
 
 void Manager::runLCM() {
@@ -107,8 +87,8 @@ void Manager::runLCM() {
 
     trajectoryLcm.n_point = mpc_horizon;
     trajectoryLcm.data.resize(6 * mpc_horizon);
-    auto x_opt = floatingBasePlanner->getOptimalTraj();
-    auto x_des = floatingBasePlanner->getDesiredTraj();
+    auto x_opt = floatingBasePlanner.getOptimalTraj();
+    auto x_des = floatingBasePlanner.getDesiredTraj();
 
     for (int i = 0; i < mpc_horizon; i++) {
         trajectoryLcm.data[i * 3 + 0] = x_des(13 * i + 3);
@@ -122,9 +102,11 @@ void Manager::runLCM() {
         robotMsg.data[i * 6 + 5] = x_opt(13 * i + 5);
     }
 
-    if (lcm.good()) {
-        lcm.publish("ROBOT_MESSAGE_TOPIC", &robotMsg);
-        lcm.publish("TRAJECTORY_LCM", &trajectoryLcm);
+    if (lcm1.good()) {
+        lcm1.publish("ROBOT_MESSAGE_TOPIC", &robotMsg);
+    }
+    if (lcm2.good()) {
+        lcm2.publish("TRAJECTORY_LCM", &trajectoryLcm);
     }
 }
 

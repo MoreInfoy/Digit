@@ -12,6 +12,8 @@
 
 class FloatingBasePlanner : public Planner {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     FloatingBasePlanner(Poplar::Index horizon,
                         Scalar mpc_dt, Scalar dt);
 

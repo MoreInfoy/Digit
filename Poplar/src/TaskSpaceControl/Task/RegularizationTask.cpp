@@ -29,7 +29,7 @@ void RegularizationTask::update() {
         }
         _Q.bottomRightCorner(robot().ncf(), robot().ncf()).diagonal().fill(_Q_cstrf);
         _Q_isUpdated = true;
-        _g = Vec::Zero(input_dims);
+        _g.noalias() = Vec::Zero(input_dims);
     }
 
 #ifdef REGULARIZE_TORQUE

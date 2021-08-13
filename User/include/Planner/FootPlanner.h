@@ -10,6 +10,8 @@
 
 class FootPlanner : public Planner {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     FootPlanner();
 
     virtual void

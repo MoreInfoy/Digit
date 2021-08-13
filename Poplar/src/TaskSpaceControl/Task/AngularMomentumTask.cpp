@@ -18,11 +18,12 @@ void AngularMomentumTask::update() {
     Mat S(robot().nv(), u_dims);
     S.setZero();
     S.leftCols(robot().nv()).setIdentity();
-    ConstMatRef J_am = _robot.momentumJacobia().bottomRows(3) * S;
+    Mat J_am;
+    J_am.noalias() = _robot.momentumJacobia().bottomRows(3) * S;
     Vec3 mdot_des = _Kp * (_ref - _robot.momentumJacobia().bottomRows(3) * robot().qvel()) + _ref_dot -
                     robot().momentumTimeVariation().tail(3);
-    _H = J_am.transpose() * _Q * J_am;
-    _g = -J_am.transpose() * _Q * mdot_des;
+    _H.noalias() = J_am.transpose() * _Q * J_am;
+    _g.noalias() = -J_am.transpose() * _Q * mdot_des;
 }
 
 

@@ -29,6 +29,7 @@ namespace SRGB_MPC {
 
     class SRGB_MPC_IMPL {
     public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
         explicit SRGB_MPC_IMPL(size_t horizon, Scalar dt, size_t ns_contact);
 
@@ -111,7 +112,7 @@ namespace SRGB_MPC {
         Mat_R _H, _g;
         size_t _n_contact;
 
-        qpOASES::QProblem *solver;
+        qpOASES::QProblem solver;
         eiquadprog::solvers::EiquadprogFast eiquadprog_solver;
     };
 

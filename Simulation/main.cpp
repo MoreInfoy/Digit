@@ -20,6 +20,7 @@ public:
         trajectory.resize(msg->n_point);
         for (int i = 0; i < msg->n_point; i++) {
             trajectory[i] << msg->data[i * 3], msg->data[i * 3 + 1], msg->data[i * 3 + 2];
+            cout << "trajectory[" << i << "]" << trajectory[i].transpose() << endl;
         }
         traj_mutex.unlock();
     }

@@ -113,7 +113,7 @@ void FloatingBasePlanner::plan(size_t iter, const RobotState &state, RobotWrappe
     auto xopt = srgbMpc.getDiscreteOptimizedTrajectory();
     auto xdd = srgbMpc.getXDot();
     tasks.floatingBaseTask.pos = xopt.segment(3, 3);
-    tasks.forceTask = srgbMpc.getCurrentDesiredActiveContactForce();
+    tasks.forceTask = srgbMpc.getCurrentDesiredContactForce();
     tasks.floatingBaseTask.vel = xopt.segment(9, 3);
     tasks.floatingBaseTask.acc = xdd.segment(9, 3);
     tasks.floatingBaseTask.omega_dot = xdd.segment(6, 3);
