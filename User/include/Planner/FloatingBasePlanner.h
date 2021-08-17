@@ -8,13 +8,14 @@
 
 #include "Planner.h"
 #include "SRGB_MPC/SRGB_MPC.h"
+#include "LIPM/LIPM_MPC.h"
 #include "Timer.h"
 
 class FloatingBasePlanner : public Planner {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    FloatingBasePlanner(Poplar::Index horizon,
+    FloatingBasePlanner(Poplar::Index horizons,
                         Scalar mpc_dt, Scalar dt);
 
     virtual void plan(size_t iter,
@@ -57,6 +58,7 @@ private:
 
     Matrix<qpOASES::real_t, Dynamic, 1> q_soln;
     SRGB_MPC::SRGB_MPC_IMPL srgbMpc;
+    LIPM_MPC lipmMpc;
 };
 
 

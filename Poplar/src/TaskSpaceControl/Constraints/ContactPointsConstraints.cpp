@@ -22,13 +22,14 @@ void ContactPointsConstraints::update() {
         Mat Par(robot().contactJacobia().cols() + 1, robot().contactJacobia().rows());
         Par << robot().contactJacobia().transpose(), -robot().activeContactPointBiasAcc().transpose();
         FullPivLU<Mat> rank_check(Par);
-        Mat ParN = rank_check.image(Par).transpose();
-        Mat Jc = ParN.leftCols(robot().contactJacobia().cols());
+        Mat ParN, Jc;
+        ParN.noalias() = rank_check.image(Par).transpose();
+        Jc.noalias() = ParN.leftCols(robot().contactJacobia().cols());
 
         /*cout << "Jc: "<< robot().contactJacobia() << endl;
         cout << "Jc_new: "<< Jc << endl;*/
 
-        _C = Jc * S;
+        _C.noalias() = Jc * S;
         _c_ub = ParN.rightCols(1);
         _c_lb = _c_ub;
     } else {

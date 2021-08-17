@@ -10,22 +10,22 @@ using namespace SRGB_MPC;
 
 #define BIG_NUMBER 1e10
 
-SRGB_MPC_IMPL::SRGB_MPC_IMPL(size_t horizon, Scalar dt, size_t ns_contact) : _horizon(horizon), _ns_contact(ns_contact),
+SRGB_MPC_IMPL::SRGB_MPC_IMPL(size_t horizons, Scalar dt, size_t ns_contact) : _horizons(horizons), _ns_contact(ns_contact),
                                                                              _dt(dt), _gravity(-9.81), _mu(0.4),
                                                                              _fmax(500), _setDesiredTraj(false),
                                                                              _setDesiredDiscreteTraj(false),
-                                                                             _ext_wrench(horizon) {
+                                                                             _ext_wrench(horizons) {
 
     _mass = 0;
     _inertia.setZero();
     _Qx.setIdentity();
     _Qf.setZero();
     _Qf.diagonal().fill(1e-3);
-    _Q.resize(13 * _horizon, 13 * _horizon);
-    _R.resize(12 * _horizon, 12 * _horizon);
-    _contactTable = MatInt::Ones(ns_contact, horizon);
-    _desiredDiscreteTraj = Vec::Zero(13 * horizon);
-    _desiredDiscreteTraj_bias = Vec::Zero(13 * horizon);
+    _Q.resize(13 * _horizons, 13 * _horizons);
+    _R.resize(12 * _horizons, 12 * _horizons);
+    _contactTable = MatInt::Ones(ns_contact, horizons);
+    _desiredDiscreteTraj = Vec::Zero(13 * horizons);
+    _desiredDiscreteTraj_bias = Vec::Zero(13 * horizons);
     _vel_des.setZero();
 
     _At.resize(13, 13);
@@ -33,14 +33,14 @@ SRGB_MPC_IMPL::SRGB_MPC_IMPL(size_t horizon, Scalar dt, size_t ns_contact) : _ho
     _Bt.resize(13, 12);
     _Bt.setZero();
 
-    Sx.resize(13 * _horizon, 13);
+    Sx.resize(13 * _horizons, 13);
     Sx.setZero();
-    Su.resize(13 * _horizon, 12 * _horizon);
+    Su.resize(13 * _horizons, 12 * _horizons);
     Su.setZero();
 
-    _optimalContactForce.resize(12 * _horizon);
+    _optimalContactForce.resize(12 * _horizons);
     _optimalContactForce.setZero();
-    _xDot.resize(13 * _horizon);
+    _xDot.resize(13 * _horizons);
     _x0.setZero();
     _x0.tail(1) << _gravity;
     fill(_ext_wrench.begin(), _ext_wrench.end(), Vec6::Zero());
@@ -60,7 +60,7 @@ void SRGB_MPC_IMPL::setExternalWrench(ConstVec6Ref ext_wrench) {
 }
 
 void SRGB_MPC_IMPL::setExternalWrench(ConstVec6Ref ext_wrench, size_t k) {
-    assert(k < _horizon);
+    assert(k < _horizons);
     _ext_wrench[k] = ext_wrench;
 }
 
@@ -69,7 +69,7 @@ void SRGB_MPC_IMPL::setVelocityCmd(Vec6 vel_des) {
 }
 
 void SRGB_MPC_IMPL::setContactTable(ConstMatIntRef &contactTable) {
-    if (contactTable.rows() != _ns_contact || contactTable.cols() != _horizon) {
+    if (contactTable.rows() != _ns_contact || contactTable.cols() != _horizons) {
         throw std::runtime_error("[SRGB_MPC_IMPL::setContactTable] contactTable size is wrong");
     }
     _contactTable = contactTable;
@@ -123,7 +123,7 @@ void SRGB_MPC_IMPL::setMassAndInertia(Scalar mass, Mat3Ref inertia) {
 void SRGB_MPC_IMPL::solve(Scalar t_now) {
     if (_setDesiredTraj) {
         _setDesiredTraj = false;
-        for (int i = 0; i < _horizon; i++) {
+        for (int i = 0; i < _horizons; i++) {
             _desiredDiscreteTraj.segment(i * 13, 13) << _desiredTraj.roll(t_now + Scalar(i) * _dt).data(),
                     _desiredTraj.pitch(t_now + Scalar(i) * _dt).data(),
                     _desiredTraj.yaw(t_now + Scalar(i) * _dt).data(),
@@ -140,7 +140,7 @@ void SRGB_MPC_IMPL::solve(Scalar t_now) {
         }
     } else {
         if (!_setDesiredDiscreteTraj) {
-            for (int i = 0; i < _horizon; i++) {
+            for (int i = 0; i < _horizons; i++) {
                 _desiredDiscreteTraj.segment(i * 13, 13)
                         << _x0.head(6) + Scalar(i) * _vel_des * _dt, _vel_des, _gravity;
             }
@@ -186,9 +186,9 @@ void SRGB_MPC_IMPL::solve(Scalar t_now) {
     }
 
     // set weight matrix
-    _Q.resize(13 * _horizon, 13 * _horizon);
+    _Q.resize(13 * _horizons, 13 * _horizons);
     _Q.setZero();
-    _Q.diagonal() = _Qx.replicate(_horizon, 1);
+    _Q.diagonal() = _Qx.replicate(_horizons, 1);
     _R.resize(3 * _n_contact, 3 * _n_contact);
     _R.setZero();
     _R.diagonal() = _Qf.replicate(_n_contact, 1);
@@ -197,10 +197,9 @@ void SRGB_MPC_IMPL::solve(Scalar t_now) {
     _H.noalias() = _R + Su.transpose() * _Q * Su;
     _g.noalias() = Su.transpose() * _Q * Sx * _x0 - Su.transpose() * _Q * _desiredDiscreteTraj;
 
-
+#ifdef USE_QPOASES
     solver = qpOASES::QProblem(3 * _n_contact, 5 * _n_contact);
     qpOASES::int_t nWSR = 1000;
-    solver.reset();
     qpOASES::Options opt;
     opt.setToMPC();
     opt.enableEqualities = qpOASES::BT_TRUE;
@@ -213,8 +212,23 @@ void SRGB_MPC_IMPL::solve(Scalar t_now) {
     } else {
         throw std::runtime_error("qp solver failed");
     }
+#else
+    eiquadprog_solver.reset(3 * _n_contact, 0, 10 * _n_contact);
+    Mat Cin(_C.rows() * 2, 3 * _n_contact);
+    Cin << _C, -_C;
+    Vec cin(_C.rows() * 2);
+    cin << -_lb, _ub;
+    solver_state = eiquadprog_solver.solve_quadprog(_H, _g, Mat(0, 3 * _n_contact), Vec(0), Cin, cin,
+                                                    _optimalContactForce);
+    printf("solver state: %d\n", solver_state);
+    if (solver_state != eiquadprog::solvers::EIQUADPROG_FAST_OPTIMAL) {
+        //      throw runtime_error("TaskSpaceControl::solve() qp failed, related data has been saved in qp_failed.txt");
+        std::cerr << "SRGB_MPC::solve() qp failed" << endl;
+    }
+#endif
+
     _discreteOptimizedTraj = Sx * _x0 + Su * _optimalContactForce;
-    for (int i = 0; i < _horizon; i++) {
+    for (int i = 0; i < _horizons; i++) {
         computeAtBt(i);
         if (i == 0) {
             _xDot.segment(i * 13, 13) =
@@ -226,17 +240,19 @@ void SRGB_MPC_IMPL::solve(Scalar t_now) {
                                                        _contactTable.col(i).sum() * 3);
         }
     }
+
+    // reset external wrench
     fill(_ext_wrench.begin(), _ext_wrench.end(), Vec6::Zero());
 }
 
 void SRGB_MPC_IMPL::computeSxSu() {
 
-    Sx.resize(13 * _horizon, 13);
+    Sx.resize(13 * _horizons, 13);
     Sx.setZero();
-    Su.resize(13 * _horizon, 3 * _n_contact);
+    Su.resize(13 * _horizons, 3 * _n_contact);
     Su.setZero();
     Mat P0_exp;
-    for (size_t k = 0; k < _horizon; k++) {
+    for (size_t k = 0; k < _horizons; k++) {
         computeAtBtAndBiasTraj(k);
         Mat P0(_At.rows() + _Bt.cols(), _At.cols() + _Bt.cols());
         P0.setZero();
@@ -409,13 +425,13 @@ ConstVecRef SRGB_MPC_IMPL::getXDot() {
 }
 
 void SRGB_MPC_IMPL::setDesiredDiscreteTrajectory(ConstVecRef traj) {
-    assert(traj.size() == 13 * _horizon);
+    assert(traj.size() == 13 * _horizons);
     _desiredDiscreteTraj = traj;
     _setDesiredDiscreteTraj = true;
 }
 
-size_t SRGB_MPC_IMPL::horizon() {
-    return _horizon;
+size_t SRGB_MPC_IMPL::horizons() {
+    return _horizons;
 }
 
 Scalar SRGB_MPC_IMPL::dt() {

@@ -4,11 +4,11 @@
 
 #include "Planner/FloatingBasePlanner.h"
 
-FloatingBasePlanner::FloatingBasePlanner(Poplar::Index horizon, Scalar mpc_dt, Scalar dt) :
-        base("torso"), srgbMpc(horizon, mpc_dt, 8) {
+FloatingBasePlanner::FloatingBasePlanner(Poplar::Index horizons, Scalar mpc_dt, Scalar dt) :
+        base("torso"), srgbMpc(horizons, mpc_dt, 8) {
     _dt = dt;
     _mpc_dt = mpc_dt;
-    contactTable = MatInt(8, horizon);
+    contactTable = MatInt(8, horizons);
 
     xDes = 0;
     yDes = 0;
@@ -25,21 +25,12 @@ FloatingBasePlanner::FloatingBasePlanner(Poplar::Index horizon, Scalar mpc_dt, S
 
     x0.setZero();
 
-    X_d.resize(13 * horizon, Eigen::NoChange);
+    X_d.resize(13 * horizons, Eigen::NoChange);
     X_d.setZero();
     contactTable.setZero();
 
-    q_soln.resize(12 * horizon);
+    q_soln.resize(12 * horizons);
     q_soln.setZero();
-    // TODO add inertia
-    /*Vec3 Id;
-    Id << .07f, 0.26f, 0.242f; // miniCheetah*/
-    Ibody << 0.353682, -0.000624863, -0.0313391,
-            -0.000624863, 0.813405, -0.000940105,
-            -0.0313391, -0.000940105, 0.863894;
-    /*Ibody.setZero();
-    Ibody.diagonal() << 3 *  Id;*/
-    mass = 15.8198;
 
     Vec Qx(12);
     Qx.segment(0, 3) << 100.5, 100.5, 10.0;
@@ -52,12 +43,17 @@ FloatingBasePlanner::FloatingBasePlanner(Poplar::Index horizon, Scalar mpc_dt, S
     srgbMpc.setMassAndInertia(mass, Ibody);
     srgbMpc.setMaxForce(500);
 
+    LIPM_Parameters param;
+    param.Qx << 10, 1, 10, 1;
+    param.Qu << 1e-5, 1e-5;
+    param.mpc_dt = 0.05;
+    param.mpc_horizons = 20;
+    param.height = bodyHeight;
+    lipmMpc.setParamters(param);
 }
 
 void FloatingBasePlanner::plan(size_t iter, const RobotState &state, RobotWrapper &robot, const GaitData &gaitData,
                                Tasks &tasks) {
-//    tasks.floatingBaseTask.pos(2) = 0.892442 + 0.08 * sin(0.006 * iter);
-
     mass = robot.totalMass();
     Ibody = robot.Ig();
     srgbMpc.setMassAndInertia(mass, Ibody);
@@ -67,10 +63,11 @@ void FloatingBasePlanner::plan(size_t iter, const RobotState &state, RobotWrappe
     Vec3 rpy = pin::rpy::matrixToRpy(base_pose.rotation());
     Vec3 c = robot.CoM_pos();
     Vec3 cdot = robot.CoM_vel();
-//    Vec3 c = base_pose.translation();
-//    Vec3 cdot = robot.frame_6dVel_localWorldAligned(base).linear();
+    /*Vec3 c = base_pose.translation();
+    Vec3 cdot = robot.frame_6dVel_localWorldAligned(base).linear();*/
 
-    Vec3 vBodyDes(0, 0, 0); // TODO:
+    // TODO:
+    Vec3 vBodyDes(0, 0, 0);
     Scalar yawd_des = 0;
     Vec3 vWorldDes = robot.frame_pose(base).rotation() * vBodyDes;
     if (iter == 0) {
@@ -100,7 +97,7 @@ void FloatingBasePlanner::plan(size_t iter, const RobotState &state, RobotWrappe
         auto cl = robot.contactVirtualLinks();
         for (int i(0); i < cl.size(); i++) {
             r = robot.frame_pose(cl[i]).translation();
-//            std::cout << "r " << i << ": " << r.transpose() << "\n";
+            /*std::cout << "r " << i << ": " << r.transpose() << "\n";*/
             cp.push_back(r);
         }
         srgbMpc.setContactPointPos(cp);
@@ -119,6 +116,20 @@ void FloatingBasePlanner::plan(size_t iter, const RobotState &state, RobotWrappe
     tasks.floatingBaseTask.omega_dot = xdd.segment(6, 3);
     tasks.floatingBaseTask.R_wb = pin::rpy::rpyToMatrix(xopt.segment(0, 3));
     tasks.floatingBaseTask.omega = xopt.segment(6, 3);
+
+    lipmMpc.x0() << c(0), cdot(0), c(1), cdot(1);
+    auto &param = lipmMpc.parameters();
+    Mat C = Mat::Zero(param.mpc_horizons * 2, 2 * param.mpc_horizons);
+    Vec c_lb = Vec::Zero(param.mpc_horizons * 2);
+    Vec c_ub = Vec::Zero(param.mpc_horizons * 2);
+    for (int i = 0; i < param.mpc_horizons; i++) {
+        C.block<2, 2>(i * 2, i * 2).setIdentity();
+        c_lb.segment(i * 2, 2) << -0.5, -0.5;
+        c_ub.segment(i * 2, 2) << 0.5, 0.5;
+    }
+    lipmMpc.updateZMP_constraints(C, c_lb, c_ub);
+
+    lipmMpc.run();
 }
 
 void FloatingBasePlanner::generateRefTraj(const RobotState &state, RobotWrapper &robot) {
@@ -141,7 +152,7 @@ void FloatingBasePlanner::generateRefTraj(const RobotState &state, RobotWrapper 
             0.0, 0.0, yawdDes,
             vWorldDes;
     X_d.head(12) = trajInit;
-    for (int i = 1; i < srgbMpc.horizon(); i++) {
+    for (int i = 1; i < srgbMpc.horizons(); i++) {
         for (int j = 0; j < 12; j++)
             X_d[13 * i + j] = trajInit[j];
 
@@ -154,7 +165,7 @@ void FloatingBasePlanner::generateRefTraj(const RobotState &state, RobotWrapper 
 
 void FloatingBasePlanner::generateContactTable(const GaitData &gaitData) {
     contactTable.setZero();
-    for (int i = 0; i < srgbMpc.horizon(); i++) {
+    for (int i = 0; i < srgbMpc.horizons(); i++) {
         if (gaitData.contactTable(0, i) == 1) {
             contactTable.col(i).head(4).fill(1);
         }
@@ -165,7 +176,8 @@ void FloatingBasePlanner::generateContactTable(const GaitData &gaitData) {
 }
 
 ConstVecRef FloatingBasePlanner::getOptimalTraj() {
-    return srgbMpc.getDiscreteOptimizedTrajectory();
+//    return srgbMpc.getDiscreteOptimizedTrajectory();
+    return lipmMpc.optimalTraj();
 }
 
 ConstVecRef FloatingBasePlanner::getDesiredTraj() {

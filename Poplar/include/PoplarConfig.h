@@ -39,6 +39,7 @@ namespace Poplar {
     typedef std::size_t Index;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> Vec;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Mat;
+
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> Mat_R;
     typedef Eigen::Matrix<Index, Eigen::Dynamic, Eigen::Dynamic> MatInt;
     typedef Eigen::Matrix<Index, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatInt_R;
@@ -54,7 +55,9 @@ namespace Poplar {
     typedef Eigen::Matrix<Scalar, 6, 1> Vec6;
     typedef Eigen::Matrix<Scalar, 12, 1> Vec12;
     typedef Eigen::Matrix<Scalar, 13, 1> Vec13;
+    typedef Eigen::Matrix<Scalar, 2, 2> Mat2;
     typedef Eigen::Matrix<Scalar, 3, 3> Mat3;
+    typedef Eigen::Matrix<Scalar, 4, 4> Mat4;
     typedef Eigen::Matrix<Scalar, 6, 6> Mat6;
     typedef Eigen::Matrix<Scalar, 12, 12> Mat12;
     typedef Eigen::Matrix<Scalar, 13, 13> Mat13;

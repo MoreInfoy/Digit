@@ -10,3 +10,6 @@ target_link_libraries(TaskSpaceControlTest Poplar)
 
 add_executable(TrajectoryTest Trajectory/CubicBSplieTest.cpp)
 target_link_libraries(TrajectoryTest Poplar)
+
+add_executable(LIPM_MPC_Test LIPM/test.cpp)
+target_link_libraries(LIPM_MPC_Test Poplar)

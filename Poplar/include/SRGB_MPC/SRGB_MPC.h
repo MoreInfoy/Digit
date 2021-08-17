@@ -10,6 +10,8 @@
 #include "eiquadprog/eiquadprog-fast.hpp"
 #include "PoplarConfig.h"
 
+//#define USE_QPOASES
+
 using namespace Poplar;
 
 
@@ -31,7 +33,7 @@ namespace SRGB_MPC {
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-        explicit SRGB_MPC_IMPL(size_t horizon, Scalar dt, size_t ns_contact);
+        explicit SRGB_MPC_IMPL(size_t horizons, Scalar dt, size_t ns_contact);
 
         void setMassAndInertia(Scalar mass, Mat3Ref inertia);
 
@@ -71,22 +73,22 @@ namespace SRGB_MPC {
 
         ConstVecRef getXDot();
 
-        size_t horizon();
+        size_t horizons();
 
         Scalar dt();
 
     private:
         void computeSxSu();
 
-        void computeAtBt(size_t i_horizon);
+        void computeAtBt(size_t i_horizons);
 
-        void computeAtBtAndBiasTraj(size_t i_horizon);
+        void computeAtBtAndBiasTraj(size_t i_horizons);
 
         Mat3 coordinateRotation(CoordinateAxis axis, Scalar theta);
 
         Mat3 rpyToRotMat(Vec3Ref v);
 
-        size_t _horizon, _ns_contact;
+        size_t _horizons, _ns_contact;
         Scalar _dt, _gravity, _mu, _fmax;
         Scalar _mass;
         Mat3 _inertia;
@@ -112,8 +114,12 @@ namespace SRGB_MPC {
         Mat_R _H, _g;
         size_t _n_contact;
 
+#ifdef USE_QPOASES
         qpOASES::QProblem solver;
+#else
         eiquadprog::solvers::EiquadprogFast eiquadprog_solver;
+        eiquadprog::solvers::EiquadprogFast_status solver_state;
+#endif
     };
 
 }

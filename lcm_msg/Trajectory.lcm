@@ -1,0 +1,4 @@
+struct Trajectory_LCM {
+    int32_t n_point;
+    double data[n_point];
+}

@@ -711,9 +711,9 @@ extern "C" {
  *  The hand shape.
  */
 #define GLFW_HAND_CURSOR            0x00036004
-/*! @brief The horizontal resize arrow shape.
+/*! @brief The horizonstal resize arrow shape.
  *
- *  The horizontal resize arrow shape.
+ *  The horizonstal resize arrow shape.
  */
 #define GLFW_HRESIZE_CURSOR         0x00036005
 /*! @brief The vertical resize arrow shape.

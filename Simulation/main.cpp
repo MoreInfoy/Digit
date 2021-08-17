@@ -29,7 +29,10 @@ public:
 lcm::LCM sub;
 
 void subscribe() {
-    while (sub.handle() == 0 && !settings.exitrequest);
+    while (!settings.exitrequest)
+    {
+        sub.handleTimeout(100);
+    }
 }
 
 // run event loop
@@ -87,6 +90,7 @@ int main(int argc, const char **argv) {
     // stop simulation thread
     settings.exitrequest = 1;
     simthread.join();
+    sub_thread.join();
 
     // delete everything we allocated
     uiClearCallback(window);

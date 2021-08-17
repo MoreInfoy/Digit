@@ -19,6 +19,7 @@
 #include "TaskSpaceControl/Task/AngularMomentumTask.h"
 #include "Trajectory/TrajectoryInterpolation.h"
 #include "SRGB_MPC/SRGB_MPC.h"
+#include "LIPM/LIPM_MPC.h"
 #include "RobotWrapper/RobotWrapper.h"
 
 

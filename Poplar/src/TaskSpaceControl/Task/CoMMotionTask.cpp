@@ -17,7 +17,7 @@ CoMMotionTask::CoMMotionTask(RobotWrapper &robot, string name) : Task(robot, nam
 
 void CoMMotionTask::update() {
     int input_dims = robot().nv() + 3 * robot().nc()+ robot().ncf();
-    Mat S;
+    Mat S, A;
     S.resize(robot().nv(), input_dims);
     S.setZero();
     S.leftCols(robot().nv()).setIdentity();
@@ -25,7 +25,7 @@ void CoMMotionTask::update() {
     acc_fb = _Kp * (_posRef - robot().CoM_pos()) +
              _Kd * (_velRef - robot().CoM_vel()) + _accRef;
 
-    Mat A = robot().Jacobia_CoM() * S;
+    A.noalias() = robot().Jacobia_CoM() * S;
     Vec a = acc_fb - robot().CoM_acc();
     _H.noalias() = A.transpose() * _Q * A;
     _g.noalias() = -A.transpose() * _Q * a;

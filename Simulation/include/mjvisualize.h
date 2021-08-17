@@ -27,9 +27,9 @@ typedef enum _mjtMouse              // mouse interaction mode
 {
     mjMOUSE_NONE         = 0,       // no action
     mjMOUSE_ROTATE_V,               // rotate, vertical plane
-    mjMOUSE_ROTATE_H,               // rotate, horizontal plane
+    mjMOUSE_ROTATE_H,               // rotate, horizonstal plane
     mjMOUSE_MOVE_V,                 // move, vertical plane
-    mjMOUSE_MOVE_H,                 // move, horizontal plane
+    mjMOUSE_MOVE_H,                 // move, horizonstal plane
     mjMOUSE_ZOOM,                   // zoom
     mjMOUSE_SELECT                  // selection
 } mjtMouse;

@@ -540,7 +540,7 @@ Model {
     BlockMirror		    off
   }
   AnnotationDefaults {
-    HorizontalAlignment	    "center"
+    horizonstalAlignment	    "center"
     VerticalAlignment	    "middle"
     ForegroundColor	    "black"
     BackgroundColor	    "white"

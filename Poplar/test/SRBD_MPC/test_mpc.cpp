@@ -43,9 +43,9 @@ int main() {
     MPC::Vec x0, x_ref;
     x0.resize(2);
     x0 << 2.0, 0.0;
-    x_ref.resize(HORIZON * Ak_ROWS);
+    x_ref.resize(horizons * Ak_ROWS);
     x_ref.setZero();
-    for (int i = 0; i < 2 * HORIZON; i++) {
+    for (int i = 0; i < 2 * horizons; i++) {
         if(i%2==0)
         {
             x_ref(i) = -2.0;

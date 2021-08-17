@@ -528,7 +528,7 @@ MJAPI void mjv_cameraInRoom(mjtNum* headpos, mjtNum* forward, mjtNum* up,
 // Get frustum height at unit distance from camera; average left and right OpenGL cameras.
 MJAPI mjtNum mjv_frustumHeight(const mjvScene* scn);
 
-// Rotate 3D vec in horizontal plane by angle between (0,1) and (forward_x,forward_y).
+// Rotate 3D vec in horizonstal plane by angle between (0,1) and (forward_x,forward_y).
 MJAPI void mjv_alignToCamera(mjtNum* res, const mjtNum* vec, const mjtNum* forward);
 
 // Move camera with mouse; action is mjtMouse.

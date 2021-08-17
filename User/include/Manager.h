@@ -33,7 +33,7 @@ private:
     void runLCM();
 
     const RobotState &_state;
-    Poplar::Index mpc_horizon;
+    Poplar::Index mpc_horizons;
     Scalar mpc_dt, dt;
 
     RobotWrapper robot;
@@ -45,8 +45,6 @@ private:
     size_t _iter;
 
     lcm::LCM lcm1, lcm2;
-    RobotMessage robotMsg;
-    Trajectory_LCM trajectoryLcm;
 
     Poplar::Vec qpos, qdot;
 

@@ -143,7 +143,7 @@ struct _mjuiThemeSpacing        // UI visualization theme spacing
         int itemside;           // item side gap
         int itemmid;            // item middle gap
         int itemver;            // item vertical gap
-        int texthor;            // text horizontal gap
+        int texthor;            // text horizonstal gap
         int textver;            // text vertical gap
         int linescroll;         // number of pixels to scroll
         int samples;            // number of multisamples
@@ -269,7 +269,7 @@ struct _mjUI                    // entire UI
     int editsect;               // 0: none, otherwise 1+section
     int edititem;               // item within section
     int editcursor;             // cursor position
-    int editscroll;             // horizontal scroll
+    int editscroll;             // horizonstal scroll
     char edittext[mjMAXUITEXT]; // current text
     mjuiItem* editchanged;      // pointer to changed edit in last mjui_event
 
