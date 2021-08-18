@@ -13,7 +13,7 @@ LIPM_MPC::LIPM_MPC() {
     setup();
 }
 
-void LIPM_MPC::setParamters(const LIPM_Parameters &param) {
+void LIPM_MPC::setParameters(const LIPM_Parameters &param) {
     _param = param;
     setup();
 }
@@ -25,8 +25,10 @@ const LIPM_Parameters &LIPM_MPC::parameters() {
 void LIPM_MPC::setup() {
 
     Scalar w = _param.gravity / _param.height;
-    Mat At(4, 4);
-    Mat Bt(4, 2);
+
+    At = Mat::Zero(4, 4);
+    Bt = Mat::Zero(4, 2);
+
     At << 0, 1, 0, 0,
             w, 0, 0, 0,
             0, 0, 0, 1,
@@ -69,6 +71,7 @@ void LIPM_MPC::setup() {
     Par = Mat::Zero(2, 4);
     Par << 1, 1 / sqrt(w), 0, 0,
             0, 0, 1, 1 / sqrt(w);
+
 }
 
 VecRef LIPM_MPC::x0() {
@@ -82,6 +85,14 @@ void LIPM_MPC::setDesiredVel(Vec2 vel) {
 void LIPM_MPC::run() {
     /* check whether zmp constraints has been updated */
     assert(_updatedZMPConstraints);
+
+    /* capture point constraints */
+    _C = Mat::Zero(_C1.rows() + 2, _C1.cols());
+    _c_lb = Vec::Zero(_c_lb1.size() + 2);
+    _c_ub = Vec::Zero(_c_ub1.size() + 2);
+    _C << _C1, Par * Su.bottomRows(4);
+    _c_lb << _c_lb1, _c_lb1.tail(2) - Par * Sx.bottomRows(4) * _x0;
+    _c_ub << _c_ub1, _c_ub1.tail(2) - Par * Sx.bottomRows(4) * _x0;
 
     /* generate desired com trajectory */
     _xRef.resize(4 * _param.mpc_horizons);
@@ -104,7 +115,7 @@ void LIPM_MPC::run() {
     _g.noalias() = Su.transpose() * _Q * Sx * _x0 - Su.transpose() * _Q * _xRef;
 
 #ifdef USE_QPOASES
-    solver = qpOASES::QProblem(2 * _param.mpc_horizons, 2 * _param.mpc_horizons);
+    solver = qpOASES::QProblem(_C.cols(), _C.rows());
     qpOASES::int_t nWSR = 1000;
     qpOASES::Options opt;
     opt.setToMPC();
@@ -112,28 +123,34 @@ void LIPM_MPC::run() {
     opt.printLevel = qpOASES::PL_NONE;
     solver.setOptions(opt);
     solver.init(_H.data(), _g.data(), _C.data(), nullptr, nullptr, _c_lb.data(), _c_ub.data(), nWSR);
-    _uOptimal.resize(2 * _param.mpc_horizons);
+    _uOptimal.resize(_C.cols());
     if (solver.isSolved()) {
         solver.getPrimalSolution(_uOptimal.data());
     } else {
         throw std::runtime_error("SRGB_MPC::solve() qp solver failed");
     }
 #else
-    eiquadprog_solver.reset(2 * _param.mpc_horizons, 0, 4 * _param.mpc_horizons);
+    eiquadprog_solver.reset(_C.cols(), 0, _C.rows() * 2);
     Mat Cin(_C.rows() * 2, 2 * _param.mpc_horizons);
     Cin << _C, -_C;
     Vec cin(_C.rows() * 2);
     cin << -_c_lb, _c_ub;
-    solver_state = eiquadprog_solver.solve_quadprog(_H, _g, Mat(0, 2 * _param.mpc_horizons), Vec(0), Cin, cin,
+    solver_state = eiquadprog_solver.solve_quadprog(_H, _g, Mat(0, _C.cols()), Vec(0), Cin, cin,
                                                     _uOptimal);
     printf("solver state: %d\n", solver_state);
     if (solver_state != eiquadprog::solvers::EIQUADPROG_FAST_OPTIMAL) {
         //      throw runtime_error("TaskSpaceControl::solve() qp failed, related data has been saved in qp_failed.txt");
-        std::cerr << "SRGB_MPC::solve() qp failed" << endl;
+        std::cerr << "LIPM_MPC::solve() qp failed" << endl;
     }
 #endif
 
     _xOptimal.noalias() = Sx * _x0 + Su * _uOptimal;
+
+    _xdotOptimal.resize(4 * _param.mpc_horizons);
+    _xdotOptimal.head(4) = At * _x0 + Bt * _uOptimal.head(2);
+    for (int i = 1; i < _param.mpc_horizons; i++) {
+        _xdotOptimal.segment(4 * i, 4) = At * _xOptimal.segment(i * 4 - 4, 4) + Bt * _uOptimal.segment(2 * i, 2);
+    }
     _updatedZMPConstraints = false;
 }
 
@@ -145,9 +162,17 @@ void LIPM_MPC::updateZMP_constraints(ConstMatRef C, ConstVecRef c_lb, ConstVecRe
     assert(C.cols() == 2 * _param.mpc_horizons && C.rows() == c_lb.size() && c_lb.size() == c_ub.size());
 
     /* input constraints */
-    _C.noalias() = C;
-    _c_lb = c_lb;
-    _c_ub = c_ub;
+    _C1.noalias() = C;
+    _c_lb1 = c_lb;
+    _c_ub1 = c_ub;
     _updatedZMPConstraints = true;
+}
+
+ConstVecRef LIPM_MPC::optimalTrajDot() {
+    return ConstVecRef(_xdotOptimal);
+}
+
+void LIPM_MPC::updateContactPoints(const vector<Vec3> &points) {
+    _contactPoints = points;
 }
 

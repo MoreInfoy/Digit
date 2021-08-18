@@ -4,7 +4,7 @@
 
 #include "Planner/FootPlanner.h"
 
-FootPlanner::FootPlanner() : base("torso"), lf("left_toe_roll"), rf("right_toe_roll"), swingHeight(0.05) {
+FootPlanner::FootPlanner() : base("torso"), lf("left_toe_roll"), rf("right_toe_roll"), swingHeight(0.10) {
     for (int i(0); i < 2; i++) {
         firstSwing[i] = true;
     }
@@ -29,6 +29,9 @@ FootPlanner::plan(size_t iter, const RobotState &state, RobotWrapper &robot, con
         rfTraj.setInitialPosition(rf_pose.translation());
         rfTraj.setFinalPosition(rf_pose.translation());
         pHipBody[1] = rf_pose.translation() - base_pose.translation();
+
+        tasks.leftFootTask.R_wb = lf_pose.rotation();
+        tasks.rightFootTask.R_wb = rf_pose.rotation();
 
         // TODO: check for every robot
         lf_shift.z() = lf_pose.translation().z();
@@ -105,8 +108,8 @@ FootPlanner::plan(size_t iter, const RobotState &state, RobotWrapper &robot, con
             footSwingTrajectory->computeSwingTrajectoryBezier(swingPhase, gaitData.swingTime[i]);
 
             footTaskData->pos = footSwingTrajectory->getPosition();
-            footTaskData->vel = footSwingTrajectory->getVelocity();
-            footTaskData->acc = footSwingTrajectory->getAcceleration();
+            footTaskData->vel = foot_pose->rotation().transpose() * footSwingTrajectory->getVelocity();
+            footTaskData->acc = foot_pose->rotation().transpose() * footSwingTrajectory->getAcceleration();
         } else // stance
         {
             firstSwing[i] = true;

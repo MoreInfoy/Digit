@@ -34,6 +34,18 @@ private:
 
     void generateContactTable(const GaitData &gaitData);
 
+    void srgb_mpc(size_t iter,
+                  const RobotState &state,
+                  RobotWrapper &robot,
+                  const GaitData &gaitData,
+                  Tasks &tasks);
+
+    void lipm_mpc(size_t iter,
+                  const RobotState &state,
+                  RobotWrapper &robot,
+                  const GaitData &gaitData,
+                  Tasks &tasks);
+
     string base;
     Scalar mass;
     Scalar fmax;

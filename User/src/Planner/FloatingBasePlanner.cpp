@@ -49,11 +49,48 @@ FloatingBasePlanner::FloatingBasePlanner(Poplar::Index horizons, Scalar mpc_dt, 
     param.mpc_dt = 0.05;
     param.mpc_horizons = 20;
     param.height = bodyHeight;
-    lipmMpc.setParamters(param);
+    lipmMpc.setParameters(param);
 }
 
 void FloatingBasePlanner::plan(size_t iter, const RobotState &state, RobotWrapper &robot, const GaitData &gaitData,
                                Tasks &tasks) {
+    lipm_mpc(iter, state, robot, gaitData, tasks);
+//    srgb_mpc(iter, state, robot, gaitData, tasks);
+}
+
+void FloatingBasePlanner::lipm_mpc(size_t iter, const RobotState &state,
+                                   RobotWrapper &robot, const GaitData &gaitData,
+                                   Tasks &tasks) {
+    Vec3 c = robot.CoM_pos();
+    Vec3 cdot = robot.CoM_vel();
+
+    lipmMpc.x0() << c(0), cdot(0), c(1), cdot(1);
+    auto &param = lipmMpc.parameters();
+    Mat C = Mat::Zero(param.mpc_horizons * 2, 2 * param.mpc_horizons);
+    Vec c_lb = Vec::Zero(param.mpc_horizons * 2);
+    Vec c_ub = Vec::Zero(param.mpc_horizons * 2);
+    for (int i = 0; i < param.mpc_horizons; i++) {
+        C.block<2, 2>(i * 2, i * 2).setIdentity();
+        c_lb.segment(i * 2, 2) << -0.5, -0.5;
+        c_ub.segment(i * 2, 2) << 0.5, 0.5;
+    }
+    lipmMpc.updateZMP_constraints(C, c_lb, c_ub);
+    Timer timer;
+    lipmMpc.run();
+    printf("LIPM MPC solve time: %f\n", timer.getMs());
+
+    auto xopt = lipmMpc.optimalTraj();
+    auto xdot = lipmMpc.optimalTrajDot();
+    tasks.floatingBaseTask.pos << xopt(0), xopt(2), lipmMpc.parameters().height;
+    tasks.floatingBaseTask.vel << xopt(1), xopt(3), 0;
+    tasks.floatingBaseTask.acc << xdot(1), xdot(3), 0;
+    tasks.floatingBaseTask.omega_dot.setZero();
+    tasks.floatingBaseTask.R_wb.setIdentity();
+    tasks.floatingBaseTask.omega.setZero();
+}
+
+void FloatingBasePlanner::srgb_mpc(size_t iter, const RobotState &state, RobotWrapper &robot,
+                                   const GaitData &gaitData, Tasks &tasks) {
     mass = robot.totalMass();
     Ibody = robot.Ig();
     srgbMpc.setMassAndInertia(mass, Ibody);
@@ -116,20 +153,6 @@ void FloatingBasePlanner::plan(size_t iter, const RobotState &state, RobotWrappe
     tasks.floatingBaseTask.omega_dot = xdd.segment(6, 3);
     tasks.floatingBaseTask.R_wb = pin::rpy::rpyToMatrix(xopt.segment(0, 3));
     tasks.floatingBaseTask.omega = xopt.segment(6, 3);
-
-    lipmMpc.x0() << c(0), cdot(0), c(1), cdot(1);
-    auto &param = lipmMpc.parameters();
-    Mat C = Mat::Zero(param.mpc_horizons * 2, 2 * param.mpc_horizons);
-    Vec c_lb = Vec::Zero(param.mpc_horizons * 2);
-    Vec c_ub = Vec::Zero(param.mpc_horizons * 2);
-    for (int i = 0; i < param.mpc_horizons; i++) {
-        C.block<2, 2>(i * 2, i * 2).setIdentity();
-        c_lb.segment(i * 2, 2) << -0.5, -0.5;
-        c_ub.segment(i * 2, 2) << 0.5, 0.5;
-    }
-    lipmMpc.updateZMP_constraints(C, c_lb, c_ub);
-
-    lipmMpc.run();
 }
 
 void FloatingBasePlanner::generateRefTraj(const RobotState &state, RobotWrapper &robot) {

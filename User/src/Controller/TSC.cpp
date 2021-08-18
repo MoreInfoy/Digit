@@ -58,14 +58,14 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
     angularMomentumTask->ref_dot().setZero();
 
     rf = make_shared<SE3MotionTask>(_robot, "right_toe_roll");
-    rf->Kp().diagonal() << 100, 100, 100, 500, 500, 500;
+    rf->Kp().diagonal() << 100, 100, 500, 500, 500, 200;
     rf->Kd() = 2 * rf->Kp().cwiseSqrt();
-    rf->weightMatrix().diagonal() << 500, 500, 500, 1000, 1000, 1000;
+    rf->weightMatrix().diagonal() << 500, 500, 1000, 1000, 1000, 500;
     rf->SE3Ref() = _robot.frame_pose("right_toe_roll");
     lf = make_shared<SE3MotionTask>(_robot, "left_toe_roll");
-    lf->Kp().diagonal() << 100, 100, 100, 500, 500, 500;
+    lf->Kp().diagonal() << 100, 100, 500, 500, 500, 200;
     lf->Kd() = 2 * lf->Kp().cwiseSqrt();
-    lf->weightMatrix().diagonal() << 500, 500, 500, 1000, 1000, 1000;
+    lf->weightMatrix().diagonal() << 500, 500, 1000, 1000, 1000, 500;
     lf->SE3Ref() = _robot.frame_pose("left_toe_roll");
 
     cpcstr = make_shared<ContactPointsConstraints>(_robot, "cpcstr");
@@ -81,7 +81,7 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
         tsc->addTask(mt_waist);
         tsc->addTask(com);
         tsc->addTask(angularMomentumTask);
-        tsc->addTask(forceTask);
+//        tsc->addTask(forceTask);
         tsc->addLinearConstraint(cpcstr);
         tsc->addLinearConstraint(cfcstr);
     }
@@ -128,44 +128,53 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
 
     VecXi mask = VecXi::Ones(8);
 
+    if (gaitData.swingTimeRemain(0) > 0) {
+//        lf->SE3Ref().rotation() = tasks.leftFootTask.R_wb;
+        lf->SE3Ref().translation() = tasks.leftFootTask.pos;
+        lf->spatialVelRef() << tasks.leftFootTask.vel, tasks.leftFootTask.omega;
+        lf->spatialAccRef()
+                << tasks.leftFootTask.acc,
+                tasks.leftFootTask.omega_dot; // TODO: analytical acc to spatial acc
+        if (!tsc->existTask(lf->name())) {
+            tsc->addTask(lf);
+        }
+        mask.head(4).setZero();
+    } else {
+        tsc->removeTask(tasks.leftFootTask.link_name);
+    }
+
+    if (gaitData.swingTimeRemain(1) > 0) {
+//        rf->SE3Ref().rotation() = tasks.rightFootTask.R_wb;
+        rf->SE3Ref().translation() = tasks.rightFootTask.pos;
+        rf->spatialVelRef() << tasks.rightFootTask.vel, tasks.rightFootTask.omega;
+        rf->spatialAccRef()
+                << tasks.rightFootTask.acc,
+                tasks.rightFootTask.omega_dot; // TODO: analytical acc to spatial acc
+        if (!tsc->existTask(rf->name())) {
+            tsc->addTask(rf);
+        }
+        mask.tail(4).setZero();
+    } else {
+        tsc->removeTask(tasks.rightFootTask.link_name);
+    }
+
     if (_robot.isFixedBase()) {
         mask.setZero();
         _robot.setContactMask(mask);
-        rf->SE3Ref().translation()(2) = -0.839273 + 0.10 * sin(0.004 * _iter);
+        /*rf->SE3Ref().translation()(2) = -0.839273 + 0.10 * sin(0.004 * _iter);
         lf->SE3Ref().translation()(2) = -0.839273 - 0.10 * sin(0.004 * _iter);
+
+        Vec3 rf_v, lf_v, rf_acc, lf_acc;
+        rf_v << 0, 0, 0.4 * cos(0.004 * _iter);
+        lf_v << 0, 0, -0.4 * cos(0.004 * _iter);
+        rf_acc << 0, 0, -1.6 * sin(0.004 * _iter);
+        lf_acc << 0, 0, 1.6 * sin(0.004 * _iter);
+
+        rf->spatialVelRef().head(3) = robot().frame_pose(rf->name()).rotation().transpose() * rf_v;
+        lf->spatialVelRef().head(3) = robot().frame_pose(lf->name()).rotation().transpose() * lf_v;
+        rf->spatialAccRef().head(3) = robot().frame_pose(rf->name()).rotation().transpose() * rf_acc;
+        lf->spatialAccRef().head(3) = robot().frame_pose(lf->name()).rotation().transpose() * lf_acc;*/
     } else {
-        if (gaitData.swingTimeRemain(0) > 0) {
-            lf->SE3Ref().rotation() = tasks.leftFootTask.R_wb;
-            lf->SE3Ref().translation() = tasks.leftFootTask.pos;
-            lf->spatialVelRef() << tasks.leftFootTask.vel, tasks.leftFootTask.omega;
-            lf->spatialAccRef()
-                    << tasks.leftFootTask.acc,
-                    tasks.leftFootTask.omega_dot; // TODO: analytical acc to spatial acc
-            if (!tsc->existTask(lf->name())) {
-                tsc->addTask(lf);
-            }
-            mask.head(4).setZero();
-        } else {
-            tsc->removeTask(tasks.leftFootTask.link_name);
-        }
-
-        if (gaitData.swingTimeRemain(1) > 0) {
-            rf->SE3Ref().rotation() = tasks.rightFootTask.R_wb;
-            rf->SE3Ref().translation() = tasks.rightFootTask.pos;
-            rf->spatialVelRef() << tasks.rightFootTask.vel, tasks.rightFootTask.omega;
-            rf->spatialAccRef()
-                    << tasks.rightFootTask.acc,
-                    tasks.rightFootTask.omega_dot; // TODO: analytical acc to spatial acc
-            if (!tsc->existTask(rf->name())) {
-                tsc->addTask(rf);
-            }
-            mask.tail(4).setZero();
-        } else {
-            tsc->removeTask(tasks.rightFootTask.link_name);
-        }
-//        mask.setOnes();
-        _robot.compute(mask);
-
         auto base_frame = robot().frame_pose("torso");
         com->posRef() = tasks.floatingBaseTask.pos;
         com->velRef() = tasks.floatingBaseTask.vel;
@@ -179,6 +188,7 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
         forceTask->setForceRef(tasks.forceTask);
 //        std::cout << "force ref: " << tasks.forceTask.transpose() << std::endl;
     }
+    _robot.compute(mask);
 
     Timer timer;
     Mat T, T_dot;

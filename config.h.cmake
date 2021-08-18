@@ -1,8 +1,8 @@
-#ifndef _${PROJECT_NAME}_CONFIG_H
-#define _${PROJECT_NAME}_CONFIG_H
+#ifndef _PROJECT_NAME_CONFIG_H
+#define _PROJECT_NAME_CONFIG_H
 
 #define THIS_COM "@THIS_COM@"
-// #define FIXED_BASE
+#define FIXED_BASE
 
 #ifdef FIXED_BASE
 #define ROBOT_NV 30

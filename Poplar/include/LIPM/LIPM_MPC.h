@@ -18,6 +18,8 @@ struct LIPM_Parameters {
     Poplar::Index mpc_horizons = 100;
     Scalar height = 0.8;
     Scalar gravity = 9.8;
+    Scalar mass = 0.0;
+    Mat3 inertia = Mat3::Identity();
     /*Scalar _px = 0.10;
     Scalar _nx = -0.06;
     Scalar _py = 0.04;
@@ -36,11 +38,17 @@ public:
 
     void updateZMP_constraints(ConstMatRef C, ConstVecRef c_lb, ConstVecRef c_ub);
 
+    void updateContactPoints(const vector<Vec3>& points);
+
     void run();
+
+    void forceDistribute();
 
     ConstVecRef optimalTraj();
 
-    void setParamters(const LIPM_Parameters &param);
+    ConstVecRef optimalTrajDot();
+
+    void setParameters(const LIPM_Parameters &param);
 
     const LIPM_Parameters &parameters();
 
@@ -48,13 +56,16 @@ private:
 
     void setup();
 
+    Mat At, Bt;
+    vector<Vec3> _contactPoints;
+
     LIPM_Parameters _param;
-    Vec _x0, _xRef, _xOptimal, _uOptimal;
+    Vec _x0, _xRef, _xOptimal, _uOptimal, _xdotOptimal;
     Vec2 _v_des;
     bool _updatedZMPConstraints;
 
-    Mat _C, Sx, Su, Par;
-    Vec _c_lb, _c_ub;
+    Mat _C, _C1, Sx, Su, Par;
+    Vec _c_lb, _c_ub, _c_lb1, _c_ub1;
 
     Mat_R _Q, _R;
     Mat_R _H, _g;

@@ -84,7 +84,7 @@
               <body name="torso" pos="0 0 1">
                      <camera name='track' pos='0 -3 1' zaxis='0 -1 0.5' mode='trackcom'/>
                      <inertial pos="-0.00148645 0.000175054 0.252154" quat="0.999974 8.03746e-05 -0.00708699 -0.000904934" mass="17.17" diaginertia="0.492749 0.439332 0.127268"/>
-                     <joint type="free" limited='false' damping="0" stiffness="0" armature="0"/>
+<!--                     <joint type="free" limited='false' damping="0" stiffness="0" armature="0"/>-->
 
                      <geom class="viz" mesh="torso"/>
                      <geom type='box' size='0.0975 0.087 0.245' pos='0.008 0 0.21' euler='0 0 0' class='collision'/>

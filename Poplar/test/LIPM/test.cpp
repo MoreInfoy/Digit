@@ -16,7 +16,7 @@ int main() {
     param.mpc_horizons = 100;
     param.height = 0.892442;
     LIPM_MPC lipmMpc;
-    lipmMpc.setParamters(param);
+    lipmMpc.setParameters(param);
 
     Mat C = Mat::Zero(param.mpc_horizons * 2, 2 * param.mpc_horizons);
     Vec c_lb = Vec::Zero(param.mpc_horizons * 2);
