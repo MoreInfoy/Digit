@@ -85,9 +85,9 @@ def my_handler(channel, data):
     print("   lfWrench_des = %s" % str(msg.lfWrench_des))
     print("   position = %s" % str(msg.rfWrench_des)) """
     # plt.plot(msg.timeStamp, msg.data[2], 'k*')
-    index = 2
-    plt.plot([t_last, msg.timeStamp], [x_last, msg.data[index]], 'k-')
-    plt.plot([t_last, msg.timeStamp], [y_last, msg.data[index + 3]], 'r-')
+    # index = 2
+    # plt.plot([t_last, msg.timeStamp], [x_last, msg.data[index]], 'k-')
+    # plt.plot([t_last, msg.timeStamp], [y_last, msg.data[index + 3]], 'r-')
 
     # plt.plot(msg.data[0::6], 'k-')
     # plt.plot(msg.data[1::6], 'r-')
@@ -100,16 +100,16 @@ def my_handler(channel, data):
     # plt.plot([t_last, msg.timeStamp], [x_last, msg.data[index]], 'k-', [t_last, msg.timeStamp],
     #          [y_last, msg.data[index + 3]], 'r-')
 
-    # plt.plot(msg.data[0::4], 'k-')
-    # plt.plot(msg.data[1::4], 'r-')
-    # plt.plot(msg.data[2::4], 'k--')
-    # plt.plot(msg.data[3::4], 'r--')
-    t_last = msg.timeStamp
-    x_last = msg.data[index]
-    y_last = msg.data[index + 3]
+    plt.plot(msg.data[0::4], 'k-')
+    plt.plot(msg.data[1::4], 'r-')
+    plt.plot(msg.data[2::4], 'k--')
+    plt.plot(msg.data[3::4], 'r--')
+    # t_last = msg.timeStamp
+    # x_last = msg.data[index]
+    # y_last = msg.data[index + 3]
     plt.pause(1e-12)
-    # plt.clf()
-    plt.xlim(msg.timeStamp - 10, msg.timeStamp + 0.1)
+    plt.clf()
+    # plt.xlim(msg.timeStamp - 10, msg.timeStamp + 0.1)
 
 
 if __name__ == '__main__':

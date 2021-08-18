@@ -2,7 +2,7 @@
 #define _PROJECT_NAME_CONFIG_H
 
 #define THIS_COM "@THIS_COM@"
-#define FIXED_BASE
+//#define FIXED_BASE
 
 #ifdef FIXED_BASE
 #define ROBOT_NV 30

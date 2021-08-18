@@ -81,7 +81,7 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
         tsc->addTask(mt_waist);
         tsc->addTask(com);
         tsc->addTask(angularMomentumTask);
-//        tsc->addTask(forceTask);
+        tsc->addTask(forceTask);
         tsc->addLinearConstraint(cpcstr);
         tsc->addLinearConstraint(cfcstr);
     }

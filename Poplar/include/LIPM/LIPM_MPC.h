@@ -20,10 +20,10 @@ struct LIPM_Parameters {
     Scalar gravity = 9.8;
     Scalar mass = 0.0;
     Mat3 inertia = Mat3::Identity();
-    /*Scalar _px = 0.10;
-    Scalar _nx = -0.06;
-    Scalar _py = 0.04;
-    Scalar _ny = -0.04;*/
+    Scalar px = 0.10;
+    Scalar nx = 0.12;
+    Scalar py = 0.04;
+    Scalar ny = 0.04;
     Vec4 Qx = Vec4::Ones();
     Vec2 Qu = 1e-3 * Vec2::Ones();
 };

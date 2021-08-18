@@ -11,7 +11,7 @@ bool fixedBase = true;
 bool fixedBase = false;
 #endif
 
-Manager::Manager(const RobotState &state) : _state(state), mpc_horizons(10), mpc_dt(0.1), dt(0.001),
+Manager::Manager(const RobotState &state) : _state(state), mpc_horizons(20), mpc_dt(0.05), dt(0.001),
                                             robot(URDF, SRDF, fixedBase),
                                             gaitScheduler(dt),
                                             footPlanner(),
@@ -77,15 +77,18 @@ void Manager::runLCM() {
     Trajectory_LCM trajectoryLcm;
 
     robotMsg.timeStamp = 0.001 * _iter;
-    robotMsg.data_size = 6;
+
+    /* swing trajectory */
+    /*robotMsg.data_size = 6;
     robotMsg.data.resize(6);
     robotMsg.data[0] = robot.frame_pose(tasks.leftFootTask.link_name).translation().x();
     robotMsg.data[1] = robot.frame_pose(tasks.leftFootTask.link_name).translation().y();
     robotMsg.data[2] = robot.frame_pose(tasks.leftFootTask.link_name).translation().z();
     robotMsg.data[3] = tasks.leftFootTask.pos.x();
     robotMsg.data[4] = tasks.leftFootTask.pos.y();
-    robotMsg.data[5] = tasks.leftFootTask.pos.z();
+    robotMsg.data[5] = tasks.leftFootTask.pos.z();*/
 
+    /* gait trajectory */
     /*robotMsg.data_size = 3 * mpc_horizons;
     printf("size: %d\n", robotMsg.data_size);
     robotMsg.data.resize(robotMsg.data_size);
@@ -98,6 +101,7 @@ void Manager::runLCM() {
     robotMsg.data[4] = robot.CoM_pos().y();
     robotMsg.data[5] = robot.CoM_pos().z();*/
 
+    /* com trajectory */
     /*trajectoryLcm.n_point = mpc_horizons;
     trajectoryLcm.data.resize(6 * mpc_horizons);
     auto x_opt = floatingBasePlanner.getOptimalTraj();
@@ -122,8 +126,8 @@ void Manager::runLCM() {
         lcm2.publish("TRAJECTORY_LCM", &trajectoryLcm);
     }*/
 
-
-    /*auto x_opt = floatingBasePlanner.getOptimalTraj();
+    /* com trajectory */
+    auto x_opt = floatingBasePlanner.getOptimalTraj();
     robotMsg.data_size = x_opt.size();
     robotMsg.data.resize(robotMsg.data_size);
     for (int i = 0; i < x_opt.size() / 4; i++) {
@@ -131,7 +135,7 @@ void Manager::runLCM() {
         robotMsg.data[i * 4 + 1] = x_opt(4 * i + 1);
         robotMsg.data[i * 4 + 2] = x_opt(4 * i + 2);
         robotMsg.data[i * 4 + 3] = x_opt(4 * i + 3);
-    }*/
+    }
 
     if (lcm1.good()) {
         lcm1.publish("ROBOT_MESSAGE_TOPIC", &robotMsg);
