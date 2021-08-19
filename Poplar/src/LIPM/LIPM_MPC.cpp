@@ -8,8 +8,23 @@
 
 LIPM_MPC::LIPM_MPC() {
     _x0.noalias() = Vec4::Zero();
-    _v_des.setZero();
-    _updatedZMPConstraints = false;
+    _updatedTerminalZMPConstraints = false;
+    _updatedZMPRef = false;
+    At = Mat::Zero(4, 4);
+    Bt = Mat::Zero(4, 2);
+    Ct = Mat::Zero(2, 4);
+    Dt = Mat::Zero(2, 2);
+
+    At << 0, 1, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0, 1,
+            0, 0, 0, 0;
+    Bt << 0, 0,
+            1, 0,
+            0, 0,
+            0, 1;
+    Ct << 1, 0, 0, 0,
+            0, 0, 1, 0;
     setup();
 }
 
@@ -25,18 +40,8 @@ const LIPM_Parameters &LIPM_MPC::parameters() {
 void LIPM_MPC::setup() {
 
     Scalar w = _param.gravity / _param.height;
-
-    At = Mat::Zero(4, 4);
-    Bt = Mat::Zero(4, 2);
-
-    At << 0, 1, 0, 0,
-            w, 0, 0, 0,
-            0, 0, 0, 1,
-            0, 0, w, 0;
-    Bt << 0, 0,
-            -w, 0,
-            0, 0,
-            0, -w;
+    Dt << -1.0 / w, 0,
+            0, -1.0 / w;
 
     Mat e;
     e.noalias() = Mat::Zero(6, 6);
@@ -54,6 +59,8 @@ void LIPM_MPC::setup() {
 
     Sx.noalias() = Mat::Zero(4 * _param.mpc_horizons, 4);
     Su.noalias() = Mat::Zero(4 * _param.mpc_horizons, 2 * _param.mpc_horizons);
+    Rx.noalias() = Mat::Zero(2 * _param.mpc_horizons, 4 * _param.mpc_horizons);
+    Ru.noalias() = Mat::Zero(2 * _param.mpc_horizons, 2 * _param.mpc_horizons);
     Mat P0_exp;
     for (size_t k = 0; k < _param.mpc_horizons; k++) {
         if (k == 0) {
@@ -65,6 +72,8 @@ void LIPM_MPC::setup() {
                     Ak * Su.block((k - 1) * 4, 0, 4, 2 * k);
             Su.block(k * 4, 2 * k, 4, 2).noalias() = Bk;
         }
+        Rx.block<2, 4>(2 * k, 4 * k) = Ct;
+        Ru.block<2, 2>(2 * k, 2 * k) = Dt;
     }
 
     /* for capture point */
@@ -78,44 +87,37 @@ VecRef LIPM_MPC::x0() {
     return Poplar::VecRef(_x0);
 }
 
-void LIPM_MPC::setDesiredVel(Vec2 vel) {
-    _v_des = vel;
+void LIPM_MPC::setZMPRef(ConstVecRef zmpRef) {
+    assert(zmpRef.size() == _param.mpc_horizons * 2);
+    _updatedZMPRef = true;
+    _zmpRef = zmpRef;
 }
 
 void LIPM_MPC::run() {
     /* check whether zmp constraints has been updated */
-    assert(_updatedZMPConstraints);
+    assert(_updatedTerminalZMPConstraints);
+    assert(_updatedZMPRef);
 
     /* capture point constraints */
-    /*_C = Mat::Zero(_C1.rows() + 2, _C1.cols());
-    _c_lb = Vec::Zero(_c_lb1.size() + 2);
-    _c_ub = Vec::Zero(_c_ub1.size() + 2);
-    _C << _C1, _C1.bottomRightCorner<2, 2>() * Par * Su.bottomRows(4);
-    _c_lb << _c_lb1, _c_lb1.tail(2) - _C1.bottomRightCorner<2, 2>() * Par * Sx.bottomRows(4) * _x0;
-    _c_ub << _c_ub1, _c_ub1.tail(2) - _C1.bottomRightCorner<2, 2>() * Par * Sx.bottomRows(4) * _x0;*/
-    _C = _C1;
-    _c_lb = _c_lb1;
-    _c_ub = _c_ub1;
-
-    /* generate desired com trajectory */
-    _xRef.resize(4 * _param.mpc_horizons);
-    for (int i = 0; i < _param.mpc_horizons; i++) {
-        _xRef.segment(4 * i, 4) << _x0(0) + Scalar(i) * _param.mpc_dt * _v_des(0), _v_des(0),
-                _x0(1) + Scalar(i) * _param.mpc_dt * _v_des(1), _v_des(1);
-    }
+    _C.noalias() = _Cz * Par * Su.bottomRows(4);
+    _c_lb.noalias() = _cz_lb - _Cz * Par * Sx.bottomRows(4) * _x0;
+    _c_ub.noalias() = _cz_ub - _Cz * Par * Sx.bottomRows(4) * _x0;
 
     /* QP problem setup */
-    _Q.resize(4 * _param.mpc_horizons, 4 * _param.mpc_horizons);
+    _Q.resize(_param.Qx.size() * _param.mpc_horizons, _param.Qx.size() * _param.mpc_horizons);
     _Q.setZero();
     _Q.diagonal() = _param.Qx.replicate(_param.mpc_horizons, 1);
-    _R.resize(2 * _param.mpc_horizons, 2 * _param.mpc_horizons);
+    _R.resize(_param.Qu.size() * _param.mpc_horizons, _param.Qu.size() * _param.mpc_horizons);
     _R.setZero();
     _R.diagonal() = _param.Qu.replicate(_param.mpc_horizons, 1);
     /*cout << "_Q: " << endl << _Q << endl << "_R: " << endl << _R << endl;*/
 
     // formulate QP
-    _H.noalias() = _R + Su.transpose() * _Q * Su;
-    _g.noalias() = Su.transpose() * _Q * Sx * _x0 - Su.transpose() * _Q * _xRef;
+    Mat Mx, Mu;
+    Mx.noalias() = Rx * Sx;
+    Mu.noalias() = Rx * Su + Ru;
+    _H.noalias() = _R + Mu.transpose() * _Q * Mu;
+    _g.noalias() = Mu.transpose() * _Q * Mx * _x0 - Mu.transpose() * _Q * _zmpRef;
 
 #ifdef USE_QPOASES
     solver = qpOASES::QProblem(_C.cols(), _C.rows());
@@ -154,21 +156,23 @@ void LIPM_MPC::run() {
     for (int i = 1; i < _param.mpc_horizons; i++) {
         _xdotOptimal.segment(4 * i, 4) = At * _xOptimal.segment(i * 4 - 4, 4) + Bt * _uOptimal.segment(2 * i, 2);
     }
-    _updatedZMPConstraints = false;
+
+    _updatedTerminalZMPConstraints = false;
+    _updatedZMPRef = false;
 }
 
 ConstVecRef LIPM_MPC::optimalTraj() {
     return ConstVecRef(_xOptimal);
 }
 
-void LIPM_MPC::updateZMP_constraints(ConstMatRef C, ConstVecRef c_lb, ConstVecRef c_ub) {
-    assert(C.cols() == 2 * _param.mpc_horizons && C.rows() == c_lb.size() && c_lb.size() == c_ub.size());
+void LIPM_MPC::updateTerminalZMPConstraints(ConstMatRef C, ConstVecRef c_lb, ConstVecRef c_ub) {
+    assert(C.cols() == 2 && C.rows() == c_lb.size() && c_lb.size() == c_ub.size());
 
     /* input constraints */
-    _C1.noalias() = C;
-    _c_lb1 = c_lb;
-    _c_ub1 = c_ub;
-    _updatedZMPConstraints = true;
+    _Cz.noalias() = C;
+    _cz_lb = c_lb;
+    _cz_ub = c_ub;
+    _updatedTerminalZMPConstraints = true;
 }
 
 ConstVecRef LIPM_MPC::optimalTrajDot() {

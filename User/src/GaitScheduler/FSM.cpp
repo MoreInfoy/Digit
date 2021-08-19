@@ -29,7 +29,7 @@ GAIT_TYPE FSM::last() {
 void FSM::run(GAIT_TYPE gaitType) {
     if (_next_gaitType != gaitType) {
         _start += _iter;
-        _period = 2000;
+        _period = 4000;
         _iter = 0;
         _next_gaitType = gaitType;
     }

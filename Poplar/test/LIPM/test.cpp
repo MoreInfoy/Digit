@@ -26,9 +26,9 @@ int main() {
         c_lb.segment(i * 2, 2) << -0.5, -0.5;
         c_ub.segment(i * 2, 2) << 0.5, 0.5;
     }
-    lipmMpc.updateZMP_constraints(C, c_lb, c_ub);
+    lipmMpc.updateTerminalZMPConstraints(C, c_lb, c_ub);
 
-    lipmMpc.setDesiredVel(Vec2(0, 0));
+    lipmMpc.setZMPRef(Vec2(0, 0));
 
     Vec4 x0;
     x0 << 0.0, 0.5, 0, 0;

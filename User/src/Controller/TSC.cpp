@@ -21,7 +21,7 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
     }
 
     mt_waist = make_shared<SE3MotionTask>(_robot, "torso");
-    mt_waist->Kp().diagonal() << 0, 0, 0, 500, 500, 500;
+    mt_waist->Kp().diagonal() << 0, 0, 0, 200, 200, 500;
     mt_waist->Kd() = 2 * mt_waist->Kp().cwiseSqrt();
     mt_waist->weightMatrix() = 1000 * mt_waist->weightMatrix();
     mt_waist->weightMatrix().diagonal().head(3).setZero();
@@ -29,7 +29,7 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
 
     com = make_shared<CoMMotionTask>(_robot, "com");
     com->weightMatrix() = 1000 * com->weightMatrix();
-    com->Kp() = 1000 * Mat3::Identity();
+    com->Kp().diagonal() << 400, 400, 200;
     com->Kd() = 2 * com->Kp().cwiseSqrt();
     com->posRef() = _robot.CoM_pos();
     com->velRef().setZero();
@@ -43,7 +43,7 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
     rt->forceWeight().diagonal().fill(1e-8);
 
     jointsNominalTask = make_shared<JointsNominalTask>(_robot, "JointsNominalTask");
-    jointsNominalTask->weightMatrix().setZero();
+    jointsNominalTask->weightMatrix().setIdentity();
     jointsNominalTask->weightMatrix().diagonal().segment(9, 4).fill(100);
     jointsNominalTask->weightMatrix().diagonal().segment(22, 4).fill(100);
     jointsNominalTask->Kp().setIdentity();
@@ -58,12 +58,12 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
     angularMomentumTask->ref_dot().setZero();
 
     rf = make_shared<SE3MotionTask>(_robot, "right_toe_roll");
-    rf->Kp().diagonal() << 100, 100, 500, 500, 500, 200;
+    rf->Kp().diagonal() << 100, 100, 100, 200, 200, 200;
     rf->Kd() = 2 * rf->Kp().cwiseSqrt();
     rf->weightMatrix().diagonal() << 500, 500, 1000, 1000, 1000, 500;
     rf->SE3Ref() = _robot.frame_pose("right_toe_roll");
     lf = make_shared<SE3MotionTask>(_robot, "left_toe_roll");
-    lf->Kp().diagonal() << 100, 100, 500, 500, 500, 200;
+    lf->Kp().diagonal() << 100, 100, 100, 200, 200, 200;
     lf->Kd() = 2 * lf->Kp().cwiseSqrt();
     lf->weightMatrix().diagonal() << 500, 500, 1000, 1000, 1000, 500;
     lf->SE3Ref() = _robot.frame_pose("left_toe_roll");
@@ -136,7 +136,7 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
                 << tasks.leftFootTask.acc,
                 tasks.leftFootTask.omega_dot; // TODO: analytical acc to spatial acc
         if (!tsc->existTask(lf->name())) {
-//            tsc->addTask(lf);
+            tsc->addTask(lf);
         }
         mask.head(4).setZero();
     } else {
@@ -151,7 +151,7 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
                 << tasks.rightFootTask.acc,
                 tasks.rightFootTask.omega_dot; // TODO: analytical acc to spatial acc
         if (!tsc->existTask(rf->name())) {
-//            tsc->addTask(rf);
+            tsc->addTask(rf);
         }
         mask.tail(4).setZero();
     } else {
@@ -176,10 +176,9 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
         lf->spatialAccRef().head(3) = robot().frame_pose(lf->name()).rotation().transpose() * lf_acc;*/
     } else {
         auto base_frame = robot().frame_pose("torso");
-        com->posRef().y() = 0.05 * sin(0.004 * iter);
-//        com->posRef() = tasks.floatingBaseTask.pos;
-//        com->velRef() = tasks.floatingBaseTask.vel;
-//        com->accRef() = tasks.floatingBaseTask.acc;
+        com->posRef() = tasks.floatingBaseTask.pos;
+        com->velRef() = tasks.floatingBaseTask.vel;
+        com->accRef() = tasks.floatingBaseTask.acc;
         /*mt_waist->SE3Ref().translation() = tasks.floatingBaseTask.pos;
         mt_waist->spatialVelRef().head(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.vel;
         mt_waist->spatialAccRef().head(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.acc;*/
@@ -189,7 +188,7 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
         forceTask->setForceRef(tasks.forceTask);
 //        std::cout << "force ref: " << tasks.forceTask.transpose() << std::endl;
     }
-    mask.setOnes();
+//    mask.setOnes();
     _robot.compute(mask);
 
     Timer timer;

@@ -79,14 +79,21 @@ void Manager::runLCM() {
     robotMsg.timeStamp = 0.001 * _iter;
 
     /* swing trajectory */
-    /*robotMsg.data_size = 6;
+    robotMsg.data_size = 6;
     robotMsg.data.resize(6);
-    robotMsg.data[0] = robot.frame_pose(tasks.leftFootTask.link_name).translation().x();
-    robotMsg.data[1] = robot.frame_pose(tasks.leftFootTask.link_name).translation().y();
-    robotMsg.data[2] = robot.frame_pose(tasks.leftFootTask.link_name).translation().z();
-    robotMsg.data[3] = tasks.leftFootTask.pos.x();
-    robotMsg.data[4] = tasks.leftFootTask.pos.y();
-    robotMsg.data[5] = tasks.leftFootTask.pos.z();*/
+    /*robotMsg.data[0] = robot.frame_pose(tasks.rightFootTask.link_name).translation().x();
+    robotMsg.data[1] = robot.frame_pose(tasks.rightFootTask.link_name).translation().y();
+    robotMsg.data[2] = robot.frame_pose(tasks.rightFootTask.link_name).translation().z();
+    robotMsg.data[3] = tasks.rightFootTask.pos.x();
+    robotMsg.data[4] = tasks.rightFootTask.pos.y();
+    robotMsg.data[5] = tasks.rightFootTask.pos.z();*/
+
+    robotMsg.data[0] = robot.CoM_pos().x();
+    robotMsg.data[1] = robot.CoM_pos().y();
+    robotMsg.data[2] = robot.CoM_pos().z();
+    robotMsg.data[3] = tasks.floatingBaseTask.pos.x();
+    robotMsg.data[4] = tasks.floatingBaseTask.pos.y();
+    robotMsg.data[5] = tasks.floatingBaseTask.pos.z();
 
     /* gait trajectory */
     /*robotMsg.data_size = 3 * mpc_horizons;
@@ -129,7 +136,7 @@ void Manager::runLCM() {
     }*/
 
     /* com trajectory */
-    auto x_opt = floatingBasePlanner.getOptimalTraj();
+    /*auto x_opt = floatingBasePlanner.getOptimalTraj();
     robotMsg.data_size = x_opt.size();
     robotMsg.data.resize(robotMsg.data_size);
     for (int i = 0; i < x_opt.size() / 4; i++) {
@@ -137,7 +144,7 @@ void Manager::runLCM() {
         robotMsg.data[i * 4 + 1] = x_opt(4 * i + 1);
         robotMsg.data[i * 4 + 2] = x_opt(4 * i + 2);
         robotMsg.data[i * 4 + 3] = x_opt(4 * i + 3);
-    }
+    }*/
 
     if (lcm1.good()) {
         lcm1.publish("ROBOT_MESSAGE_TOPIC", &robotMsg);

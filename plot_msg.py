@@ -70,14 +70,23 @@ plt.figure(1)
 topic = "ROBOT_MESSAGE_TOPIC"
 
 t_last = 0
-x_last = 0
-y_last = 0
+x1_last = 0
+y1_last = 0
+x2_last = 0
+y2_last = 0
+x3_last = 0
+y3_last = 0
 
 
 def my_handler(channel, data):
     global t_last
-    global x_last
-    global y_last
+    global x1_last
+    global x2_last
+    global x3_last
+    global y1_last
+    global y2_last
+    global y3_last
+
     msg = RobotMessage.decode(data)
     """ print("Received message on channel \"%s\"" % channel)
     print("   lfWrench = %s" % str(msg.lfWrench))
@@ -85,31 +94,46 @@ def my_handler(channel, data):
     print("   lfWrench_des = %s" % str(msg.lfWrench_des))
     print("   position = %s" % str(msg.rfWrench_des)) """
     # plt.plot(msg.timeStamp, msg.data[2], 'k*')
-    # index = 2
-    # plt.plot([t_last, msg.timeStamp], [x_last, msg.data[index]], 'k-')
-    # plt.plot([t_last, msg.timeStamp], [y_last, msg.data[index + 3]], 'r-')
+    # index = 0
+    # plt.plot([t_last, msg.timeStamp], [x_last, msg.data[index]], 'r-')
+    # plt.plot([t_last, msg.timeStamp], [y_last, msg.data[index + 3]], 'r--')
+    plt.subplot(3, 1, 1)
+    plt.plot([t_last, msg.timeStamp], [x1_last, msg.data[0]], 'r-')
+    plt.plot([t_last, msg.timeStamp], [y1_last, msg.data[3]], 'r--')
+    plt.subplot(3, 1, 2)
+    plt.plot([t_last, msg.timeStamp], [x2_last, msg.data[1]], 'g-')
+    plt.plot([t_last, msg.timeStamp], [y2_last, msg.data[4]], 'g--')
+    plt.subplot(3, 1, 3)
+    plt.plot([t_last, msg.timeStamp], [x3_last, msg.data[2]], 'b-')
+    plt.plot([t_last, msg.timeStamp], [y3_last, msg.data[5]], 'b--')
 
-    # plt.plot(msg.data[0::6], 'k-')
-    # plt.plot(msg.data[1::6], 'r-')
+    # plt.plot(msg.data[0::6], 'r-')
+    # plt.plot(msg.data[1::6], 'g-')
     # plt.plot(msg.data[2::6], 'b-')
     #
-    # plt.plot(msg.data[3::6], 'k--')
-    # plt.plot(msg.data[4::6], 'r--')
+    # plt.plot(msg.data[3::6], 'r--')
+    # plt.plot(msg.data[4::6], 'g--')
     # plt.plot(msg.data[5::6], 'b--')
 
     # plt.plot([t_last, msg.timeStamp], [x_last, msg.data[index]], 'k-', [t_last, msg.timeStamp],
     #          [y_last, msg.data[index + 3]], 'r-')
 
-    plt.plot(msg.data[0::4], 'k-')
-    plt.plot(msg.data[1::4], 'r-')
-    plt.plot(msg.data[2::4], 'k--')
-    plt.plot(msg.data[3::4], 'r--')
-    # t_last = msg.timeStamp
-    # x_last = msg.data[index]
-    # y_last = msg.data[index + 3]
+    # plt.plot(msg.data[0::4], 'k-')
+    # plt.plot(msg.data[1::4], 'r-')
+    # plt.plot(msg.data[2::4], 'k--')
+    # plt.plot(msg.data[3::4], 'r--')
+    t_last = msg.timeStamp
+    x1_last = msg.data[0]
+    y1_last = msg.data[3]
+    x2_last = msg.data[1]
+    y2_last = msg.data[4]
+    x3_last = msg.data[2]
+    y3_last = msg.data[5]
+    # plt.legend(['xpos', 'xvel', 'ypos', 'yvel'], loc='upper right')
+    # plt.ylim(-1.0, 1.0)
     plt.pause(1e-12)
-    plt.clf()
-    # plt.xlim(msg.timeStamp - 10, msg.timeStamp + 0.1)
+    # plt.clf()
+    plt.xlim(msg.timeStamp - 10, msg.timeStamp + 0.1)
 
 
 if __name__ == '__main__':

@@ -24,7 +24,7 @@ struct LIPM_Parameters {
     Scalar nx = 0.12;
     Scalar py = 0.04;
     Scalar ny = 0.04;
-    Vec4 Qx = Vec4::Ones();
+    Vec2 Qx = Vec2::Ones();
     Vec2 Qu = 1e-3 * Vec2::Ones();
 };
 
@@ -34,11 +34,11 @@ public:
 
     VecRef x0();
 
-    void setDesiredVel(Vec2 vel);
+    void setZMPRef(ConstVecRef zmpRef);
 
-    void updateZMP_constraints(ConstMatRef C, ConstVecRef c_lb, ConstVecRef c_ub);
+    void updateTerminalZMPConstraints(ConstMatRef C, ConstVecRef c_lb, ConstVecRef c_ub);
 
-    void updateContactPoints(const vector<Vec3>& points);
+    void updateContactPoints(const vector<Vec3> &points);
 
     void run();
 
@@ -56,16 +56,15 @@ private:
 
     void setup();
 
-    Mat At, Bt;
+    Mat At, Bt, Ct, Dt;
     vector<Vec3> _contactPoints;
 
     LIPM_Parameters _param;
-    Vec _x0, _xRef, _xOptimal, _uOptimal, _xdotOptimal;
-    Vec2 _v_des;
-    bool _updatedZMPConstraints;
+    Vec _x0, _zmpRef, _xOptimal, _uOptimal, _xdotOptimal;
+    bool _updatedTerminalZMPConstraints, _updatedZMPRef;
 
-    Mat _C, _C1, Sx, Su, Par;
-    Vec _c_lb, _c_ub, _c_lb1, _c_ub1;
+    Mat _C, _Cz, Sx, Su, Rx, Ru, Par;
+    Vec _c_lb, _c_ub, _cz_lb, _cz_ub;
 
     Mat_R _Q, _R;
     Mat_R _H, _g;

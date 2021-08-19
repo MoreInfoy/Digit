@@ -4,7 +4,7 @@
 
 #include "TaskSpaceControl/Task/RegularizationTask.h"
 
-//#define REGULARIZE_TORQUE
+#define REGULARIZE_TORQUE
 
 using namespace TSC;
 

@@ -54,7 +54,8 @@ FootPlanner::plan(size_t iter, const RobotState &state, RobotWrapper &robot, con
             Vec3 Pf = base_pose.translation() + base_pose.rotation() * (pYawCorrected
                                                                         + vBodyDes *
                                                                           gaitData.swingTimeRemain[0]);
-            double p_rel_max = 0.3f;
+            // double p_rel_max = 0.3f;
+            double p_rel_max = 0.15f;
 
             // Using the estimated velocity is correct
             double pfx_rel = base_vel[0] * 0.5 * gaitData.stanceTime[i] +
@@ -69,18 +70,18 @@ FootPlanner::plan(size_t iter, const RobotState &state, RobotWrapper &robot, con
 
             pfx_rel = fminf(fmaxf(pfx_rel, -p_rel_max), p_rel_max);
             pfy_rel = fminf(fmaxf(pfy_rel, -p_rel_max), p_rel_max);
-            Pf[0] += pfx_rel;
+            // Pf[0] += pfx_rel;
             Pf[1] += pfy_rel;
             Pf[2] = 0.003;
 
             if (i == 0) {
                 lfTraj.setHeight(swingHeight);
                 Pf += lf_shift;
-                lfTraj.setFinalPosition(Pf);
+                // lfTraj.setFinalPosition(Pf);
             } else {
                 rfTraj.setHeight(swingHeight);
                 Pf += rf_shift;
-                rfTraj.setFinalPosition(Pf);
+                // rfTraj.setFinalPosition(Pf);
             }
         }
     }
