@@ -304,7 +304,7 @@ void RobotWrapper::computeActiveContactPointBiasAcc() {
         if (_mask(i) == 1) {
             auto acc = frame_6dClassicalAcc_world(_contactPoint_virtual_link[i]);
             _contactPointsBiasAcc.segment(3 * ci, 3) = acc.linear()
-                                                       + 0.0 * frame_6dVel_localWorldAligned(
+                                                       + 0.1 * frame_6dVel_localWorldAligned(
                     _contactPoint_virtual_link[i]).linear();
             if (acc.linear().hasNaN())
                 throw runtime_error(_contactPoint_virtual_link[i] + " get wrong bias acc");

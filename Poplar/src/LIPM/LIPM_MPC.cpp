@@ -87,15 +87,15 @@ void LIPM_MPC::run() {
     assert(_updatedZMPConstraints);
 
     /* capture point constraints */
-    _C = Mat::Zero(_C1.rows() + 2, _C1.cols());
+    /*_C = Mat::Zero(_C1.rows() + 2, _C1.cols());
     _c_lb = Vec::Zero(_c_lb1.size() + 2);
     _c_ub = Vec::Zero(_c_ub1.size() + 2);
     _C << _C1, _C1.bottomRightCorner<2, 2>() * Par * Su.bottomRows(4);
     _c_lb << _c_lb1, _c_lb1.tail(2) - _C1.bottomRightCorner<2, 2>() * Par * Sx.bottomRows(4) * _x0;
-    _c_ub << _c_ub1, _c_ub1.tail(2) - _C1.bottomRightCorner<2, 2>() * Par * Sx.bottomRows(4) * _x0;
-    /*_C = _C1;
+    _c_ub << _c_ub1, _c_ub1.tail(2) - _C1.bottomRightCorner<2, 2>() * Par * Sx.bottomRows(4) * _x0;*/
+    _C = _C1;
     _c_lb = _c_lb1;
-    _c_ub = _c_ub1;*/
+    _c_ub = _c_ub1;
 
     /* generate desired com trajectory */
     _xRef.resize(4 * _param.mpc_horizons);

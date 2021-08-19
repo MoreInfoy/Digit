@@ -11,7 +11,7 @@ bool fixedBase = true;
 bool fixedBase = false;
 #endif
 
-Manager::Manager(const RobotState &state) : _state(state), mpc_horizons(20), mpc_dt(0.05), dt(0.001),
+Manager::Manager(const RobotState &state) : _state(state), mpc_horizons(50), mpc_dt(0.05), dt(0.001),
                                             robot(URDF, SRDF, fixedBase),
                                             gaitScheduler(dt),
                                             footPlanner(),
@@ -102,7 +102,9 @@ void Manager::runLCM() {
     robotMsg.data[5] = robot.CoM_pos().z();*/
 
     /* com trajectory */
-    /*trajectoryLcm.n_point = mpc_horizons;
+    /*robotMsg.data_size = 6 * mpc_horizons;
+    robotMsg.data.resize(6 * mpc_horizons);
+    trajectoryLcm.n_point = mpc_horizons;
     trajectoryLcm.data.resize(6 * mpc_horizons);
     auto x_opt = floatingBasePlanner.getOptimalTraj();
     auto x_des = floatingBasePlanner.getDesiredTraj();

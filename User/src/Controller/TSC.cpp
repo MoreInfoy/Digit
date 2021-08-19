@@ -28,8 +28,8 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
     mt_waist->SE3Ref() = _robot.frame_pose("torso");
 
     com = make_shared<CoMMotionTask>(_robot, "com");
-    com->weightMatrix() = 500 * com->weightMatrix();
-    com->Kp() = 500 * Mat3::Identity();
+    com->weightMatrix() = 1000 * com->weightMatrix();
+    com->Kp() = 1000 * Mat3::Identity();
     com->Kd() = 2 * com->Kp().cwiseSqrt();
     com->posRef() = _robot.CoM_pos();
     com->velRef().setZero();
@@ -81,7 +81,7 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
         tsc->addTask(mt_waist);
         tsc->addTask(com);
         tsc->addTask(angularMomentumTask);
-        tsc->addTask(forceTask);
+//        tsc->addTask(forceTask);
         tsc->addLinearConstraint(cpcstr);
         tsc->addLinearConstraint(cfcstr);
     }
@@ -136,7 +136,7 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
                 << tasks.leftFootTask.acc,
                 tasks.leftFootTask.omega_dot; // TODO: analytical acc to spatial acc
         if (!tsc->existTask(lf->name())) {
-            tsc->addTask(lf);
+//            tsc->addTask(lf);
         }
         mask.head(4).setZero();
     } else {
@@ -151,7 +151,7 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
                 << tasks.rightFootTask.acc,
                 tasks.rightFootTask.omega_dot; // TODO: analytical acc to spatial acc
         if (!tsc->existTask(rf->name())) {
-            tsc->addTask(rf);
+//            tsc->addTask(rf);
         }
         mask.tail(4).setZero();
     } else {
@@ -176,9 +176,10 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
         lf->spatialAccRef().head(3) = robot().frame_pose(lf->name()).rotation().transpose() * lf_acc;*/
     } else {
         auto base_frame = robot().frame_pose("torso");
-        com->posRef() = tasks.floatingBaseTask.pos;
-        com->velRef() = tasks.floatingBaseTask.vel;
-        com->accRef() = tasks.floatingBaseTask.acc;
+        com->posRef().y() = 0.05 * sin(0.004 * iter);
+//        com->posRef() = tasks.floatingBaseTask.pos;
+//        com->velRef() = tasks.floatingBaseTask.vel;
+//        com->accRef() = tasks.floatingBaseTask.acc;
         /*mt_waist->SE3Ref().translation() = tasks.floatingBaseTask.pos;
         mt_waist->spatialVelRef().head(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.vel;
         mt_waist->spatialAccRef().head(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.acc;*/
@@ -188,6 +189,7 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
         forceTask->setForceRef(tasks.forceTask);
 //        std::cout << "force ref: " << tasks.forceTask.transpose() << std::endl;
     }
+    mask.setOnes();
     _robot.compute(mask);
 
     Timer timer;

@@ -8,6 +8,7 @@ FloatingBasePlanner::FloatingBasePlanner(Poplar::Index horizons, Scalar mpc_dt, 
         base("torso"), srgbMpc(horizons, mpc_dt, 8) {
     _dt = dt;
     _mpc_dt = mpc_dt;
+    _appliedIndex = 0;
     contactTable = MatInt(8, horizons);
 
     xDes = 0;
@@ -49,81 +50,100 @@ FloatingBasePlanner::FloatingBasePlanner(Poplar::Index horizons, Scalar mpc_dt, 
     param.mpc_dt = mpc_dt;
     param.mpc_horizons = horizons;
     param.height = bodyHeight;
+    param.px = 0.10;
+    param.nx = 0.12;
+    param.py = 0.04;
+    param.ny = 0.04;
     lipmMpc.setParameters(param);
 }
 
 void FloatingBasePlanner::plan(size_t iter, const RobotState &state, RobotWrapper &robot, const GaitData &gaitData,
                                Tasks &tasks) {
-//    lipm_mpc(iter, state, robot, gaitData, tasks);
-    srgb_mpc(iter, state, robot, gaitData, tasks);
+    lipm_mpc(iter, state, robot, gaitData, tasks);
+//    srgb_mpc(iter, state, robot, gaitData, tasks);
 }
 
 void FloatingBasePlanner::lipm_mpc(size_t iter, const RobotState &state,
                                    RobotWrapper &robot, const GaitData &gaitData,
                                    Tasks &tasks) {
+    auto &param = lipmMpc.parameters();
     Vec3 c = robot.CoM_pos();
     Vec3 cdot = robot.CoM_vel();
 
-    lipmMpc.x0() << c(0), cdot(0), c(1), cdot(1);
-    auto &param = lipmMpc.parameters();
+//    auto base_pose = robot.frame_pose(base);
+//    Vec3 c = base_pose.translation();
+//    Vec3 cdot = robot.frame_6dVel_localWorldAligned(base).linear();
 
-    /* zmp constraints */
-    Mat C = Mat::Zero(param.mpc_horizons * 2, 2 * param.mpc_horizons);
-    Vec c_lb = Vec::Zero(param.mpc_horizons * 2);
-    Vec c_ub = Vec::Zero(param.mpc_horizons * 2);
-    for (int i = 0; i < param.mpc_horizons; i++) {
-        if (gaitData.contactTable(0, i) > 0 && gaitData.contactTable(1, i) > 0) {
-            C.block<2, 2>(i * 2, i * 2).setIdentity();
-            c_lb(i * 2 + 1) = tasks.rightFootTask.pos.y() - param.ny;
-            c_ub(i * 2 + 1) = tasks.leftFootTask.pos.y() + param.py;
-            Scalar k = (tasks.leftFootTask.pos.x() - tasks.rightFootTask.pos.x()) /
-                       (tasks.leftFootTask.pos.y() - tasks.rightFootTask.pos.y());
-            C.block<1, 2>(i * 2, i * 2) << -1, k;
-            c_ub(i * 2) = k * tasks.leftFootTask.pos.y() - tasks.leftFootTask.pos.x() + param.nx;
-            c_lb(i * 2) = k * tasks.leftFootTask.pos.y() - tasks.leftFootTask.pos.x() - param.px;
-        } else if (gaitData.contactTable(0, i) > 0) {
-            C.block<2, 2>(i * 2, i * 2).setIdentity();
-            c_lb.segment(i * 2, 2) << tasks.leftFootTask.pos.x() - param.nx, tasks.leftFootTask.pos.y() - param.ny;
-            c_ub.segment(i * 2, 2) << tasks.leftFootTask.pos.x() + param.px, tasks.leftFootTask.pos.y() + param.py;
-        } else if (gaitData.contactTable(1, i) > 0) {
-            C.block<2, 2>(i * 2, i * 2).setIdentity();
-            c_lb.segment(i * 2, 2) << tasks.rightFootTask.pos.x() - param.nx, tasks.rightFootTask.pos.y() - param.ny;
-            c_ub.segment(i * 2, 2) << tasks.rightFootTask.pos.x() + param.px, tasks.rightFootTask.pos.y() + param.py;
+    if (iter % 50 == 0) {
+        lipmMpc.x0() << c(0), cdot(0), c(1), cdot(1);
+
+        /* zmp constraints */
+        Mat C = Mat::Zero(param.mpc_horizons * 2, 2 * param.mpc_horizons);
+        Vec c_lb = Vec::Zero(param.mpc_horizons * 2);
+        Vec c_ub = Vec::Zero(param.mpc_horizons * 2);
+        for (int i = 0; i < param.mpc_horizons; i++) {
+            if (gaitData.contactTable(0, i) > 0 && gaitData.contactTable(1, i) > 0) {
+                C.block<2, 2>(i * 2, i * 2).setIdentity();
+                c_lb(i * 2 + 1) = tasks.rightFootTask.pos.y() - param.ny;
+                c_ub(i * 2 + 1) = tasks.leftFootTask.pos.y() + param.py;
+                Scalar k = (tasks.leftFootTask.pos.x() - tasks.rightFootTask.pos.x()) /
+                           (tasks.leftFootTask.pos.y() - tasks.rightFootTask.pos.y());
+                C.block<1, 2>(i * 2, i * 2) << -1, k;
+                c_ub(i * 2) = k * tasks.leftFootTask.pos.y() - tasks.leftFootTask.pos.x() + param.nx;
+                c_lb(i * 2) = k * tasks.leftFootTask.pos.y() - tasks.leftFootTask.pos.x() - param.px;
+            } else if (gaitData.contactTable(0, i) > 0) {
+                C.block<2, 2>(i * 2, i * 2).setIdentity();
+                c_lb.segment(i * 2, 2) << tasks.leftFootTask.pos.x() - param.nx, tasks.leftFootTask.pos.y() - param.ny;
+                c_ub.segment(i * 2, 2) << tasks.leftFootTask.pos.x() + param.px, tasks.leftFootTask.pos.y() + param.py;
+            } else if (gaitData.contactTable(1, i) > 0) {
+                C.block<2, 2>(i * 2, i * 2).setIdentity();
+                c_lb.segment(i * 2, 2) << tasks.rightFootTask.pos.x() - param.nx, tasks.rightFootTask.pos.y() -
+                                                                                  param.ny;
+                c_ub.segment(i * 2, 2) << tasks.rightFootTask.pos.x() + param.px, tasks.rightFootTask.pos.y() +
+                                                                                  param.py;
+            }
         }
+        /*cout << "------------------C------------------" << endl
+             << C << endl;
+        cout << "------------------c_lb------------------" << endl
+             << c_lb.transpose() << endl;
+        cout << "------------------c_ub------------------" << endl
+             << c_ub.transpose() << endl;
+        getchar();*/
+
+        /*cout << "------------------lf------------------" << endl
+             << robot.frame_pose("left_toe_roll").translation().transpose() << endl;
+        cout << "------------------c1------------------" << endl
+             << robot.frame_pose("contact1").translation().transpose() << endl;
+        cout << "------------------c3------------------" << endl
+             << robot.frame_pose("contact3").translation().transpose() << endl;
+        getchar();*/
+
+
+        lipmMpc.updateZMP_constraints(C, c_lb, c_ub);
+        Timer timer;
+        lipmMpc.run();
+        printf("LIPM MPC solve time: %f\n", timer.getMs());
+
+        _appliedIndex = 0;
     }
-    /*cout << "------------------C------------------" << endl
-         << C << endl;
-    cout << "------------------c_lb------------------" << endl
-         << c_lb.transpose() << endl;
-    cout << "------------------c_ub------------------" << endl
-         << c_ub.transpose() << endl;
-    getchar();*/
-
-    /*cout << "------------------lf------------------" << endl
-         << robot.frame_pose("left_toe_roll").translation().transpose() << endl;
-    cout << "------------------c1------------------" << endl
-         << robot.frame_pose("contact1").translation().transpose() << endl;
-    cout << "------------------c3------------------" << endl
-         << robot.frame_pose("contact3").translation().transpose() << endl;
-    getchar();*/
-
-
-    lipmMpc.updateZMP_constraints(C, c_lb, c_ub);
-    Timer timer;
-    lipmMpc.run();
-    printf("LIPM MPC solve time: %f\n", timer.getMs());
 
     auto xopt = lipmMpc.optimalTraj();
     auto xdot = lipmMpc.optimalTrajDot();
-    tasks.floatingBaseTask.pos << xopt(0),
-            xopt(2),
+    tasks.floatingBaseTask.pos << xopt(_appliedIndex * 4),
+            xopt(2 + _appliedIndex * 4),
             (lipmMpc.parameters().height - c(2)) / param.mpc_horizons + c(2);
-    tasks.floatingBaseTask.vel << xopt(1), xopt(3), (lipmMpc.parameters().height - c(2)) /
-                                                    (param.mpc_dt * param.mpc_horizons);
-    tasks.floatingBaseTask.acc << xdot(1), xdot(3), 0;
+    tasks.floatingBaseTask.vel << xopt(1 + _appliedIndex * 4), xopt(3 + _appliedIndex * 4),
+            (lipmMpc.parameters().height - c(2)) /
+            (param.mpc_dt * param.mpc_horizons);
+    tasks.floatingBaseTask.acc << xdot(1 + _appliedIndex * 4), xdot(3 + _appliedIndex * 4), 0;
     tasks.floatingBaseTask.omega_dot.setZero();
     tasks.floatingBaseTask.R_wb.setIdentity();
     tasks.floatingBaseTask.omega.setZero();
+
+    if (iter % Poplar::Index(param.mpc_dt / _dt) == 0) {
+        _appliedIndex++;
+    }
 }
 
 void FloatingBasePlanner::srgb_mpc(size_t iter, const RobotState &state, RobotWrapper &robot,
@@ -236,8 +256,8 @@ void FloatingBasePlanner::generateContactTable(const GaitData &gaitData) {
 }
 
 ConstVecRef FloatingBasePlanner::getOptimalTraj() {
-    return srgbMpc.getDiscreteOptimizedTrajectory();
-//    return lipmMpc.optimalTraj();
+//    return srgbMpc.getDiscreteOptimizedTrajectory();
+    return lipmMpc.optimalTraj();
 }
 
 ConstVecRef FloatingBasePlanner::getDesiredTraj() {

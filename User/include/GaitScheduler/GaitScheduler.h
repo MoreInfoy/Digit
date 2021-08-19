@@ -7,6 +7,7 @@
 
 #include "StateAndCommand.h"
 #include "GaitScheduler/Gait.h"
+#include "GaitScheduler/FSM.h"
 #include "Poplar.h"
 
 class GaitScheduler {
@@ -15,7 +16,7 @@ public:
 
     GaitScheduler(Scalar dt);
 
-    void run(size_t iter, const RobotState &state, RobotWrapper& robot);
+    void run(size_t iter, const RobotState &state, RobotWrapper &robot);
 
     const GaitData &data();
 
@@ -26,6 +27,9 @@ private:
     GaitData _gaitData;
     Gait standing, walking;
     Gait *gait = nullptr;
+    GAIT_TYPE gaitType;
+
+    FSM fsm;
 };
 
 

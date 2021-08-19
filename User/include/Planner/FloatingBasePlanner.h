@@ -50,6 +50,7 @@ private:
     Scalar mass;
     Scalar fmax;
     Scalar _dt, _mpc_dt;
+    Poplar::Index _appliedIndex;
     Mat3 Ibody;
 
     Scalar xDes;

@@ -9,6 +9,12 @@
 
 using namespace Poplar;
 
+enum GAIT_TYPE {
+    STANCE,
+    WALK,
+    RUN
+};
+
 class Gait {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
