@@ -100,9 +100,13 @@ def my_handler(channel, data):
     plt.subplot(3, 1, 1)
     plt.plot([t_last, msg.timeStamp], [x1_last, msg.data[0]], 'r-')
     plt.plot([t_last, msg.timeStamp], [y1_last, msg.data[3]], 'r--')
+    plt.xlim(msg.timeStamp - 10, msg.timeStamp + 0.1)
+
     plt.subplot(3, 1, 2)
     plt.plot([t_last, msg.timeStamp], [x2_last, msg.data[1]], 'g-')
     plt.plot([t_last, msg.timeStamp], [y2_last, msg.data[4]], 'g--')
+    plt.xlim(msg.timeStamp - 10, msg.timeStamp + 0.1)
+
     plt.subplot(3, 1, 3)
     plt.plot([t_last, msg.timeStamp], [x3_last, msg.data[2]], 'b-')
     plt.plot([t_last, msg.timeStamp], [y3_last, msg.data[5]], 'b--')

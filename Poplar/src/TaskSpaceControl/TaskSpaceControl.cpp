@@ -129,8 +129,7 @@ void TaskSpaceControl::solve() {
 
 #ifdef USE_QPOASES
     int add_DoF = 6;
-    if (_robot.isFixedBase())
-    {
+    if (_robot.isFixedBase()) {
         add_DoF = 0;
     }
     Mat_R Cin(nDims_cstrs + nDims_cstrs_eq + add_DoF, _u_dims);
@@ -160,12 +159,9 @@ void TaskSpaceControl::solve() {
     qpOASES::int_t nWSR = 5000;
     solver->init(H.data(), g.data(), Cin.data(), NULL, NULL, clb.data(), cub.data(), nWSR);
     optimal_u.resize(_u_dims);
-    if (solver->isSolved())
-    {
+    if (solver->isSolved()) {
         solver->getPrimalSolution(optimal_u.data());
-    }
-    else
-    {
+    } else {
         saveAllData("qp_failed.txt");
         //        throw runtime_error("TaskSpaceControl::solve() qp failed, related data has been saved in qp_failed.txt");
         std::cerr << "TaskSpaceControl::solve() qp failed, related data has been saved in qp_failed.txt" << endl;
@@ -266,10 +262,9 @@ ConstVecRef TaskSpaceControl::getOptimalTorque() {
 
 #ifdef DAMPING_TERM
 #ifdef USE_QPOASES
-    if (solver->isSolved())
-    {
+    if (solver->isSolved()) {
 #else
-    if (solver_state == eiquadprog::solvers::EIQUADPROG_FAST_OPTIMAL) {
+        if (solver_state == eiquadprog::solvers::EIQUADPROG_FAST_OPTIMAL) {
 #endif
         if (_robot.ncf() > 0) {
             optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects() -
@@ -284,7 +279,8 @@ ConstVecRef TaskSpaceControl::getOptimalTorque() {
             optimal_tau.tail(_robot.na()) -= _robot.jointsSpringForce();
         }
     } else {
-        optimal_tau = Vec::Zero(_robot.nv());
+//        optimal_tau = Vec::Zero(_robot.nv());
+        optimal_tau = -1.5 * _robot.qvel().tail(_robot.nv());
     }
 #else
 #ifdef USE_QPOASES
@@ -307,8 +303,10 @@ ConstVecRef TaskSpaceControl::getOptimalTorque() {
     }
     else
     {
-        optimal_tau = Vec::Zero(_robot.nv());
+//        optimal_tau = Vec::Zero(_robot.nv());
+          optimal_tau = -1.5 * _robot.qvel().tail(_robot.nv());
     }
+
 
 #endif
     return ConstVecRef(optimal_tau.tail(_robot.na()));

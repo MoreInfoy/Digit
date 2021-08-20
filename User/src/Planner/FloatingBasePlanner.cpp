@@ -141,12 +141,16 @@ void FloatingBasePlanner::lipm_mpc(size_t iter, const RobotState &state,
 
     auto xopt = lipmMpc.optimalTraj();
     auto xdot = lipmMpc.optimalTrajDot();
-    tasks.floatingBaseTask.pos << xopt(_appliedIndex * 4),
+    /*tasks.floatingBaseTask.pos << xopt(_appliedIndex * 4),
             xopt(2 + _appliedIndex * 4),
             (lipmMpc.parameters().height - c(2)) / param.mpc_horizons + c(2);
     tasks.floatingBaseTask.vel << xopt(1 + _appliedIndex * 4), xopt(3 + _appliedIndex * 4),
             (lipmMpc.parameters().height - c(2)) /
-            (param.mpc_dt * param.mpc_horizons);
+            (param.mpc_dt * param.mpc_horizons);*/
+    tasks.floatingBaseTask.pos << xopt(_appliedIndex * 4),
+            xopt(2 + _appliedIndex * 4),
+            lipmMpc.parameters().height;
+    tasks.floatingBaseTask.vel << xopt(1 + _appliedIndex * 4), xopt(3 + _appliedIndex * 4), 0;
     tasks.floatingBaseTask.acc << xdot(1 + _appliedIndex * 4), xdot(3 + _appliedIndex * 4), 0;
     tasks.floatingBaseTask.omega_dot.setZero();
     tasks.floatingBaseTask.R_wb.setIdentity();
