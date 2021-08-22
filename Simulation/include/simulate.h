@@ -1922,6 +1922,9 @@ void step() {
                       << "wait for user but time out, use last joints tau cmds" << std::endl;
         }
         mj_step2(m, d);
+        if (d->time > 20) {
+            usleep(5000);
+        }
     }
 
     /*std::cout << "[" << glfwGetTime() << "]"

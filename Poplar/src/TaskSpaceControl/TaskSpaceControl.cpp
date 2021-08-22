@@ -177,7 +177,7 @@ void TaskSpaceControl::solve() {
     printf("solver state: %d\n", solver_state);
     if (solver_state != eiquadprog::solvers::EIQUADPROG_FAST_OPTIMAL) {
         saveAllData("qp_failed.txt");
-        //      throw runtime_error("TaskSpaceControl::solve() qp failed, related data has been saved in qp_failed.txt");
+        throw runtime_error("TaskSpaceControl::solve() qp failed, related data has been saved in qp_failed.txt");
         std::cerr << "TaskSpaceControl::solve() qp failed, related data has been saved in qp_failed.txt" << endl;
     }
 #endif
@@ -264,7 +264,7 @@ ConstVecRef TaskSpaceControl::getOptimalTorque() {
 #ifdef USE_QPOASES
     if (solver->isSolved()) {
 #else
-        if (solver_state == eiquadprog::solvers::EIQUADPROG_FAST_OPTIMAL) {
+    if (solver_state == eiquadprog::solvers::EIQUADPROG_FAST_OPTIMAL) {
 #endif
         if (_robot.ncf() > 0) {
             optimal_tau = _robot.M() * qacc + _robot.nonLinearEffects() -

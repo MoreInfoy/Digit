@@ -23,20 +23,20 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
     mt_waist = make_shared<SE3MotionTask>(_robot, "torso");
     mt_waist->Kp().diagonal() << 0, 0, 0, 200, 200, 500;
     mt_waist->Kd() = 2 * mt_waist->Kp().cwiseSqrt();
-    mt_waist->weightMatrix() = 1000 * mt_waist->weightMatrix();
+    mt_waist->weightMatrix() = 500 * mt_waist->weightMatrix();
     mt_waist->weightMatrix().diagonal().head(3).setZero();
     mt_waist->SE3Ref() = _robot.frame_pose("torso");
 
     com = make_shared<CoMMotionTask>(_robot, "com");
     com->weightMatrix() = 1000 * com->weightMatrix();
-    com->Kp().diagonal() << 400, 400, 200;
+    com->Kp().diagonal() << 800, 800, 400;
     com->Kd() = 2 * com->Kp().cwiseSqrt();
     com->posRef() = _robot.CoM_pos();
     com->velRef().setZero();
     com->accRef().setZero();
 
     forceTask = make_shared<ForceTask>(_robot, "ForceTask");
-    forceTask->weightMatrix().diagonal() << 10, 10, 1;
+    forceTask->weightMatrix().diagonal().fill(1e2);
 
     rt = make_shared<RegularizationTask>(_robot, "RegularizationTask");
     rt->qaccWeight().diagonal().fill(1e-5);
@@ -53,7 +53,7 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
 
     angularMomentumTask = make_shared<AngularMomentumTask>(_robot, "AngularMomentumTask");
     angularMomentumTask->weightMatrix().diagonal().fill(1);
-    angularMomentumTask->Kp().diagonal().fill(100);
+    angularMomentumTask->Kp().diagonal().fill(50);
     angularMomentumTask->ref().setZero();
     angularMomentumTask->ref_dot().setZero();
 
@@ -82,8 +82,10 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
         tsc->addTask(com);
         tsc->addTask(angularMomentumTask);
         tsc->addTask(forceTask);
-        tsc->addLinearConstraint(cpcstr);
+//        tsc->addLinearConstraint(cpcstr);
         tsc->addLinearConstraint(cfcstr);
+        tsc->addTask(lf);
+        tsc->addTask(rf);
     }
     tsc->addLinearConstraint(closedChainsConstraints);
     tsc->addTask(rt);
@@ -138,9 +140,23 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
         if (!tsc->existTask(lf->name())) {
             tsc->addTask(lf);
         }
+        lf->Kp().diagonal() << 100, 100, 100, 200, 200, 200;
+        lf->Kd() = 2 * lf->Kp().cwiseSqrt();
+        lf->weightMatrix().diagonal() << 500, 500, 1000, 5000, 5000, 500;
         mask.head(4).setZero();
     } else {
-        tsc->removeTask(tasks.leftFootTask.link_name);
+        lf->SE3Ref().translation() = tasks.leftFootTask.pos;
+        lf->spatialVelRef() << tasks.leftFootTask.vel, tasks.leftFootTask.omega;
+        lf->spatialAccRef()
+                << tasks.leftFootTask.acc,
+                tasks.leftFootTask.omega_dot; // TODO: analytical acc to spatial acc
+        if (!tsc->existTask(lf->name())) {
+            tsc->addTask(lf);
+        }
+        lf->Kp().diagonal() << 10, 10, 10, 20, 20, 20;
+        lf->Kd() = 2 * lf->Kp().cwiseSqrt();
+        lf->weightMatrix().diagonal() << 500, 500, 1000, 5000, 5000, 500;
+//        tsc->removeTask(tasks.leftFootTask.link_name);
     }
 
     if (gaitData.swingTimeRemain(1) > 0) {
@@ -153,9 +169,23 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
         if (!tsc->existTask(rf->name())) {
             tsc->addTask(rf);
         }
+        rf->Kp().diagonal() << 100, 100, 100, 10, 10, 200;
+        rf->Kd() = 2 * rf->Kp().cwiseSqrt();
+        rf->weightMatrix().diagonal() << 500, 500, 1000, 1000, 1000, 500;
         mask.tail(4).setZero();
     } else {
-        tsc->removeTask(tasks.rightFootTask.link_name);
+        rf->SE3Ref().translation() = tasks.rightFootTask.pos;
+        rf->spatialVelRef() << tasks.rightFootTask.vel, tasks.rightFootTask.omega;
+        rf->spatialAccRef()
+                << tasks.rightFootTask.acc,
+                tasks.rightFootTask.omega_dot; // TODO: analytical acc to spatial acc
+        if (!tsc->existTask(rf->name())) {
+            tsc->addTask(rf);
+        }
+        rf->Kp().diagonal() << 10, 10, 10, 20, 20, 20;
+        rf->Kd() = 2 * rf->Kp().cwiseSqrt();
+        rf->weightMatrix().diagonal() << 500, 500, 1000, 1000, 1000, 500;
+//        tsc->removeTask(tasks.rightFootTask.link_name);
     }
 
     if (_robot.isFixedBase()) {

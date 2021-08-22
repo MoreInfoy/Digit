@@ -182,8 +182,8 @@ Vec LIPM_MPC::forceDistribute(Poplar::Index ith_horizon, Vec3 pos, Vec3 linear_v
     Poplar::Index nc = _contactPoints.size();
 
     /* feedback */
-    Mat3 K = 20 * Mat3::Identity();
-    Mat3 D = 1.5 * Mat3::Identity();
+    Mat3 K = 16 * Mat3::Identity();
+    Mat3 D = 4 * Mat3::Identity();
     Vec3 pos_des, vel_des, acc_des, AgDot_des, r;
     pos_des << _xOptimal(ith_horizon * 6),
             _xOptimal(3 + ith_horizon * 6),
@@ -246,13 +246,13 @@ Vec LIPM_MPC::forceDistribute(Poplar::Index ith_horizon, Vec3 pos, Vec3 linear_v
 
     // angular momentum weight matrix
     Mat3 Q = Mat3::Zero();
-    Mat R = 1e-4 * Mat::Identity(3 * n_dims, 3 * n_dims);
-    Q.diagonal() << 10, 10, 1;
+    Mat R = 1e-3 * Mat::Identity(3 * n_dims, 3 * n_dims);
+    Q.diagonal() << 20, 20, 10;
     Mat3 W = 1e2 * Q;
     Mat_R H;
     Vec g;
-    H.noalias() = J_A.transpose() * Q * J_A + R;
-    g.noalias() = -J_A.transpose() * Q * AgDot_des;
+    H.noalias() = J_A.transpose() * Q * J_A + R + Ce.transpose() * W * Ce;
+    g.noalias() = -J_A.transpose() * Q * AgDot_des - Ce.transpose() * W * ce;
 
 
 #ifdef USE_QPOASES
@@ -275,9 +275,9 @@ Vec LIPM_MPC::forceDistribute(Poplar::Index ith_horizon, Vec3 pos, Vec3 linear_v
     qpOASES::Options opt;
     opt.setToMPC();
     opt.enableEqualities = qpOASES::BT_TRUE;
-    opt.printLevel = qpOASES::PL_HIGH;
+    opt.printLevel = qpOASES::PL_DEBUG_ITER;
     solver_fd.setOptions(opt);
-    solver_fd.init(H.data(), g.data(), Cin_R.data(), nullptr, nullptr, clb.data(), cub.data(), nWSR);
+    solver_fd.init(H.data(), g.data(), Cin.data(), nullptr, nullptr, cin_lb.data(), cin_ub.data(), nWSR);
     Vec force_optimal(n_dims * 3);
     if (solver_fd.isSolved()) {
         solver_fd.getPrimalSolution(force_optimal.data());
@@ -295,7 +295,7 @@ Vec LIPM_MPC::forceDistribute(Poplar::Index ith_horizon, Vec3 pos, Vec3 linear_v
     solver_state = eiquadprog_solver_fd.solve_quadprog(H, g, Ce, -ce, CI, cI, force_optimal);
     printf("solver state: %d\n", solver_state);
     if (solver_state != eiquadprog::solvers::EIQUADPROG_FAST_OPTIMAL) {
-        //      throw runtime_error("LIPM_MPC::forceDistribute() qp failed, related data has been saved in qp_failed.txt");
+        throw runtime_error("LIPM_MPC::forceDistribute() qp failed, related data has been saved in qp_failed.txt");
         std::cerr << "LIPM_MPC::forceDistribute() qp failed" << endl;
     }
 #endif

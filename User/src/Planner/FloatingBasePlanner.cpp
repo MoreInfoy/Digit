@@ -54,6 +54,8 @@ FloatingBasePlanner::FloatingBasePlanner(Poplar::Index horizons, Scalar mpc_dt, 
     param.nx = 0.12;
     param.py = 0.04;
     param.ny = 0.04;
+    param.mu = 0.7;
+    param.max_force = 300;
 }
 
 void FloatingBasePlanner::plan(size_t iter, const RobotState &state, RobotWrapper &robot, const GaitData &gaitData,
@@ -87,7 +89,7 @@ void FloatingBasePlanner::lipm_mpc(size_t iter, const RobotState &state,
 //    Vec3 c = base_pose.translation();
 //    Vec3 cdot = robot.frame_6dVel_localWorldAligned(base).linear();
 
-    if (iter % 1000 == 0) {
+    if (iter % 400 == 0) {
         lipmMpc.x0() << c(0), cdot(0), cddot(0), c(1), cdot(1), cddot(1);
 
         /* terminal zmp constraints */
@@ -115,7 +117,7 @@ void FloatingBasePlanner::lipm_mpc(size_t iter, const RobotState &state,
         }
         lipmMpc.updateTerminalZMPConstraints(C, c_lb, c_ub);
 
-        /* zmp zmp reference */
+        /* zmp reference */
         Vec zmpRef = Vec::Zero(2 * param.mpc_horizons);
         Vec3 lpos = tasks.leftFootTask.pos;
         Vec3 rpos = tasks.rightFootTask.pos;

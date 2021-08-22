@@ -30,6 +30,8 @@ private:
     bool firstSwing[2];
     Vec3 pHipBody[2];
     Vec3 lf_shift, rf_shift;
+
+    Vec3 vBodyDes;
 };
 
 

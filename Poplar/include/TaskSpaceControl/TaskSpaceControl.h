@@ -11,7 +11,7 @@
 #include "qpOASES.hpp"
 #include "eiquadprog/eiquadprog-fast.hpp"
 
-#define USE_QPOASES
+//#define USE_QPOASES
 
 //#define PRINT_ERR
 

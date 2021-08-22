@@ -31,6 +31,10 @@ void ClosedChainsConstraints::update() {
         _C.noalias() = Jcf * S;
         _c_ub = ParN.rightCols(1);
         _c_lb = _c_ub;
+
+        /*_C.noalias() = robot().constraintForceJacobia() * S;
+        _c_ub = -robot().connectPointBiasAcc();
+        _c_lb = _c_ub;*/
     } else {
         _C = Mat::Zero(0, robot().nv() + 3 * robot().nc() + robot().ncf());
         _c_ub = Vec(0);
