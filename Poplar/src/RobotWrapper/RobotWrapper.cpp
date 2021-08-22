@@ -118,6 +118,7 @@ void RobotWrapper::update(Vec qpos, Vec qvel) {
     pinocchio::centerOfMass(_model, _data, _qpos, _qvel, Eigen::VectorXd::Zero(_model.nv));
     pinocchio::ccrba(_model, _data, _qpos, _qvel);
     pin::computeTotalMass(_model, _data);
+    pin::computeCentroidalMomentum(_model, _data, _qpos, _qvel);
 }
 
 void RobotWrapper::compute(const VecXi &mask) {
@@ -331,6 +332,10 @@ const Mat6x &RobotWrapper::momentumJacobia() {
 
 Vec6 RobotWrapper::momentumTimeVariation() {
     return pinocchio::computeCentroidalMomentumTimeVariation(_model, _data).toVector();
+}
+
+Vec3 RobotWrapper::angularMomentum() {
+    return _data.hg.angular();
 }
 
 bool RobotWrapper::isFixedBase() {

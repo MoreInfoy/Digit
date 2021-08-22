@@ -139,11 +139,13 @@ void Manager::runLCM() {
     /*auto x_opt = floatingBasePlanner.getOptimalTraj();
     robotMsg.data_size = x_opt.size();
     robotMsg.data.resize(robotMsg.data_size);
-    for (int i = 0; i < x_opt.size() / 4; i++) {
-        robotMsg.data[i * 4 + 0] = x_opt(4 * i + 0);
-        robotMsg.data[i * 4 + 1] = x_opt(4 * i + 1);
-        robotMsg.data[i * 4 + 2] = x_opt(4 * i + 2);
-        robotMsg.data[i * 4 + 3] = x_opt(4 * i + 3);
+    for (int i = 0; i < x_opt.size() / 6; i++) {
+        robotMsg.data[i * 6 + 0] = x_opt(6 * i + 0);
+        robotMsg.data[i * 6 + 1] = x_opt(6 * i + 1);
+        robotMsg.data[i * 6 + 2] = x_opt(6 * i + 2);
+        robotMsg.data[i * 6 + 3] = x_opt(6 * i + 3);
+        robotMsg.data[i * 6 + 4] = x_opt(6 * i + 4);
+        robotMsg.data[i * 6 + 5] = x_opt(6 * i + 5);
     }*/
 
     if (lcm1.good()) {

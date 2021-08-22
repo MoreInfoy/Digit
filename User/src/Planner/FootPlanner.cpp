@@ -33,20 +33,26 @@ FootPlanner::plan(size_t iter, const RobotState &state, RobotWrapper &robot, con
         tasks.leftFootTask.R_wb = lf_pose.rotation();
         tasks.rightFootTask.R_wb = rf_pose.rotation();
 
+        tasks.leftFootContact.R_wb = lf_pose.rotation();
+        tasks.rightFootContact.R_wb = rf_pose.rotation();
+
         // TODO: check for every robot
         lf_shift.z() = lf_pose.translation().z();
         rf_shift.z() = rf_pose.translation().z();
     }
 
 
-    Vec3 vBodyDes(0, 0, 0.); // TODO: get desired velocity
+    Vec3 vBodyDes(0.0, 0, 0.); // TODO: get desired velocity
     Vec3 vWorldDes = base_pose.rotation() * vBodyDes;
     Scalar yawd_des = 0; // TODO:
+
     if (iter != 0) {
+        // double p_rel_max = 0.3f;
+        double py_rel_max = 0.04f;
+        double px_rel_max = 0.16f;
+
         // compute foot placement
         for (int i(0); i < 2; i++) {
-
-
             double stanceTime = gaitData.stanceTime[i];
             Vec3 pYawCorrected =
                     coordinateRotation(CoordinateAxis::Z, -yawd_des * stanceTime / 2) * pHipBody[i];
@@ -54,8 +60,7 @@ FootPlanner::plan(size_t iter, const RobotState &state, RobotWrapper &robot, con
             Vec3 Pf = base_pose.translation() + base_pose.rotation() * (pYawCorrected
                                                                         + vBodyDes *
                                                                           gaitData.swingTimeRemain[0]);
-            // double p_rel_max = 0.3f;
-            double p_rel_max = 0.05f;
+
 
             // Using the estimated velocity is correct
             double pfx_rel = base_vel[0] * 0.5 * gaitData.stanceTime[i] +
@@ -68,9 +73,9 @@ FootPlanner::plan(size_t iter, const RobotState &state, RobotWrapper &robot, con
                              (0.5f * base_pose.translation()[2] / 9.81f) *
                              (base_vel[0] * yawd_des);
 
-            pfx_rel = fminf(fmaxf(pfx_rel, -p_rel_max), p_rel_max);
-            pfy_rel = fminf(fmaxf(pfy_rel, -p_rel_max), p_rel_max);
-//            Pf[0] += pfx_rel;
+            pfx_rel = fminf(fmaxf(pfx_rel, -px_rel_max), px_rel_max);
+            pfy_rel = fminf(fmaxf(pfy_rel, -py_rel_max), py_rel_max);
+            Pf[0] += pfx_rel;
             Pf[0] = 0.06;
             Pf[1] += pfy_rel;
             Pf[2] = 0.003;
@@ -79,11 +84,21 @@ FootPlanner::plan(size_t iter, const RobotState &state, RobotWrapper &robot, con
                 lfTraj.setHeight(swingHeight);
                 Pf += lf_shift;
                 lfTraj.setFinalPosition(Pf);
+                tasks.leftFootContact.pos = Pf;
             } else {
                 rfTraj.setHeight(swingHeight);
                 Pf += rf_shift;
                 rfTraj.setFinalPosition(Pf);
+                tasks.rightFootContact.pos = Pf;
             }
+
+            cout << "capture point: ["
+                 << robot.CoM_pos().x() + robot.CoM_vel().x() / sqrt(9.8 / robot.CoM_pos().z())
+                 << ", "
+                 << robot.CoM_pos().y() + robot.CoM_vel().y() / sqrt(9.8 / robot.CoM_pos().z())
+                 << "]" << endl;
+            cout << "lpf: " << lf_pose.translation().transpose() << endl;
+            cout << "rpf: " << rf_pose.translation().transpose() << endl;
         }
     }
 

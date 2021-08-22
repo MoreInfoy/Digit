@@ -18,6 +18,9 @@ struct LIPM_Parameters {
     Poplar::Index mpc_horizons = 100;
     Scalar height = 0.8;
     Scalar gravity = 9.8;
+    Scalar mu = 0.5;
+    Vec3 normal_dir = Vec3::UnitZ();
+    Scalar max_force = 500;
     Scalar mass = 0.0;
     Mat3 inertia = Mat3::Identity();
     Scalar px = 0.10;
@@ -38,32 +41,29 @@ public:
 
     void updateTerminalZMPConstraints(ConstMatRef C, ConstVecRef c_lb, ConstVecRef c_ub);
 
-    void updateContactPoints(const vector<Vec3> &points);
+    void setContactPoints(const vector<Vec3> &points);
 
     void run();
 
-    void forceDistribute();
+    Vec forceDistribute(Poplar::Index ith_horizon, Vec3 pos, Vec3 linear_vel, Vec3 angular_momentum, ConstVecXiRef mask);
 
     ConstVecRef optimalTraj();
 
-    ConstVecRef optimalTrajDot();
-
-    void setParameters(const LIPM_Parameters &param);
-
-    const LIPM_Parameters &parameters();
+    LIPM_Parameters &parameters();
 
 private:
 
     void setup();
 
-    Mat At, Bt, Ct, Dt;
+    Mat At, Bt, Ct;
+    Poplar::Index ar, bc, cr;
     vector<Vec3> _contactPoints;
 
     LIPM_Parameters _param;
-    Vec _x0, _zmpRef, _xOptimal, _uOptimal, _xdotOptimal;
+    Vec _x0, _zmpRef, _xOptimal, _uOptimal;
     bool _updatedTerminalZMPConstraints, _updatedZMPRef;
 
-    Mat _C, _Cz, Sx, Su, Rx, Ru, Par;
+    Mat _C, _Cz, Sx, Su, Rx, Par;
     Vec _c_lb, _c_ub, _cz_lb, _cz_ub;
 
     Mat_R _Q, _R;

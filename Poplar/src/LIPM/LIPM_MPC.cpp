@@ -7,80 +7,78 @@
 #include <eigen3/unsupported/Eigen/MatrixFunctions>
 
 LIPM_MPC::LIPM_MPC() {
-    _x0.noalias() = Vec4::Zero();
     _updatedTerminalZMPConstraints = false;
     _updatedZMPRef = false;
-    At = Mat::Zero(4, 4);
-    Bt = Mat::Zero(4, 2);
-    Ct = Mat::Zero(2, 4);
-    Dt = Mat::Zero(2, 2);
+    ar = 6;
+    bc = 2;
+    cr = 2;
+    At = Mat::Zero(ar, ar);
+    Bt = Mat::Zero(ar, bc);
+    Ct = Mat::Zero(cr, ar);
 
-    At << 0, 1, 0, 0,
-            0, 0, 0, 0,
-            0, 0, 0, 1,
-            0, 0, 0, 0;
+    _x0.noalias() = Vec::Zero(ar);
+
+    At << 0, 1, 0, 0, 0, 0,
+            0, 0, 1, 0, 0, 0,
+            0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 1, 0,
+            0, 0, 0, 0, 0, 1,
+            0, 0, 0, 0, 0, 0;
     Bt << 0, 0,
+            0, 0,
             1, 0,
             0, 0,
+            0, 0,
             0, 1;
-    Ct << 1, 0, 0, 0,
-            0, 0, 1, 0;
+
     setup();
 }
 
-void LIPM_MPC::setParameters(const LIPM_Parameters &param) {
-    _param = param;
-    setup();
-}
-
-const LIPM_Parameters &LIPM_MPC::parameters() {
+LIPM_Parameters &LIPM_MPC::parameters() {
     return ref(_param);
 }
 
 void LIPM_MPC::setup() {
 
     Scalar w = _param.gravity / _param.height;
-    Dt << -1.0 / w, 0,
-            0, -1.0 / w;
+    Ct << 1, 0, -1.0 / w, 0, 0, 0,
+            0, 0, 0, 1, 0, -1.0 / w;
 
     Mat e;
-    e.noalias() = Mat::Zero(6, 6);
-    e.topRows(4) << At, Bt;
+    e.noalias() = Mat::Zero(ar + bc, ar + bc);
+    e.topRows(ar) << At, Bt;
     e.noalias() = _param.mpc_dt * e;
-    Mat E(6, 6);
+    Mat E(ar + bc, ar + bc);
     E.noalias() = e.exp();
-    Mat Ak(4, 4);
-    Mat Bk(4, 2);
-    Ak.noalias() = E.topLeftCorner<4, 4>();
-    Bk.noalias() = E.topRightCorner<4, 2>();
-    /*cout << "Ak: " << endl << Ak << endl << "Bk: " << endl << Bk << endl;*/
+    Mat Ak(ar, ar);
+    Mat Bk(ar, bc);
+    Ak.noalias() = E.topLeftCorner(ar, ar);
+    Bk.noalias() = E.topRightCorner(ar, bc);
+//    cout << "Ak: " << endl << Ak << endl << "Bk: " << endl << Bk << endl;
 
-    _xOptimal = Vec::Zero(4 * _param.mpc_horizons);
+    _xOptimal = Vec::Zero(ar * _param.mpc_horizons);
 
-    Sx.noalias() = Mat::Zero(4 * _param.mpc_horizons, 4);
-    Su.noalias() = Mat::Zero(4 * _param.mpc_horizons, 2 * _param.mpc_horizons);
-    Rx.noalias() = Mat::Zero(2 * _param.mpc_horizons, 4 * _param.mpc_horizons);
-    Ru.noalias() = Mat::Zero(2 * _param.mpc_horizons, 2 * _param.mpc_horizons);
+    Sx.noalias() = Mat::Zero(ar * _param.mpc_horizons, ar);
+    Su.noalias() = Mat::Zero(ar * _param.mpc_horizons, bc * _param.mpc_horizons);
+    Rx.noalias() = Mat::Zero(cr * _param.mpc_horizons, ar * _param.mpc_horizons);
     Mat P0_exp;
     for (size_t k = 0; k < _param.mpc_horizons; k++) {
         if (k == 0) {
-            Sx.middleRows(k * 4, 4).noalias() = Ak;
-            Su.topLeftCorner(4, 2).noalias() = Bk;
+            Sx.middleRows(k * ar, ar).noalias() = Ak;
+            Su.topLeftCorner(ar, bc).noalias() = Bk;
         } else {
-            Sx.middleRows(k * 4, 4).noalias() = Ak * Sx.middleRows((k - 1) * 4, 4);
-            Su.block(k * 4, 0, 4, 2 * k).noalias() =
-                    Ak * Su.block((k - 1) * 4, 0, 4, 2 * k);
-            Su.block(k * 4, 2 * k, 4, 2).noalias() = Bk;
+            Sx.middleRows(k * ar, ar).noalias() = Ak * Sx.middleRows((k - 1) * ar, ar);
+            Su.block(k * ar, 0, ar, bc * k).noalias() =
+                    Ak * Su.block((k - 1) * ar, 0, ar, bc * k);
+            Su.block(k * ar, bc * k, ar, bc).noalias() = Bk;
         }
-        Rx.block<2, 4>(2 * k, 4 * k) = Ct;
-        Ru.block<2, 2>(2 * k, 2 * k) = Dt;
+        Rx.block(cr * k, ar * k, cr, ar) = Ct;
     }
 
     /* for capture point */
-    Par = Mat::Zero(2, 4);
-    Par << 1, 1 / sqrt(w), 0, 0,
-            0, 0, 1, 1 / sqrt(w);
-
+    Par = Mat::Zero(cr, ar);
+    Par << 1, 1 / sqrt(w), 0, 0, 0, 0,
+            0, 0, 0, 1, 1 / sqrt(w), 0;
 }
 
 VecRef LIPM_MPC::x0() {
@@ -88,7 +86,7 @@ VecRef LIPM_MPC::x0() {
 }
 
 void LIPM_MPC::setZMPRef(ConstVecRef zmpRef) {
-    assert(zmpRef.size() == _param.mpc_horizons * 2);
+    assert(zmpRef.size() == _param.mpc_horizons * cr);
     _updatedZMPRef = true;
     _zmpRef = zmpRef;
 }
@@ -97,11 +95,12 @@ void LIPM_MPC::run() {
     /* check whether zmp constraints has been updated */
     assert(_updatedTerminalZMPConstraints);
     assert(_updatedZMPRef);
+    setup();
 
     /* capture point constraints */
-    _C.noalias() = _Cz * Par * Su.bottomRows(4);
-    _c_lb.noalias() = _cz_lb - _Cz * Par * Sx.bottomRows(4) * _x0;
-    _c_ub.noalias() = _cz_ub - _Cz * Par * Sx.bottomRows(4) * _x0;
+    _C.noalias() = _Cz * Par * Su.bottomRows(ar);
+    _c_lb.noalias() = _cz_lb - _Cz * Par * Sx.bottomRows(ar) * _x0;
+    _c_ub.noalias() = _cz_ub - _Cz * Par * Sx.bottomRows(ar) * _x0;
 
     /* QP problem setup */
     _Q.resize(_param.Qx.size() * _param.mpc_horizons, _param.Qx.size() * _param.mpc_horizons);
@@ -115,7 +114,7 @@ void LIPM_MPC::run() {
     // formulate QP
     Mat Mx, Mu;
     Mx.noalias() = Rx * Sx;
-    Mu.noalias() = Rx * Su + Ru;
+    Mu.noalias() = Rx * Su;
     _H.noalias() = _R + Mu.transpose() * _Q * Mu;
     _g.noalias() = Mu.transpose() * _Q * Mx * _x0 - Mu.transpose() * _Q * _zmpRef;
 
@@ -151,12 +150,6 @@ void LIPM_MPC::run() {
 
     _xOptimal.noalias() = Sx * _x0 + Su * _uOptimal;
 
-    _xdotOptimal.resize(4 * _param.mpc_horizons);
-    _xdotOptimal.head(4) = At * _x0 + Bt * _uOptimal.head(2);
-    for (int i = 1; i < _param.mpc_horizons; i++) {
-        _xdotOptimal.segment(4 * i, 4) = At * _xOptimal.segment(i * 4 - 4, 4) + Bt * _uOptimal.segment(2 * i, 2);
-    }
-
     _updatedTerminalZMPConstraints = false;
     _updatedZMPRef = false;
 }
@@ -166,7 +159,7 @@ ConstVecRef LIPM_MPC::optimalTraj() {
 }
 
 void LIPM_MPC::updateTerminalZMPConstraints(ConstMatRef C, ConstVecRef c_lb, ConstVecRef c_ub) {
-    assert(C.cols() == 2 && C.rows() == c_lb.size() && c_lb.size() == c_ub.size());
+    assert(C.cols() == cr && C.rows() == c_lb.size() && c_lb.size() == c_ub.size());
 
     /* input constraints */
     _Cz.noalias() = C;
@@ -175,11 +168,167 @@ void LIPM_MPC::updateTerminalZMPConstraints(ConstMatRef C, ConstVecRef c_lb, Con
     _updatedTerminalZMPConstraints = true;
 }
 
-ConstVecRef LIPM_MPC::optimalTrajDot() {
-    return ConstVecRef(_xdotOptimal);
-}
-
-void LIPM_MPC::updateContactPoints(const vector<Vec3> &points) {
+void LIPM_MPC::setContactPoints(const vector<Vec3> &points) {
     _contactPoints = points;
 }
 
+Vec LIPM_MPC::forceDistribute(Poplar::Index ith_horizon, Vec3 pos, Vec3 linear_vel, Vec3 angular_momentum,
+                              ConstVecXiRef mask) {
+    assert(mask.size() == _contactPoints.size());
+    Poplar::Index n_dims = mask.cwiseEqual(1).cast<Poplar::Index>().sum();
+    if (n_dims == 0) {
+        return Vec::Zero(_contactPoints.size() * 3);
+    }
+    Poplar::Index nc = _contactPoints.size();
+
+    /* feedback */
+    Mat3 K = 20 * Mat3::Identity();
+    Mat3 D = 1.5 * Mat3::Identity();
+    Vec3 pos_des, vel_des, acc_des, AgDot_des, r;
+    pos_des << _xOptimal(ith_horizon * 6),
+            _xOptimal(3 + ith_horizon * 6),
+            _param.height;
+    vel_des << _xOptimal(1 + ith_horizon * 6), _xOptimal(4 + ith_horizon * 6), 0;
+    acc_des << _xOptimal(2 + ith_horizon * 6), _xOptimal(5 + ith_horizon * 6), 0;
+    acc_des += K * (pos_des - pos) + D * (vel_des - linear_vel);
+    AgDot_des = -10.0 * angular_momentum;
+
+    /* QP */
+    Mat_R Ce(3, 3 * n_dims);
+    Mat_R J_A(3, 3 * n_dims);
+
+    Poplar::Index k = 0;
+    for (int i = 0; i < nc; i++) {
+        if (mask(i) == 1) {
+            Ce.middleCols(3 * k, 3).setIdentity();
+            r = _contactPoints[i] - pos;
+            J_A.middleCols(3 * k, 3) << 0., -r(2), r(1),
+                    r(2), 0., -r(0),
+                    -r(1), r(0), 0.;
+            k++;
+        }
+    }
+    Vec3 ce = _param.mass * (acc_des + Vec3(0, 0, _param.gravity));
+
+    Mat_R Cin = Mat::Zero(n_dims * 5, n_dims * 3);
+    Vec cin_ub = Vec::Zero(n_dims * 5);
+    Vec cin_lb = Vec::Zero(n_dims * 5);
+
+    Vec3 t1, t2;
+    const int n_in = 4 * 1 + 1;
+    const int n_var = 3 * 1;
+    Mat B = Mat::Zero(n_in, n_var);
+    Vec lb = -1e10 * Vec::Ones(n_in);
+    Vec ub = Vec::Zero(n_in);
+    t1 = _param.normal_dir.cross(Vec3::UnitX());
+    if (t1.norm() < 1e-5)
+        t1 = _param.normal_dir.cross(Vec3::UnitY());
+    t2 = _param.normal_dir.cross(t1);
+    t1.normalize();
+    t2.normalize();
+
+    B.block<1, 3>(0, 0) = (-t1 - _param.mu * _param.normal_dir).transpose();
+    B.block<1, 3>(1, 0) = (t1 - _param.mu * _param.normal_dir).transpose();
+    B.block<1, 3>(2, 0) = (-t2 - _param.mu * _param.normal_dir).transpose();
+    B.block<1, 3>(3, 0) = (t2 - _param.mu * _param.normal_dir).transpose();
+
+    B.block<1, 3>(n_in - 1, 0) = _param.normal_dir.transpose();
+    ub(n_in - 1) = _param.max_force;
+    lb(n_in - 1) = 0;
+    Mat S = Mat::Zero(3, 3 * n_dims);
+    for (int index = 0; index < n_dims; index++) {
+        S.setZero();
+        S.middleCols(index * 3, 3).setIdentity();
+        Cin.middleRows(index * 5, 5).noalias() = B * S;
+        cin_ub.segment(index * 5, 5) = ub;
+        cin_lb.segment(index * 5, 5) = lb;
+    }
+
+    // angular momentum weight matrix
+    Mat3 Q = Mat3::Zero();
+    Mat R = 1e-4 * Mat::Identity(3 * n_dims, 3 * n_dims);
+    Q.diagonal() << 10, 10, 1;
+    Mat3 W = 1e2 * Q;
+    Mat_R H;
+    Vec g;
+    H.noalias() = J_A.transpose() * Q * J_A + R;
+    g.noalias() = -J_A.transpose() * Q * AgDot_des;
+
+
+#ifdef USE_QPOASES
+    Mat_R Cin_R(3 + 5 * n_dims, 3 * n_dims);
+    Vec clb(3 + 5 * n_dims);
+    Vec cub(3 + 5 * n_dims);
+    Cin_R << Ce, Cin;
+    clb << ce, cin_lb;
+    cub << ce, cin_ub;
+
+    /*    Mat Par(Cin.cols() + 2, Cin.rows());
+    Par << Cin.transpose(), clb.transpose(), cub.transpose();
+    FullPivLU<Mat> rank_check(Par);
+    Mat ParN = rank_check.image(Par).transpose();
+    Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> _Cin = ParN.leftCols(Cin.cols());
+    Vec _clb = -ParN.col(ParN.cols() - 2);
+    Vec _cub = ParN.col(ParN.cols() - 1);*/
+    qpOASES::QProblem solver_fd = qpOASES::QProblem(3 * n_dims, 5 * n_dims);
+    qpOASES::int_t nWSR = 1000;
+    qpOASES::Options opt;
+    opt.setToMPC();
+    opt.enableEqualities = qpOASES::BT_TRUE;
+    opt.printLevel = qpOASES::PL_HIGH;
+    solver_fd.setOptions(opt);
+    solver_fd.init(H.data(), g.data(), Cin_R.data(), nullptr, nullptr, clb.data(), cub.data(), nWSR);
+    Vec force_optimal(n_dims * 3);
+    if (solver_fd.isSolved()) {
+        solver_fd.getPrimalSolution(force_optimal.data());
+    } else {
+        throw std::runtime_error("LIPM_MPC::forceDistribute() qp solver failed");
+    }
+#else
+    eiquadprog::solvers::EiquadprogFast eiquadprog_solver_fd;
+    eiquadprog_solver_fd.reset(n_dims * 3, 3, 10 * n_dims);
+    Mat CI(10 * n_dims, 3 * n_dims);
+    CI << Cin, -Cin;
+    Vec cI(10 * n_dims);
+    cI << -cin_lb, cin_ub;
+    Vec force_optimal(n_dims * 3);
+    solver_state = eiquadprog_solver_fd.solve_quadprog(H, g, Ce, -ce, CI, cI, force_optimal);
+    printf("solver state: %d\n", solver_state);
+    if (solver_state != eiquadprog::solvers::EIQUADPROG_FAST_OPTIMAL) {
+        //      throw runtime_error("LIPM_MPC::forceDistribute() qp failed, related data has been saved in qp_failed.txt");
+        std::cerr << "LIPM_MPC::forceDistribute() qp failed" << endl;
+    }
+#endif
+
+    Vec force_all = Vec::Zero(_contactPoints.size() * 3);
+    k = 0;
+    for (int i = 0; i < nc; i++) {
+        if (mask(i) == 1) {
+            force_all.segment(3 * i, 3) = force_optimal.segment(3 * k, 3);
+            k++;
+        }
+    }
+
+    /*cout << "------------------J_A------------------" << endl
+         << J_A << endl;
+    cout << "------------------angular_momentum------------------" << endl
+         << angular_momentum.transpose() << endl;
+
+    cout << "------------------force_optimal------------------" << endl
+         << force_optimal.transpose() << endl;
+
+    cout << "------------------Ce------------------" << endl
+         << Ce << endl;
+    cout << "------------------ce------------------" << endl
+         << ce.transpose() << endl;
+
+    cout << "------------------Cin------------------" << endl
+         << Cin << endl;
+    cout << "------------------c_lb------------------" << endl
+         << cin_lb.transpose() << endl;
+    cout << "------------------c_ub------------------" << endl
+         << cin_ub.transpose() << endl;
+    getchar();*/
+
+    return force_all;
+}

@@ -44,8 +44,8 @@ FloatingBasePlanner::FloatingBasePlanner(Poplar::Index horizons, Scalar mpc_dt, 
     srgbMpc.setMassAndInertia(mass, Ibody);
     srgbMpc.setMaxForce(500);
 
-    LIPM_Parameters param;
-    param.Qx << 10, 10;
+    LIPM_Parameters &param = lipmMpc.parameters();
+    param.Qx << 1, 1;
     param.Qu << 1e-5, 1e-5;
     param.mpc_dt = mpc_dt;
     param.mpc_horizons = horizons;
@@ -54,7 +54,6 @@ FloatingBasePlanner::FloatingBasePlanner(Poplar::Index horizons, Scalar mpc_dt, 
     param.nx = 0.12;
     param.py = 0.04;
     param.ny = 0.04;
-    lipmMpc.setParameters(param);
 }
 
 void FloatingBasePlanner::plan(size_t iter, const RobotState &state, RobotWrapper &robot, const GaitData &gaitData,
@@ -67,15 +66,29 @@ void FloatingBasePlanner::lipm_mpc(size_t iter, const RobotState &state,
                                    RobotWrapper &robot, const GaitData &gaitData,
                                    Tasks &tasks) {
     auto &param = lipmMpc.parameters();
+    param.mass = robot.totalMass();
+    param.inertia = robot.Ig();
+
+    Vec3 r;
+    vector<Vec3> cp;
+    auto cl = robot.contactVirtualLinks();
+    for (int i(0); i < cl.size(); i++) {
+        r = robot.frame_pose(cl[i]).translation();
+        /*std::cout << "r " << i << ": " << r.transpose() << "\n";*/
+        cp.push_back(r);
+    }
+    lipmMpc.setContactPoints(cp);
+
     Vec3 c = robot.CoM_pos();
     Vec3 cdot = robot.CoM_vel();
+    Vec3 cddot = robot.CoM_acc();
 
 //    auto base_pose = robot.frame_pose(base);
 //    Vec3 c = base_pose.translation();
 //    Vec3 cdot = robot.frame_6dVel_localWorldAligned(base).linear();
 
-    if (iter % 500 == 0) {
-        lipmMpc.x0() << c(0), cdot(0), c(1), cdot(1);
+    if (iter % 1000 == 0) {
+        lipmMpc.x0() << c(0), cdot(0), cddot(0), c(1), cdot(1), cddot(1);
 
         /* terminal zmp constraints */
         Mat C = Mat::Zero(2, 2);
@@ -84,34 +97,45 @@ void FloatingBasePlanner::lipm_mpc(size_t iter, const RobotState &state,
         VecXi ctr = gaitData.contactTable.rightCols(1);
         if (ctr(0) > 0 && ctr(1) > 0) {
             C.setIdentity();
-            c_lb(1) = tasks.rightFootTask.pos.y() - param.ny;
-            c_ub(1) = tasks.leftFootTask.pos.y() + param.py;
-            Scalar k = (tasks.leftFootTask.pos.x() - tasks.rightFootTask.pos.x()) /
-                       (tasks.leftFootTask.pos.y() - tasks.rightFootTask.pos.y());
+            c_lb(1) = tasks.rightFootContact.pos.y() - param.ny;
+            c_ub(1) = tasks.leftFootContact.pos.y() + param.py;
+            Scalar k = (tasks.leftFootContact.pos.x() - tasks.rightFootContact.pos.x()) /
+                       (tasks.leftFootContact.pos.y() - tasks.rightFootContact.pos.y());
             C.row(0) << -1, k;
-            c_ub(0) = k * tasks.leftFootTask.pos.y() - tasks.leftFootTask.pos.x() + param.nx;
-            c_lb(0) = k * tasks.leftFootTask.pos.y() - tasks.leftFootTask.pos.x() - param.px;
+            c_ub(0) = k * tasks.leftFootContact.pos.y() - tasks.leftFootContact.pos.x() + param.nx;
+            c_lb(0) = k * tasks.leftFootContact.pos.y() - tasks.leftFootContact.pos.x() - param.px;
         } else if (ctr(0) > 0) {
             C.setIdentity();
-            c_lb << tasks.leftFootTask.pos.x() - param.nx, tasks.leftFootTask.pos.y() - param.ny;
-            c_ub << tasks.leftFootTask.pos.x() + param.px, tasks.leftFootTask.pos.y() + param.py;
+            c_lb << tasks.leftFootContact.pos.x() - param.nx, tasks.leftFootContact.pos.y() - param.ny;
+            c_ub << tasks.leftFootContact.pos.x() + param.px, tasks.leftFootContact.pos.y() + param.py;
         } else if (ctr(1) > 0) {
             C.setIdentity();
-            c_lb << tasks.rightFootTask.pos.x() - param.nx, tasks.rightFootTask.pos.y() - param.ny;
-            c_ub << tasks.rightFootTask.pos.x() + param.px, tasks.rightFootTask.pos.y() + param.py;
+            c_lb << tasks.rightFootContact.pos.x() - param.nx, tasks.rightFootContact.pos.y() - param.ny;
+            c_ub << tasks.rightFootContact.pos.x() + param.px, tasks.rightFootContact.pos.y() + param.py;
         }
         lipmMpc.updateTerminalZMPConstraints(C, c_lb, c_ub);
 
         /* zmp zmp reference */
         Vec zmpRef = Vec::Zero(2 * param.mpc_horizons);
+        Vec3 lpos = tasks.leftFootTask.pos;
+        Vec3 rpos = tasks.rightFootTask.pos;
         for (int i = 0; i < param.mpc_horizons; i++) {
+            if (_dt * i > gaitData.stanceTimeRemain[0]) {
+                lpos = tasks.leftFootContact.pos;
+            }
+            if (_dt * i > gaitData.stanceTimeRemain[1]) {
+                rpos = tasks.rightFootContact.pos;
+            }
             if (gaitData.contactTable(0, i) > 0 && gaitData.contactTable(1, i) > 0) {
-                zmpRef.segment(i * 2, 2) << 0.5 * (tasks.leftFootTask.pos.x() + tasks.rightFootTask.pos.x()),
-                        0.5 * (tasks.leftFootTask.pos.y() + tasks.rightFootTask.pos.y());
+                zmpRef.segment(i * 2, 2) << 0.5 * (lpos.x() + rpos.x()),
+                        0.5 * (lpos.y() + rpos.y());
             } else if (gaitData.contactTable(0, i) > 0) {
-                zmpRef.segment(i * 2, 2) << tasks.leftFootTask.pos.x(), tasks.leftFootTask.pos.y();
+                zmpRef.segment(i * 2, 2) << lpos.x(), lpos.y();
             } else if (gaitData.contactTable(1, i) > 0) {
-                zmpRef.segment(i * 2, 2) << tasks.rightFootTask.pos.x(), tasks.rightFootTask.pos.y();
+                zmpRef.segment(i * 2, 2) << rpos.x(), rpos.y();
+            } else {
+                zmpRef.segment(i * 2, 2) << 0.5 * (lpos.x() + rpos.x()),
+                        0.5 * (lpos.y() + rpos.y());
             }
         }
         lipmMpc.setZMPRef(zmpRef);
@@ -140,21 +164,35 @@ void FloatingBasePlanner::lipm_mpc(size_t iter, const RobotState &state,
     }
 
     auto xopt = lipmMpc.optimalTraj();
-    auto xdot = lipmMpc.optimalTrajDot();
     /*tasks.floatingBaseTask.pos << xopt(_appliedIndex * 4),
             xopt(2 + _appliedIndex * 4),
             (lipmMpc.parameters().height - c(2)) / param.mpc_horizons + c(2);
     tasks.floatingBaseTask.vel << xopt(1 + _appliedIndex * 4), xopt(3 + _appliedIndex * 4),
             (lipmMpc.parameters().height - c(2)) /
             (param.mpc_dt * param.mpc_horizons);*/
-    tasks.floatingBaseTask.pos << xopt(_appliedIndex * 4),
-            xopt(2 + _appliedIndex * 4),
+    tasks.floatingBaseTask.pos << xopt(_appliedIndex * 6),
+            xopt(3 + _appliedIndex * 6),
             lipmMpc.parameters().height;
-    tasks.floatingBaseTask.vel << xopt(1 + _appliedIndex * 4), xopt(3 + _appliedIndex * 4), 0;
-    tasks.floatingBaseTask.acc << xdot(1 + _appliedIndex * 4), xdot(3 + _appliedIndex * 4), 0;
+    tasks.floatingBaseTask.vel << xopt(1 + _appliedIndex * 6), xopt(4 + _appliedIndex * 6), 0;
+    tasks.floatingBaseTask.acc << xopt(2 + _appliedIndex * 6), xopt(5 + _appliedIndex * 6), 0;
     tasks.floatingBaseTask.omega_dot.setZero();
     tasks.floatingBaseTask.R_wb.setIdentity();
     tasks.floatingBaseTask.omega.setZero();
+
+    cout << "acc_des: " << tasks.floatingBaseTask.acc.transpose() << endl;
+
+
+    VecXi mask = VecXi::Zero(8);
+    if (gaitData.stanceTimeRemain(0) > 0) {
+        mask.head(4).setOnes();
+    }
+    if (gaitData.stanceTimeRemain(1) > 0) {
+        mask.tail(4).setOnes();
+    }
+    Vec force = lipmMpc.forceDistribute(_appliedIndex, c, cdot, robot.angularMomentum(), mask);
+    tasks.forceTask = force;
+
+    cout << "distributed force: " << force.transpose() << endl;
 
     if (iter % Poplar::Index(param.mpc_dt / _dt) == 0) {
         _appliedIndex++;
@@ -219,12 +257,12 @@ void FloatingBasePlanner::srgb_mpc(size_t iter, const RobotState &state, RobotWr
     auto xopt = srgbMpc.getDiscreteOptimizedTrajectory();
     auto xdd = srgbMpc.getXDot();
     tasks.floatingBaseTask.pos = xopt.segment(3, 3);
-    tasks.forceTask = srgbMpc.getCurrentDesiredContactForce();
     tasks.floatingBaseTask.vel = xopt.segment(9, 3);
     tasks.floatingBaseTask.acc = xdd.segment(9, 3);
     tasks.floatingBaseTask.omega_dot = xdd.segment(6, 3);
     tasks.floatingBaseTask.R_wb = pin::rpy::rpyToMatrix(xopt.segment(0, 3));
     tasks.floatingBaseTask.omega = xopt.segment(6, 3);
+    tasks.forceTask = srgbMpc.getCurrentDesiredContactForce();
 }
 
 void FloatingBasePlanner::generateRefTraj(const RobotState &state, RobotWrapper &robot) {

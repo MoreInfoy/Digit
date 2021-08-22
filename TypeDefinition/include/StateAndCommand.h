@@ -62,6 +62,10 @@ struct Tasks {
 
     LinkTask rightFootTask;
 
+    LinkTask leftFootContact;
+
+    LinkTask rightFootContact;
+
     Vec forceTask;
 };
 

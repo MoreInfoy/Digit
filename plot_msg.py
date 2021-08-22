@@ -133,11 +133,11 @@ def my_handler(channel, data):
     y2_last = msg.data[4]
     x3_last = msg.data[2]
     y3_last = msg.data[5]
-    # plt.legend(['xpos', 'xvel', 'ypos', 'yvel'], loc='upper right')
+    # plt.legend(['xpos', 'xvel', 'xacc', 'ypos', 'yvel', 'yacc'], loc='upper right')
     # plt.ylim(-1.0, 1.0)
     plt.pause(1e-12)
     # plt.clf()
-    plt.xlim(msg.timeStamp - 10, msg.timeStamp + 0.1)
+    # plt.xlim(msg.timeStamp - 10, msg.timeStamp + 0.1)
 
 
 if __name__ == '__main__':

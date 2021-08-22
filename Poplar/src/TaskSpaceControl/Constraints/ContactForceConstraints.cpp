@@ -40,7 +40,6 @@ void ContactForceConstraints::update() {
     B.block<1, 3>(n_in - 1, 0) = _n.transpose();
     ub(n_in - 1) = _max;
     lb(n_in - 1) = _min;
-    auto &mask = robot().contactMask();
     Mat S;
     S.resize(3, input_dims);
     for (int index = 0; index < robot().nc(); index++) {

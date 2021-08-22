@@ -89,6 +89,8 @@ public:
 
     Vec6 momentumTimeVariation();
 
+    Vec3 angularMomentum();
+
     Scalar totalMass();
 
     Mat3 Ig();

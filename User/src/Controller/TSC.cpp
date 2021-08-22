@@ -36,7 +36,7 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
     com->accRef().setZero();
 
     forceTask = make_shared<ForceTask>(_robot, "ForceTask");
-    forceTask->weightMatrix().diagonal().fill(1e3);
+    forceTask->weightMatrix().diagonal() << 10, 10, 1;
 
     rt = make_shared<RegularizationTask>(_robot, "RegularizationTask");
     rt->qaccWeight().diagonal().fill(1e-5);
@@ -52,7 +52,7 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
     jointsNominalTask->norminalPosition() = _robot.homeConfigurations().tail(_robot.na());
 
     angularMomentumTask = make_shared<AngularMomentumTask>(_robot, "AngularMomentumTask");
-    angularMomentumTask->weightMatrix().diagonal().fill(10);
+    angularMomentumTask->weightMatrix().diagonal().fill(1);
     angularMomentumTask->Kp().diagonal().fill(100);
     angularMomentumTask->ref().setZero();
     angularMomentumTask->ref_dot().setZero();
@@ -81,7 +81,7 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
         tsc->addTask(mt_waist);
         tsc->addTask(com);
         tsc->addTask(angularMomentumTask);
-//        tsc->addTask(forceTask);
+        tsc->addTask(forceTask);
         tsc->addLinearConstraint(cpcstr);
         tsc->addLinearConstraint(cfcstr);
     }
@@ -176,6 +176,8 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
         lf->spatialAccRef().head(3) = robot().frame_pose(lf->name()).rotation().transpose() * lf_acc;*/
     } else {
         auto base_frame = robot().frame_pose("torso");
+        //        com->posRef().y() = 0.05 * sin(0.004 * _iter);
+
         com->posRef() = tasks.floatingBaseTask.pos;
         com->velRef() = tasks.floatingBaseTask.vel;
         com->accRef() = tasks.floatingBaseTask.acc;
