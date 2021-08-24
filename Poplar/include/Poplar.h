@@ -17,6 +17,7 @@
 #include "TaskSpaceControl/Constraints/QaccBound.h"
 #include "TaskSpaceControl/Task/JointsNominalTask.h"
 #include "TaskSpaceControl/Task/AngularMomentumTask.h"
+#include "TaskSpaceControl/Task/ClosedChains.h"
 #include "Trajectory/TrajectoryInterpolation.h"
 #include "SRGB_MPC/SRGB_MPC.h"
 #include "LIPM/LIPM_MPC.h"

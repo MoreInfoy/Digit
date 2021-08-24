@@ -53,7 +53,6 @@ struct LinkTask {
     Vec3 omega_dot = Vec3::Zero();
 };
 
-
 struct Tasks {
     // pos in world frame, vel,acc in local frame
     LinkTask floatingBaseTask;
@@ -67,6 +66,8 @@ struct Tasks {
     LinkTask rightFootContact;
 
     Vec forceTask;
+
+    Vec3 desired_vel = Vec3::Zero();
 };
 
 struct JointsCmd {

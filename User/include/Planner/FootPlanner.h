@@ -31,7 +31,7 @@ private:
     Vec3 pHipBody[2];
     Vec3 lf_shift, rf_shift;
 
-    Vec3 vBodyDes;
+    Vec3 vWorldDes;
 };
 
 

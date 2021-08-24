@@ -5,6 +5,7 @@
 
 #include "Manager.h"
 
+
 #ifdef FIXED_BASE
 bool fixedBase = true;
 #else
@@ -12,6 +13,10 @@ bool fixedBase = false;
 #endif
 
 Manager::Manager(const RobotState &state) : _state(state), mpc_horizons(50), mpc_dt(0.05), dt(0.001),
+                                            out_state("datasets_state.txt", std::ios::ate | std::ios::out),
+                                            out_gait("datasets_gait.txt", std::ios::ate | std::ios::out),
+                                            out_planning("datasets_planning.txt", std::ios::ate | std::ios::out),
+                                            out_tsc("datasets_tsc.txt", std::ios::ate | std::ios::out),
                                             robot(URDF, SRDF, fixedBase),
                                             gaitScheduler(dt),
                                             footPlanner(),
@@ -21,11 +26,30 @@ Manager::Manager(const RobotState &state) : _state(state), mpc_horizons(50), mpc
     tasks.floatingBaseTask.link_name = "torso";
     tasks.leftFootTask.link_name = "left_toe_roll";
     tasks.rightFootTask.link_name = "right_toe_roll";
+    tasks.desired_vel.x() = 1.0;
     qpos.resize(_state.jointsState.qpos.size() + 7);
     qdot.resize(_state.jointsState.qvel.size() + 6);
+
+    if (!out_state.is_open()) {
+        throw runtime_error("state datasets file open failed");
+    }
+    if (!out_gait.is_open()) {
+        throw runtime_error("gait datasets file open failed");
+    }
+    if (!out_planning.is_open()) {
+        throw runtime_error("planning datasets file open failed");
+    }
+    if (!out_tsc.is_open()) {
+        throw runtime_error("tsc datasets file open failed");
+    }
 }
 
 Manager::~Manager() {
+    cout << "datasets file closed" << endl;
+    out_state.close();
+    out_gait.close();
+    out_planning.close();
+    out_tsc.close();
 }
 
 void Manager::init() {
@@ -54,7 +78,6 @@ void Manager::update() {
                 _state.jointsState.qvel;
     }
     robot.update(ConstVecRef(qpos), ConstVecRef(qdot));
-
 }
 
 void Manager::run() {
@@ -65,6 +88,7 @@ void Manager::run() {
     floatingBasePlanner.plan(_iter, _state, robot, gaitScheduler.data(), tasks);
     tsc.run(_iter, _state, gaitScheduler.data(), tasks);
     runLCM();
+//    saveAllData();
     _iter++;
 }
 
@@ -77,8 +101,7 @@ void Manager::runLCM() {
     Trajectory_LCM trajectoryLcm;
 
     robotMsg.timeStamp = 0.001 * _iter;
-
-    /* swing trajectory */
+    /* joint torque */
     robotMsg.data_size = 6;
     robotMsg.data.resize(6);
     /*robotMsg.data[0] = robot.frame_pose(tasks.rightFootTask.link_name).translation().x();
@@ -88,12 +111,25 @@ void Manager::runLCM() {
     robotMsg.data[4] = tasks.rightFootTask.pos.y();
     robotMsg.data[5] = tasks.rightFootTask.pos.z();*/
 
-    robotMsg.data[0] = robot.CoM_pos().x();
-    robotMsg.data[1] = robot.CoM_pos().y();
-    robotMsg.data[2] = robot.CoM_pos().z();
-    robotMsg.data[3] = tasks.floatingBaseTask.pos.x();
-    robotMsg.data[4] = tasks.floatingBaseTask.pos.y();
-    robotMsg.data[5] = tasks.floatingBaseTask.pos.z();
+    /*robotMsg.data[0] = tsc.jointsCmd().tau_ff(18);
+    robotMsg.data[1] = tsc.jointsCmd().tau_ff(19);*/
+
+    /* swing trajectory */
+    /*robotMsg.data_size = 6;
+    robotMsg.data.resize(6);*/
+    /*robotMsg.data[0] = robot.frame_pose(tasks.rightFootTask.link_name).translation().x();
+    robotMsg.data[1] = robot.frame_pose(tasks.rightFootTask.link_name).translation().y();
+    robotMsg.data[2] = robot.frame_pose(tasks.rightFootTask.link_name).translation().z();
+    robotMsg.data[3] = tasks.rightFootTask.pos.x();
+    robotMsg.data[4] = tasks.rightFootTask.pos.y();
+    robotMsg.data[5] = tasks.rightFootTask.pos.z();*/
+
+    robotMsg.data[0] = robot.CoM_acc().x();
+    robotMsg.data[1] = robot.CoM_acc().y();
+    robotMsg.data[2] = robot.CoM_acc().z();
+    robotMsg.data[3] = tasks.floatingBaseTask.acc.x();
+    robotMsg.data[4] = tasks.floatingBaseTask.acc.y();
+    robotMsg.data[5] = tasks.floatingBaseTask.acc.z();
 
     /* gait trajectory */
     /*robotMsg.data_size = 3 * mpc_horizons;
@@ -136,7 +172,7 @@ void Manager::runLCM() {
     }*/
 
     /* com trajectory */
-    /*auto x_opt = floatingBasePlanner.getOptimalTraj();
+    auto x_opt = floatingBasePlanner.getOptimalTraj();
     robotMsg.data_size = x_opt.size();
     robotMsg.data.resize(robotMsg.data_size);
     for (int i = 0; i < x_opt.size() / 6; i++) {
@@ -146,7 +182,7 @@ void Manager::runLCM() {
         robotMsg.data[i * 6 + 3] = x_opt(6 * i + 3);
         robotMsg.data[i * 6 + 4] = x_opt(6 * i + 4);
         robotMsg.data[i * 6 + 5] = x_opt(6 * i + 5);
-    }*/
+    }
 
     if (lcm1.good()) {
         lcm1.publish("ROBOT_MESSAGE_TOPIC", &robotMsg);
@@ -154,5 +190,101 @@ void Manager::runLCM() {
     /*if (lcm2.good()) {
         lcm2.publish("TRAJECTORY_LCM", &trajectoryLcm);
     }*/
+}
+
+void Manager::saveAllData() {
+    out_state << dt * _iter << ", ";
+    out_gait << dt * _iter << ", ";
+    out_planning << dt * _iter << ", ";
+    out_tsc << dt * _iter << ", ";
+
+    /* state */
+    for (int i = 0; i < 3; i++) {
+        out_state << _state.floatingBaseState.pos(i) << ", ";
+    }
+    for (int i = 0; i < 3; i++) {
+        out_state << _state.floatingBaseState.vel(i) << ", ";
+    }
+    out_state << _state.floatingBaseState.quat.x() << ", "
+              << _state.floatingBaseState.quat.y() << ", "
+              << _state.floatingBaseState.quat.z() << ", "
+              << _state.floatingBaseState.quat.w() << ", ";
+
+    for (int i = 0; i < _state.jointsState.qvel.size(); i++) {
+        out_state << _state.jointsState.qpos(i) << ", ";
+    }
+    for (int i = 0; i < _state.jointsState.qvel.size(); i++) {
+        out_state << _state.jointsState.qvel(i) << ", ";
+    }
+
+    /* gait */
+    for (int i = 0; i < 2; i++) {
+        out_gait << gaitScheduler.data().stanceTimeRemain(i) << ", ";
+        out_gait << gaitScheduler.data().swingTimeRemain(i) << ", ";
+    }
+
+    /* planning */
+    for (int i = 0; i < 3; i++) {
+        out_planning << tasks.floatingBaseTask.pos(i) << ", ";
+    }
+    for (int i = 0; i < 3; i++) {
+        out_planning << tasks.floatingBaseTask.vel(i) << ", ";
+    }
+    for (int i = 0; i < 3; i++) {
+        out_planning << tasks.floatingBaseTask.acc(i) << ", ";
+    }
+    for (int i = 0; i < 3; i++) {
+        out_planning << tasks.floatingBaseTask.omega(i) << ", ";
+    }
+    for (int i = 0; i < 3; i++) {
+        out_planning << tasks.floatingBaseTask.omega_dot(i) << ", ";
+    }
+    for (int i = 0; i < 3; i++) {
+        out_planning << tasks.leftFootTask.pos(i) << ", ";
+    }
+    for (int i = 0; i < 3; i++) {
+        out_planning << tasks.leftFootTask.vel(i) << ", ";
+    }
+    for (int i = 0; i < 3; i++) {
+        out_planning << tasks.leftFootTask.acc(i) << ", ";
+    }
+    for (int i = 0; i < 3; i++) {
+        out_planning << tasks.rightFootTask.pos(i) << ", ";
+    }
+    for (int i = 0; i < 3; i++) {
+        out_planning << tasks.rightFootTask.vel(i) << ", ";
+    }
+    for (int i = 0; i < 3; i++) {
+        out_planning << tasks.rightFootTask.acc(i) << ", ";
+    }
+    for (int i = 0; i < 24; i++) {
+        out_planning << tasks.forceTask(i) << ", ";
+    }
+
+    /* tsc */
+    for (int i = 0; i < tsc.jointsCmd().tau_ff.size(); i++) {
+        out_tsc << tsc.jointsCmd().tau_ff(i) << ", ";
+    }
+    Vec contact_force(24);
+    if (gaitScheduler.data().stanceTimeRemain(0) > 0 && gaitScheduler.data().stanceTimeRemain(1) > 0) {
+        contact_force = tsc.getOptimalContactForce();
+    } else if (gaitScheduler.data().stanceTimeRemain(0) > 0) {
+        contact_force.head(12) = tsc.getOptimalContactForce();
+    } else if (gaitScheduler.data().stanceTimeRemain(1) > 0) {
+        contact_force.tail(12) = tsc.getOptimalContactForce();
+    } else {
+        contact_force.setZero();
+    }
+    for (int i = 0; i < contact_force.size(); i++) {
+        out_tsc << contact_force(i) << ", ";
+    }
+    for (int i = 0; i < tsc.getOptimalQacc().size(); i++) {
+        out_tsc << tsc.getOptimalQacc()(i) << ", ";
+    }
+
+    out_state << endl;
+    out_gait << endl;
+    out_planning << endl;
+    out_tsc << endl;
 }
 

@@ -253,7 +253,8 @@ Vec LIPM_MPC::forceDistribute(Poplar::Index ith_horizon, Vec3 pos, Vec3 linear_v
     Vec g;
     H.noalias() = J_A.transpose() * Q * J_A + R + Ce.transpose() * W * Ce;
     g.noalias() = -J_A.transpose() * Q * AgDot_des - Ce.transpose() * W * ce;
-
+//    H.noalias() = J_A.transpose() * Q * J_A + R;
+//    g.noalias() = -J_A.transpose() * Q * AgDot_des;
 
 #ifdef USE_QPOASES
     Mat_R Cin_R(3 + 5 * n_dims, 3 * n_dims);
@@ -286,13 +287,15 @@ Vec LIPM_MPC::forceDistribute(Poplar::Index ith_horizon, Vec3 pos, Vec3 linear_v
     }
 #else
     eiquadprog::solvers::EiquadprogFast eiquadprog_solver_fd;
-    eiquadprog_solver_fd.reset(n_dims * 3, 3, 10 * n_dims);
+//    eiquadprog_solver_fd.reset(n_dims * 3, 0, 10 * n_dims);
     Mat CI(10 * n_dims, 3 * n_dims);
     CI << Cin, -Cin;
     Vec cI(10 * n_dims);
     cI << -cin_lb, cin_ub;
     Vec force_optimal(n_dims * 3);
-    solver_state = eiquadprog_solver_fd.solve_quadprog(H, g, Ce, -ce, CI, cI, force_optimal);
+//    solver_state = eiquadprog_solver_fd.solve_quadprog(H, g, Ce, -ce, CI, cI, force_optimal);
+    solver_state = eiquadprog_solver_fd.solve_quadprog(H, g, Mat::Zero(0, 3 * n_dims), Vec::Zero(0), CI, cI,
+                                                       force_optimal);
     printf("solver state: %d\n", solver_state);
     if (solver_state != eiquadprog::solvers::EIQUADPROG_FAST_OPTIMAL) {
         throw runtime_error("LIPM_MPC::forceDistribute() qp failed, related data has been saved in qp_failed.txt");

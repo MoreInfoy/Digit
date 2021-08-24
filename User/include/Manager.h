@@ -12,6 +12,7 @@
 #include "RobotMessage.hpp"
 #include "Trajectory_LCM.hpp"
 #include <lcm/lcm-cpp.hpp>
+#include <ostream>
 
 class Manager {
 public:
@@ -32,9 +33,12 @@ private:
 
     void runLCM();
 
+    void saveAllData();
+
     const RobotState &_state;
     Poplar::Index mpc_horizons;
     Scalar mpc_dt, dt;
+    std::ofstream out_state, out_gait, out_planning, out_tsc;
 
     RobotWrapper robot;
     GaitScheduler gaitScheduler;
@@ -47,7 +51,6 @@ private:
     lcm::LCM lcm1, lcm2;
 
     Poplar::Vec qpos, qdot;
-
 };
 
 

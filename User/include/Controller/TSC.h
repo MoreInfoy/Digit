@@ -55,6 +55,7 @@ private:
     shared_ptr<CoMMotionTask> com;
     shared_ptr<RegularizationTask> rt;
     shared_ptr<ForceTask> forceTask;
+    shared_ptr<ClosedChains> closedChainsTask;
     shared_ptr<JointsNominalTask> jointsNominalTask;
     shared_ptr<AngularMomentumTask> angularMomentumTask;
     shared_ptr<ContactPointsConstraints> cpcstr;

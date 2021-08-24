@@ -171,10 +171,10 @@
                                                                              <site name='tl' pos='0 -0.0437 -0.0255' euler='-1.047197551 0 0' type='box' size='0.04 0.12 0.012' rgba="0.7 0.7 0.7 0.0"/>
                                                                              <geom size="0.015" pos="0.0179 -0.009551 -0.054164" contype="0" conaffinity="0" group="1" rgba="0 0.7 0 0.7"/>
                                                                              <geom size="0.015" pos="-0.0181 -0.009551 -0.054164" contype="0" conaffinity="0" group="1" rgba="0 0.7 0 0.7"/>
-                                                                             <geom size="0.015" pos="-0.0400001 -0.110857 0.0700382" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7"/>
-                                                                             <geom size="0.015" pos="0.0399998 -0.110827 0.0700559" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7"/>
-                                                                             <geom size="0.015" pos="-0.0400003 0.00799069 -0.133852" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7"/>
-                                                                             <geom size="0.015" pos="0.0399997 0.00802097 -0.133834" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7"/>
+                                                                             <geom name='contact1' size="0.015" pos="-0.0400001 -0.110857 0.0700382" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7"/>
+                                                                             <geom name='contact2' size="0.015" pos="0.0399998 -0.110827 0.0700559" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7"/>
+                                                                             <geom name='contact3' size="0.015" pos="-0.0400003 0.00799069 -0.133852" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7"/>
+                                                                             <geom name='contact4' size="0.015" pos="0.0399997 0.00802097 -0.133834" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7"/>
                                                                       </body>
                                                                </body>
                                                         </body>
@@ -286,10 +286,10 @@
                                                                              <site name='tr' pos='0 0.0437 -0.0255' euler='1.047197551 0 0' type='box' size='0.04 0.12 0.012' rgba="0.7 0.7 0.7 0.0"/>
                                                                              <geom size="0.015" pos="0.0179 0.009551 -0.054164" contype="0" conaffinity="0" group="1" rgba="0 0.7 0 0.7"/>
                                                                              <geom size="0.015" pos="-0.0181 0.009551 -0.054164" contype="0" conaffinity="0" group="1" rgba="0 0.7 0 0.7"/>
-                                                                             <geom size="0.015" pos="0.0399994 0.11063 0.0701703" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7"/>
-                                                                             <geom size="0.015" pos="-0.0400001 0.11085 0.0700422" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7"/>
-                                                                             <geom size="0.015" pos="0.0399997 -0.00801787 -0.133836" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7"/>
-                                                                             <geom size="0.015" pos="-0.0400003 -0.00798741 -0.133854" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7"/>
+                                                                             <geom name='contact5' size="0.015" pos="0.0399994 0.11063 0.0701703" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7"/>
+                                                                             <geom name='contact6' size="0.015" pos="-0.0400001 0.11085 0.0700422" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7"/>
+                                                                             <geom name='contact7' size="0.015" pos="0.0399997 -0.00801787 -0.133836" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7"/>
+                                                                             <geom name='contact8' size="0.015" pos="-0.0400003 -0.00798741 -0.133854" contype="0" conaffinity="0" group="1" rgba="0 0 0.7 0.7"/>
                                                                       </body>
                                                                </body>
                                                         </body>

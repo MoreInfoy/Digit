@@ -86,6 +86,8 @@ mjModel *m = NULL;
 mjData *d = NULL;
 char filename[2000] = "";
 
+std::ofstream out_force;
+
 SharedMemoryObject<SyncronizedSharedMessage<UserCmd, RobotState>> shared_memory;
 Array<Scalar, Dynamic, 1> gear, tau_user;
 bool controllerIsDone = true;
@@ -1922,9 +1924,9 @@ void step() {
                       << "wait for user but time out, use last joints tau cmds" << std::endl;
         }
         mj_step2(m, d);
-        if (d->time > 20) {
-            usleep(5000);
-        }
+        /*if (d->time > 18) {
+            usleep(50000);
+        }*/
     }
 
     /*std::cout << "[" << glfwGetTime() << "]"
@@ -1933,7 +1935,50 @@ void step() {
               << "tau: " << tau.transpose() << std::endl;
     std::cout << "[" << glfwGetTime() << "]"
               << "gear: " << gear.transpose() << std::endl;*/
+    Vec3 f_world, f_local, pos, lf, rf;
+    Vec force = Vec::Zero(24);
+    int rfid = mj_name2id(m, mjtObj::mjOBJ_BODY, "right_toe_roll");
+    int lfid = mj_name2id(m, mjtObj::mjOBJ_BODY, "left_toe_roll");
+    std::memcpy(lf.data(), d->xpos + 3 * lfid, 3 * sizeof(mjtNum));
+    std::memcpy(rf.data(), d->xpos + 3 * rfid, 3 * sizeof(mjtNum));
 
+    Mat3 R;
+    for (int i = 0; i < (min(d->ncon, 8)); i++) {
+        mj_contactForce(m, d, i, f_local.data());
+        std::memcpy(R.data(), d->contact[i].frame, 9 * sizeof(mjtNum));
+        std::memcpy(pos.data(), d->contact[i].pos, 3 * sizeof(mjtNum));
+        f_world = -R.transpose() * f_local;
+        /*cout << i << "th fw: " << f_world.transpose() << endl;
+        cout << i << "th pos: " << pos.transpose() << endl;*/
+        Vec3 d1 = pos - lf;
+        Vec3 d2 = pos - rf;
+        if (d2.norm() < d1.norm()) {
+            if (d2.x() < 0 && d2.y() < 0) {  // contact7
+                force.segment(18, 3) = f_world;
+            } else if (d2.x() > 0 && d2.y() < 0) {  // contact5
+                force.segment(12, 3) = f_world;
+            } else if (d2.x() < 0 && d2.y() > 0) {  // contact8
+                force.segment(21, 3) = f_world;
+            } else if (d2.x() > 0 && d2.y() > 0) {  // contact6
+                force.segment(15, 3) = f_world;
+            }
+        } else {
+            if (d1.x() < 0 && d1.y() < 0) {  // contact3
+                force.segment(6, 3) = f_world;
+            } else if (d1.x() > 0 && d1.y() < 0) {  // contact1
+                force.segment(0, 3) = f_world;
+            } else if (d1.x() < 0 && d1.y() > 0) {  // contact4
+                force.segment(9, 3) = f_world;
+            } else if (d1.x() > 0 && d1.y() > 0) {  // contact2
+                force.segment(3, 3) = f_world;
+            }
+        }
+    }
+    out_force << d->time << ", ";
+    for (int i = 0; i < 24; i++) {
+        out_force << force(i) << ", ";
+    }
+    out_force << endl;
 }
 
 // simulate in background thread (while rendering in main thread)
@@ -1941,6 +1986,11 @@ void simulate(void) {
     // cpu-sim syncronization point
     double cpusync = 0;
     mjtNum simsync = 0;
+
+    out_force = ofstream("datasets_force.txt", std::ios::ate | std::ios::out);
+    if (!out_force.is_open()) {
+        throw runtime_error("force datasets file open failed");
+    }
 
     // run until asked to exit
     while (!settings.exitrequest) {
@@ -1961,7 +2011,16 @@ void simulate(void) {
 
             // running
             if (settings.run) {
-                // record cpu time at start of iteration
+
+                // clear old perturbations, apply new
+                mju_zero(d->xfrc_applied, 6 * m->nbody);
+                mjv_applyPerturbPose(m, d, &pert, 0); // move mocap bodies only
+                mjv_applyPerturbForce(m, d, &pert);
+
+                // run single step, let next iteration deal with timing
+                step();
+
+                /*// record cpu time at start of iteration
                 double tmstart = glfwGetTime();
                 // out-of-sync (for any reason)
                 if (d->time < simsync || tmstart < cpusync || cpusync == 0 ||
@@ -2001,7 +2060,7 @@ void simulate(void) {
                             break;
                         // printf("[%f] in-sync\n", d->time);
                     }
-                }
+                }*/
             }
 
                 // paused
@@ -2019,6 +2078,7 @@ void simulate(void) {
     }
     if (shared_memory.is_created())
         shared_memory.closeNew();
+    out_force.close();
 }
 
 //-------------------------------- init and main ----------------------------------------

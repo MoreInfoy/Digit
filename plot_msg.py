@@ -97,27 +97,14 @@ def my_handler(channel, data):
     # index = 0
     # plt.plot([t_last, msg.timeStamp], [x_last, msg.data[index]], 'r-')
     # plt.plot([t_last, msg.timeStamp], [y_last, msg.data[index + 3]], 'r--')
-    plt.subplot(3, 1, 1)
-    plt.plot([t_last, msg.timeStamp], [x1_last, msg.data[0]], 'r-')
-    plt.plot([t_last, msg.timeStamp], [y1_last, msg.data[3]], 'r--')
-    plt.xlim(msg.timeStamp - 10, msg.timeStamp + 0.1)
 
-    plt.subplot(3, 1, 2)
-    plt.plot([t_last, msg.timeStamp], [x2_last, msg.data[1]], 'g-')
-    plt.plot([t_last, msg.timeStamp], [y2_last, msg.data[4]], 'g--')
-    plt.xlim(msg.timeStamp - 10, msg.timeStamp + 0.1)
+    plt.plot(msg.data[0::6], 'r-')
+    plt.plot(msg.data[1::6], 'g-')
+    plt.plot(msg.data[2::6], 'b-')
 
-    plt.subplot(3, 1, 3)
-    plt.plot([t_last, msg.timeStamp], [x3_last, msg.data[2]], 'b-')
-    plt.plot([t_last, msg.timeStamp], [y3_last, msg.data[5]], 'b--')
-
-    # plt.plot(msg.data[0::6], 'r-')
-    # plt.plot(msg.data[1::6], 'g-')
-    # plt.plot(msg.data[2::6], 'b-')
-    #
-    # plt.plot(msg.data[3::6], 'r--')
-    # plt.plot(msg.data[4::6], 'g--')
-    # plt.plot(msg.data[5::6], 'b--')
+    plt.plot(msg.data[3::6], 'r--')
+    plt.plot(msg.data[4::6], 'g--')
+    plt.plot(msg.data[5::6], 'b--')
 
     # plt.plot([t_last, msg.timeStamp], [x_last, msg.data[index]], 'k-', [t_last, msg.timeStamp],
     #          [y_last, msg.data[index + 3]], 'r-')
@@ -126,17 +113,47 @@ def my_handler(channel, data):
     # plt.plot(msg.data[1::4], 'r-')
     # plt.plot(msg.data[2::4], 'k--')
     # plt.plot(msg.data[3::4], 'r--')
-    t_last = msg.timeStamp
-    x1_last = msg.data[0]
-    y1_last = msg.data[3]
-    x2_last = msg.data[1]
-    y2_last = msg.data[4]
-    x3_last = msg.data[2]
-    y3_last = msg.data[5]
+
+    # com trajectory
+    # plt.subplot(3, 1, 1)
+    # plt.plot([t_last, msg.timeStamp], [x1_last, msg.data[0]], 'r-')
+    # plt.plot([t_last, msg.timeStamp], [y1_last, msg.data[3]], 'r--')
+    # plt.xlim(msg.timeStamp - 3, msg.timeStamp + 0.1)
+    #
+    # plt.subplot(3, 1, 2)
+    # plt.plot([t_last, msg.timeStamp], [x2_last, msg.data[1]], 'g-')
+    # plt.plot([t_last, msg.timeStamp], [y2_last, msg.data[4]], 'g--')
+    # plt.xlim(msg.timeStamp - 3, msg.timeStamp + 0.1)
+    #
+    # plt.subplot(3, 1, 3)
+    # plt.plot([t_last, msg.timeStamp], [x3_last, msg.data[2]], 'b-')
+    # plt.plot([t_last, msg.timeStamp], [y3_last, msg.data[5]], 'b--')
+    # plt.xlim(msg.timeStamp - 3, msg.timeStamp + 0.1)
+    #
+    # t_last = msg.timeStamp
+    # x1_last = msg.data[0]
+    # y1_last = msg.data[3]
+    # x2_last = msg.data[1]
+    # y2_last = msg.data[4]
+    # x3_last = msg.data[2]
+    # y3_last = msg.data[5]
+
+    # joint torque
+    # plt.subplot(2, 1, 1)
+    # plt.plot([t_last, msg.timeStamp], [x1_last, msg.data[0]], 'r-')
+    # plt.xlim(msg.timeStamp - 1.5, msg.timeStamp + 0.1)
+    #
+    # plt.subplot(2, 1, 2)
+    # plt.plot([t_last, msg.timeStamp], [y1_last, msg.data[1]], 'g-')
+    # plt.xlim(msg.timeStamp - 1.5, msg.timeStamp + 0.1)
+    # t_last = msg.timeStamp
+    # x1_last = msg.data[0]
+    # y1_last = msg.data[1]
+
     # plt.legend(['xpos', 'xvel', 'xacc', 'ypos', 'yvel', 'yacc'], loc='upper right')
     # plt.ylim(-1.0, 1.0)
     plt.pause(1e-12)
-    # plt.clf()
+    plt.clf()
     # plt.xlim(msg.timeStamp - 10, msg.timeStamp + 0.1)
 
 
