@@ -411,6 +411,7 @@
        <sensor>
               <framepos name='base-pos' objtype='xbody' objname='torso'/>
               <framequat name='base-quat' objtype='xbody' objname='torso'/>
+              <framelinacc name='imu_acc' objtype='site' objname='imu'/>
 
               <jointpos name='left-hip-roll' joint='left_hip_roll_joint'/>
               <jointpos name='left-hip-yaw' joint='left_hip_yaw_joint'/>

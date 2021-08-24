@@ -19,7 +19,7 @@ struct JointsState {
 };
 
 struct FloatingBaseState {
-    Poplar::Vec3 pos, vel, omega; // vel in world frame, omega in local frame;
+    Poplar::Vec3 pos, vel, omega, acc; // vel in world frame, omega in local frame;
     Quaternion<Scalar> quat;
 };
 

@@ -1806,15 +1806,19 @@ void getRobotState(void) {
     shared_memory().robotToUser.floatingBaseState.quat.y() = d->sensordata[5];
     shared_memory().robotToUser.floatingBaseState.quat.z() = d->sensordata[6];
     shared_memory().robotToUser.floatingBaseState.quat.w() = d->sensordata[3];
-    std::memcpy(shared_memory().robotToUser.jointsState.qpos.data(), d->sensordata + 7, ROBOT_NJ * sizeof(mjtNum));
-    shared_memory().robotToUser.floatingBaseState.vel << d->sensordata[7 + ROBOT_NJ],
-            d->sensordata[8 + ROBOT_NJ],
-            d->sensordata[9 + ROBOT_NJ];
-    shared_memory().robotToUser.floatingBaseState.omega << d->sensordata[10 + ROBOT_NJ],
+    shared_memory().robotToUser.floatingBaseState.acc.x() = d->sensordata[7];
+    shared_memory().robotToUser.floatingBaseState.acc.y() = d->sensordata[8];
+    shared_memory().robotToUser.floatingBaseState.acc.z() = d->sensordata[9];
+
+    std::memcpy(shared_memory().robotToUser.jointsState.qpos.data(), d->sensordata + 10, ROBOT_NJ * sizeof(mjtNum));
+    shared_memory().robotToUser.floatingBaseState.vel << d->sensordata[10 + ROBOT_NJ],
             d->sensordata[11 + ROBOT_NJ],
             d->sensordata[12 + ROBOT_NJ];
+    shared_memory().robotToUser.floatingBaseState.omega << d->sensordata[13 + ROBOT_NJ],
+            d->sensordata[14 + ROBOT_NJ],
+            d->sensordata[15 + ROBOT_NJ];
     std::memcpy(shared_memory().robotToUser.jointsState.qvel.data(),
-                d->sensordata + 13 + ROBOT_NJ,
+                d->sensordata + 16 + ROBOT_NJ,
                 ROBOT_NJ * sizeof(mjtNum));
 
     /*printf("floating base pose: ");
@@ -1924,9 +1928,9 @@ void step() {
                       << "wait for user but time out, use last joints tau cmds" << std::endl;
         }
         mj_step2(m, d);
-        /*if (d->time > 18) {
+        if (d->time > 33.0) {
             usleep(50000);
-        }*/
+        }
     }
 
     /*std::cout << "[" << glfwGetTime() << "]"

@@ -20,8 +20,8 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
         _robot.update(qpos, qvel);
     }
 
-    mt_waist = make_shared<SE3MotionTask>(_robot, "torso");
-    mt_waist->Kp().diagonal() << 0, 0, 0, 200, 200, 500;
+    /*mt_waist = make_shared<SE3MotionTask>(_robot, "torso");
+    mt_waist->Kp().diagonal() << 0, 0, 0, 400, 400, 500;
     mt_waist->Kd() = 2 * mt_waist->Kp().cwiseSqrt();
     mt_waist->weightMatrix() = 500 * mt_waist->weightMatrix();
     mt_waist->weightMatrix().diagonal().head(3).setZero();
@@ -33,10 +33,16 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
     com->Kd() = 2 * com->Kp().cwiseSqrt();
     com->posRef() = _robot.CoM_pos();
     com->velRef().setZero();
-    com->accRef().setZero();
+    com->accRef().setZero();*/
+
+    mt_waist = make_shared<SE3MotionTask>(_robot, "torso");
+    mt_waist->Kp().diagonal() << 800, 800, 400, 400, 400, 500;
+    mt_waist->Kd() = 2 * mt_waist->Kp().cwiseSqrt();
+    mt_waist->weightMatrix().diagonal() << 1000, 1000, 1000, 500, 500, 500;
+    mt_waist->SE3Ref() = _robot.frame_pose("torso");
 
     forceTask = make_shared<ForceTask>(_robot, "ForceTask");
-    forceTask->weightMatrix().diagonal().fill(100);
+    forceTask->weightMatrix().diagonal().fill(10);
 
     closedChainsTask = make_shared<ClosedChains>(_robot, "ClosedChains");
 
@@ -62,12 +68,12 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
     rf = make_shared<SE3MotionTask>(_robot, "right_toe_roll");
     rf->Kp().diagonal() << 100, 100, 100, 500, 500, 500;
     rf->Kd() = 2 * rf->Kp().cwiseSqrt();
-    rf->weightMatrix().diagonal() << 500, 500, 1000, 2000, 2000, 500;
+    rf->weightMatrix().diagonal() << 500, 500, 1000, 2000, 2000, 2500;
     rf->SE3Ref() = _robot.frame_pose("right_toe_roll");
     lf = make_shared<SE3MotionTask>(_robot, "left_toe_roll");
-    lf->Kp().diagonal() << 100, 100, 100, 500, 500, 5200;
+    lf->Kp().diagonal() << 100, 100, 100, 500, 500, 500;
     lf->Kd() = 2 * lf->Kp().cwiseSqrt();
-    lf->weightMatrix().diagonal() << 500, 500, 1000, 2000, 2000, 500;
+    lf->weightMatrix().diagonal() << 500, 500, 1000, 2000, 2000, 2500;
     lf->SE3Ref() = _robot.frame_pose("left_toe_roll");
 
     cpcstr = make_shared<ContactPointsConstraints>(_robot, "cpcstr");
@@ -83,7 +89,7 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
         tsc->addTask(rf);
     } else {
         tsc->addTask(mt_waist);
-        tsc->addTask(com);
+//        tsc->addTask(com);
         tsc->addTask(angularMomentumTask);
         tsc->addTask(forceTask);
 //        tsc->addLinearConstraint(cpcstr);
@@ -181,9 +187,12 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
         auto base_frame = robot().frame_pose("torso");
         //        com->posRef().y() = 0.05 * sin(0.004 * _iter);
 
-        com->posRef() = tasks.floatingBaseTask.pos;
+        /*com->posRef() = tasks.floatingBaseTask.pos;
         com->velRef() = tasks.floatingBaseTask.vel;
-        com->accRef() = tasks.floatingBaseTask.acc;
+        com->accRef() = tasks.floatingBaseTask.acc;*/
+        mt_waist->SE3Ref().translation() = tasks.floatingBaseTask.pos;
+        mt_waist->spatialVelRef().head(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.vel;
+        mt_waist->spatialAccRef().head(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.acc;
         mt_waist->SE3Ref().rotation() = tasks.floatingBaseTask.R_wb;
         mt_waist->spatialVelRef().tail(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.omega;
         mt_waist->spatialAccRef().tail(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.omega_dot;
@@ -211,6 +220,28 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
     _jointsCmd.tau_ff = getOptimalTorque();
 
     cout << "optimal force: " << getOptimalContactForce().transpose() << endl;
+
+    cout << "-------------------- TSC Reference ------------------------" << endl
+         << "contact mask: " << mask.transpose() << endl
+         << "base pose: \n" << mt_waist->SE3Ref() << endl
+         << "base vel: \n" << mt_waist->spatialVelRef() << endl
+         << "base acc: \n" << mt_waist->spatialAccRef() << endl
+         << "lf pose: \n" << lf->SE3Ref() << endl
+         << "rf pose: \n" << rf->SE3Ref() << endl
+         << "lf vel: \n" << lf->spatialVelRef().transpose() << endl
+         << "rf vel: \n" << rf->spatialVelRef().transpose() << endl
+         << "lf acc: \n" << lf->spatialAccRef().transpose() << endl
+         << "rf acc: \n" << rf->spatialAccRef().transpose() << endl
+         << "force: \n" << tasks.forceTask.transpose() << endl
+
+         << "-------------------- TSC State ------------------------" << endl
+         << "qpos: " << _robot.qpos().transpose() << endl
+         << "qvel: \n" << _robot.qvel().transpose() << endl;
+         /*<< "-------------------- TSC Closed Chains ------------------------" << endl
+         << "T: \n" << T << endl
+         << "T_dot: \n" << T_dot << endl;*/
+
+
     _iter++;
 }
 

@@ -167,6 +167,7 @@ void TaskSpaceControl::solve() {
         std::cerr << "TaskSpaceControl::solve() qp failed, related data has been saved in qp_failed.txt" << endl;
     }
 #else
+    eiquadprog::solvers::EiquadprogFast eiquadprog_solver;
     eiquadprog_solver.reset(_u_dims, ce.size(), 2 * c_lb.size());
     Mat Cin(C.rows() * 2, _u_dims);
     Cin << C, -C;

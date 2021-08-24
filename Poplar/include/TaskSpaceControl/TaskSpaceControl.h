@@ -63,7 +63,6 @@ namespace TSC {
         int _u_dims;
 
 #ifndef USE_QPOASES
-        eiquadprog::solvers::EiquadprogFast eiquadprog_solver;
         eiquadprog::solvers::EiquadprogFast_status solver_state;
 #else
         shared_ptr<qpOASES::QProblem> solver;

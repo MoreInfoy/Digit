@@ -85,7 +85,8 @@ void Manager::update() {
         com_vel_des << 0.6, 0, 0;
         com_pos_des += dt * com_vel_des;
     }
-    tasks.desired_vel = 0.1 * (com_pos_des - robot.CoM_pos()) + 0.1 * (com_vel_des - robot.CoM_vel()) + com_vel_des;
+    tasks.desired_vel =
+            0.1 * (com_pos_des - _state.floatingBaseState.pos) + 0.1 * (com_vel_des - robot.CoM_vel()) + com_vel_des;
 }
 
 void Manager::run() {
@@ -132,9 +133,9 @@ void Manager::runLCM() {
     robotMsg.data[4] = tasks.rightFootTask.pos.y();
     robotMsg.data[5] = tasks.rightFootTask.pos.z();*/
 
-    robotMsg.data[0] = robot.CoM_pos().x();
-    robotMsg.data[1] = robot.CoM_pos().y();
-    robotMsg.data[2] = robot.CoM_pos().z();
+    robotMsg.data[0] = _state.floatingBaseState.pos.x();
+    robotMsg.data[1] = _state.floatingBaseState.pos.y();
+    robotMsg.data[2] = _state.floatingBaseState.pos.z();
     robotMsg.data[3] = tasks.floatingBaseTask.pos.x();
     robotMsg.data[4] = tasks.floatingBaseTask.pos.y();
     robotMsg.data[5] = tasks.floatingBaseTask.pos.z();

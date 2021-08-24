@@ -80,15 +80,15 @@ void FloatingBasePlanner::lipm_mpc(size_t iter, const RobotState &state,
     }
     lipmMpc.setContactPoints(cp);
 
-    Vec3 c = robot.CoM_pos();
+   /* Vec3 c = robot.CoM_pos();
     Vec3 cdot = robot.CoM_vel();
-    Vec3 cddot = robot.CoM_acc();
+    Vec3 cddot = robot.CoM_acc();*/
 
-//    auto base_pose = robot.frame_pose(base);
-//    Vec3 c = base_pose.translation();
-//    Vec3 cdot = robot.frame_6dVel_localWorldAligned(base).linear();
+    Vec3 c = state.floatingBaseState.pos;
+    Vec3 cdot = state.floatingBaseState.vel;
+    Vec3 cddot = state.floatingBaseState.acc;
 
-    if (iter % 100 == 0) {
+    if (iter % 30 == 0) {
         lipmMpc.x0() << c(0), cdot(0), cddot(0), c(1), cdot(1), cddot(1);
         /* zmp reference */
         Vec3 lpos, rpos;
