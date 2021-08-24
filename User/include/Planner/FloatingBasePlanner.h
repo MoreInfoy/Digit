@@ -28,6 +28,8 @@ public:
 
     ConstVecRef getDesiredTraj();
 
+    ConstVecRef getZMPRef();
+
 private:
     void generateRefTraj(const RobotState &state,
                          RobotWrapper &robot);
@@ -72,6 +74,7 @@ private:
     Matrix<qpOASES::real_t, Dynamic, 1> q_soln;
     SRGB_MPC::SRGB_MPC_IMPL srgbMpc;
     LIPM_MPC lipmMpc;
+    Vec zmpRef;
 };
 
 

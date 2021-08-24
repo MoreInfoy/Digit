@@ -88,28 +88,56 @@ void FloatingBasePlanner::lipm_mpc(size_t iter, const RobotState &state,
 //    Vec3 c = base_pose.translation();
 //    Vec3 cdot = robot.frame_6dVel_localWorldAligned(base).linear();
 
-    if (iter % 400 == 0) {
+    if (iter % 100 == 0) {
         lipmMpc.x0() << c(0), cdot(0), cddot(0), c(1), cdot(1), cddot(1);
+        /* zmp reference */
+        Vec3 lpos, rpos;
+        zmpRef = Vec::Zero(2 * param.mpc_horizons);
+        Scalar ts_l, ts_r;
+        if (gaitData.stanceTimeRemain[0] > 0) {
+            lpos = tasks.leftFootTask.pos;
+            ts_l = gaitData.stanceTimeRemain[0];
+        } else {
+//            lpos = tasks.leftFootTask.pos + gaitData.swingTimeRemain[0] * tasks.desired_vel;
+            lpos = tasks.leftFootContact.pos;
+            ts_l = gaitData.swingTimeRemain[0] + gaitData.stanceTime[0];
+        }
+        if (gaitData.stanceTimeRemain[1] > 0) {
+            rpos = tasks.rightFootTask.pos;
+            ts_r = gaitData.stanceTimeRemain[1];
+        } else {
+//            rpos = tasks.rightFootTask.pos + gaitData.swingTimeRemain[1] * tasks.desired_vel;
+            rpos = tasks.rightFootContact.pos;
+            ts_r = gaitData.swingTimeRemain[1] + gaitData.stanceTime[1];
+        }
+        for (int i = 0; i < param.mpc_horizons; i++) {
+            if (_mpc_dt * i > ts_l && gaitData.contactTable(0, i) > 0) {
+                lpos += gaitData.swingTime[0] * tasks.desired_vel;
+                ts_l += gaitData.swingTime[0] + gaitData.stanceTime[0];
+            }
+            if (_mpc_dt * i > ts_r && gaitData.contactTable(1, i) > 0) {
+                rpos += gaitData.swingTime[1] * tasks.desired_vel;
+                ts_r += gaitData.swingTime[1] + gaitData.stanceTime[1];
+            }
+            if (gaitData.contactTable(0, i) > 0 && gaitData.contactTable(1, i) > 0) {
+                zmpRef.segment(i * 2, 2) << 0.5 * (lpos.x() + rpos.x()),
+                        0.5 * (lpos.y() + rpos.y());
+            } else if (gaitData.contactTable(0, i) > 0) {
+                zmpRef.segment(i * 2, 2) << lpos.x(), lpos.y();
+            } else if (gaitData.contactTable(1, i) > 0) {
+                zmpRef.segment(i * 2, 2) << rpos.x(), rpos.y();
+            } else {
+                zmpRef.segment(i * 2, 2) << 0.5 * (lpos.x() + rpos.x()),
+                        0.5 * (lpos.y() + rpos.y());
+            }
+        }
+        lipmMpc.setZMPRef(zmpRef);
 
         /* terminal zmp constraints */
         Mat C = Mat::Zero(2, 2);
         Vec c_lb = Vec::Zero(2);
         Vec c_ub = Vec::Zero(2);
         VecXi ctr = gaitData.contactTable.rightCols(1);
-        Vec3 lpos = tasks.leftFootContact.pos;
-        Vec3 rpos = tasks.rightFootContact.pos;
-        if (_dt * gaitData.contactTable.cols() >
-            gaitData.stanceTimeRemain[0] + gaitData.swingTime[0] + gaitData.stanceTime[0]) {
-            lpos = tasks.leftFootTask.pos + Scalar(_dt * gaitData.contactTable.cols()) * tasks.desired_vel;
-        }
-        lpos.x() += tasks.desired_vel.x() / sqrt(9.81 / c.z());
-        lpos.y() += tasks.desired_vel.y() / sqrt(9.81 / c.z());
-        if (_dt * gaitData.contactTable.cols() >
-            gaitData.stanceTimeRemain[1] + gaitData.swingTime[1] + gaitData.stanceTime[1]) {
-            rpos = tasks.rightFootContact.pos + Scalar(_dt * gaitData.contactTable.cols()) * tasks.desired_vel;;
-        }
-        rpos.x() += tasks.desired_vel.x() / sqrt(9.81 / c.z());
-        rpos.y() += tasks.desired_vel.y() / sqrt(9.81 / c.z());
 
         if (ctr(0) > 0 && ctr(1) > 0) {
             C.setIdentity();
@@ -130,31 +158,6 @@ void FloatingBasePlanner::lipm_mpc(size_t iter, const RobotState &state,
             c_ub << rpos.x() + param.px, rpos.y() + param.py;
         }
         lipmMpc.updateTerminalZMPConstraints(C, c_lb, c_ub);
-
-        /* zmp reference */
-        Vec zmpRef = Vec::Zero(2 * param.mpc_horizons);
-        lpos = tasks.leftFootTask.pos;
-        rpos = tasks.rightFootTask.pos;
-        for (int i = 0; i < param.mpc_horizons; i++) {
-            if (_dt * i > gaitData.stanceTimeRemain[0]) {
-                lpos = tasks.leftFootContact.pos;
-            }
-            if (_dt * i > gaitData.stanceTimeRemain[1]) {
-                rpos = tasks.rightFootContact.pos;
-            }
-            if (gaitData.contactTable(0, i) > 0 && gaitData.contactTable(1, i) > 0) {
-                zmpRef.segment(i * 2, 2) << 0.5 * (lpos.x() + rpos.x()),
-                        0.5 * (lpos.y() + rpos.y());
-            } else if (gaitData.contactTable(0, i) > 0) {
-                zmpRef.segment(i * 2, 2) << lpos.x(), lpos.y();
-            } else if (gaitData.contactTable(1, i) > 0) {
-                zmpRef.segment(i * 2, 2) << rpos.x(), rpos.y();
-            } else {
-                zmpRef.segment(i * 2, 2) << 0.5 * (lpos.x() + rpos.x()),
-                        0.5 * (lpos.y() + rpos.y());
-            }
-        }
-        lipmMpc.setZMPRef(zmpRef);
 
         /*cout << "------------------C------------------" << endl
              << C << endl;
@@ -331,4 +334,8 @@ ConstVecRef FloatingBasePlanner::getOptimalTraj() {
 
 ConstVecRef FloatingBasePlanner::getDesiredTraj() {
     return ConstVecRef(X_d);
+}
+
+ConstVecRef FloatingBasePlanner::getZMPRef() {
+    return Poplar::ConstVecRef(zmpRef);
 }

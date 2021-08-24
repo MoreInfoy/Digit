@@ -12,7 +12,7 @@ bool fixedBase = true;
 bool fixedBase = false;
 #endif
 
-Manager::Manager(const RobotState &state) : _state(state), mpc_horizons(50), mpc_dt(0.05), dt(0.001),
+Manager::Manager(const RobotState &state) : _state(state), mpc_horizons(100), mpc_dt(0.03), dt(0.001),
                                             out_state("datasets_state.txt", std::ios::ate | std::ios::out),
                                             out_gait("datasets_gait.txt", std::ios::ate | std::ios::out),
                                             out_planning("datasets_planning.txt", std::ios::ate | std::ios::out),
@@ -26,9 +26,11 @@ Manager::Manager(const RobotState &state) : _state(state), mpc_horizons(50), mpc
     tasks.floatingBaseTask.link_name = "torso";
     tasks.leftFootTask.link_name = "left_toe_roll";
     tasks.rightFootTask.link_name = "right_toe_roll";
-    tasks.desired_vel.x() = 1.0;
+    tasks.desired_vel.setZero();
     qpos.resize(_state.jointsState.qpos.size() + 7);
     qdot.resize(_state.jointsState.qvel.size() + 6);
+    com_pos_des << 0, 0, 0.892442;
+    com_vel_des.setZero();
 
     if (!out_state.is_open()) {
         throw runtime_error("state datasets file open failed");
@@ -78,6 +80,12 @@ void Manager::update() {
                 _state.jointsState.qvel;
     }
     robot.update(ConstVecRef(qpos), ConstVecRef(qdot));
+
+    if (gaitScheduler.gait_type() == GAIT_TYPE::WALK) {
+        com_vel_des << 0.6, 0, 0;
+        com_pos_des += dt * com_vel_des;
+    }
+    tasks.desired_vel = 0.1 * (com_pos_des - robot.CoM_pos()) + 0.1 * (com_vel_des - robot.CoM_vel()) + com_vel_des;
 }
 
 void Manager::run() {
@@ -124,12 +132,12 @@ void Manager::runLCM() {
     robotMsg.data[4] = tasks.rightFootTask.pos.y();
     robotMsg.data[5] = tasks.rightFootTask.pos.z();*/
 
-    robotMsg.data[0] = robot.CoM_acc().x();
-    robotMsg.data[1] = robot.CoM_acc().y();
-    robotMsg.data[2] = robot.CoM_acc().z();
-    robotMsg.data[3] = tasks.floatingBaseTask.acc.x();
-    robotMsg.data[4] = tasks.floatingBaseTask.acc.y();
-    robotMsg.data[5] = tasks.floatingBaseTask.acc.z();
+    robotMsg.data[0] = robot.CoM_pos().x();
+    robotMsg.data[1] = robot.CoM_pos().y();
+    robotMsg.data[2] = robot.CoM_pos().z();
+    robotMsg.data[3] = tasks.floatingBaseTask.pos.x();
+    robotMsg.data[4] = tasks.floatingBaseTask.pos.y();
+    robotMsg.data[5] = tasks.floatingBaseTask.pos.z();
 
     /* gait trajectory */
     /*robotMsg.data_size = 3 * mpc_horizons;
@@ -173,15 +181,18 @@ void Manager::runLCM() {
 
     /* com trajectory */
     auto x_opt = floatingBasePlanner.getOptimalTraj();
-    robotMsg.data_size = x_opt.size();
+    auto zmpRef = floatingBasePlanner.getZMPRef();
+    robotMsg.data_size = x_opt.size() + zmpRef.size();
     robotMsg.data.resize(robotMsg.data_size);
     for (int i = 0; i < x_opt.size() / 6; i++) {
-        robotMsg.data[i * 6 + 0] = x_opt(6 * i + 0);
-        robotMsg.data[i * 6 + 1] = x_opt(6 * i + 1);
-        robotMsg.data[i * 6 + 2] = x_opt(6 * i + 2);
-        robotMsg.data[i * 6 + 3] = x_opt(6 * i + 3);
-        robotMsg.data[i * 6 + 4] = x_opt(6 * i + 4);
-        robotMsg.data[i * 6 + 5] = x_opt(6 * i + 5);
+        robotMsg.data[i * 8 + 0] = x_opt(6 * i + 0);
+        robotMsg.data[i * 8 + 1] = x_opt(6 * i + 1);
+        robotMsg.data[i * 8 + 2] = x_opt(6 * i + 2);
+        robotMsg.data[i * 8 + 3] = x_opt(6 * i + 3);
+        robotMsg.data[i * 8 + 4] = x_opt(6 * i + 4);
+        robotMsg.data[i * 8 + 5] = x_opt(6 * i + 5);
+        robotMsg.data[i * 8 + 6] = zmpRef(2 * i);
+        robotMsg.data[i * 8 + 7] = zmpRef(2 * i + 1);
     }
 
     if (lcm1.good()) {

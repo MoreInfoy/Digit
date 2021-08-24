@@ -22,6 +22,8 @@ public:
 
     void updateContactTable(size_t n_pre, size_t n_per);
 
+    GAIT_TYPE gait_type();
+
 private:
     Scalar _dt;
     GaitData _gaitData;

@@ -60,14 +60,14 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
     angularMomentumTask->ref_dot().setZero();
 
     rf = make_shared<SE3MotionTask>(_robot, "right_toe_roll");
-    rf->Kp().diagonal() << 100, 100, 100, 200, 200, 200;
+    rf->Kp().diagonal() << 100, 100, 100, 500, 500, 500;
     rf->Kd() = 2 * rf->Kp().cwiseSqrt();
-    rf->weightMatrix().diagonal() << 500, 500, 1000, 1000, 1000, 500;
+    rf->weightMatrix().diagonal() << 500, 500, 1000, 2000, 2000, 500;
     rf->SE3Ref() = _robot.frame_pose("right_toe_roll");
     lf = make_shared<SE3MotionTask>(_robot, "left_toe_roll");
-    lf->Kp().diagonal() << 100, 100, 100, 200, 200, 200;
+    lf->Kp().diagonal() << 100, 100, 100, 500, 500, 5200;
     lf->Kd() = 2 * lf->Kp().cwiseSqrt();
-    lf->weightMatrix().diagonal() << 500, 500, 1000, 1000, 1000, 500;
+    lf->weightMatrix().diagonal() << 500, 500, 1000, 2000, 2000, 500;
     lf->SE3Ref() = _robot.frame_pose("left_toe_roll");
 
     cpcstr = make_shared<ContactPointsConstraints>(_robot, "cpcstr");

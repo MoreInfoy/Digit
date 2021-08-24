@@ -98,13 +98,17 @@ def my_handler(channel, data):
     # plt.plot([t_last, msg.timeStamp], [x_last, msg.data[index]], 'r-')
     # plt.plot([t_last, msg.timeStamp], [y_last, msg.data[index + 3]], 'r--')
 
-    plt.plot(msg.data[0::6], 'r-')
-    plt.plot(msg.data[1::6], 'g-')
-    plt.plot(msg.data[2::6], 'b-')
+    # planning com trajectory
+    plt.plot(msg.data[0::8], 'r-')
+    plt.plot(msg.data[1::8], 'g-')
+    plt.plot(msg.data[2::8], 'b-')
 
-    plt.plot(msg.data[3::6], 'r--')
-    plt.plot(msg.data[4::6], 'g--')
-    plt.plot(msg.data[5::6], 'b--')
+    plt.plot(msg.data[3::8], 'r--')
+    plt.plot(msg.data[4::8], 'g--')
+    plt.plot(msg.data[5::8], 'b--')
+
+    plt.plot(msg.data[6::8], 'k-*')
+    plt.plot(msg.data[7::8], 'c-*')
 
     # plt.plot([t_last, msg.timeStamp], [x_last, msg.data[index]], 'k-', [t_last, msg.timeStamp],
     #          [y_last, msg.data[index + 3]], 'r-')

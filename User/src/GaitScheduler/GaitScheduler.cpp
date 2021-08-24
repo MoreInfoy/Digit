@@ -5,7 +5,7 @@
 #include "GaitScheduler/GaitScheduler.h"
 
 GaitScheduler::GaitScheduler(Scalar dt) : _dt(dt),
-                                          standing(500, Vec2i(0, 0), Vec2i(500, 500), "standing"),
+                                          standing(5000, Vec2i(0, 0), Vec2i(5000, 5000), "standing"),
                                           walking(800, Vec2i(0, 400), Vec2i(400, 400), "standing") {
     _gaitData.zero();
     gait = &standing;
@@ -91,4 +91,8 @@ void GaitScheduler::updateContactTable(size_t n_pre, size_t n_per) {
     cout << "---------------contact table-----------------" << endl
          << _gaitData.contactTable << endl;
 //    getchar();
+}
+
+GAIT_TYPE GaitScheduler::gait_type() {
+    return fsm.current();
 }

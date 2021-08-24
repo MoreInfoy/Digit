@@ -51,6 +51,7 @@ private:
     lcm::LCM lcm1, lcm2;
 
     Poplar::Vec qpos, qdot;
+    Poplar::Vec3 com_pos_des, com_vel_des;
 };
 
 
