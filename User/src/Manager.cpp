@@ -12,7 +12,7 @@ bool fixedBase = true;
 bool fixedBase = false;
 #endif
 
-Manager::Manager(const RobotState &state) : _state(state), mpc_horizons(100), mpc_dt(0.03), dt(0.001),
+Manager::Manager(const RobotState &state) : _state(state), mpc_horizons(100), mpc_dt(0.02), dt(0.001),
                                             out_state("datasets_state.txt", std::ios::ate | std::ios::out),
                                             out_gait("datasets_gait.txt", std::ios::ate | std::ios::out),
                                             out_planning("datasets_planning.txt", std::ios::ate | std::ios::out),
@@ -82,11 +82,14 @@ void Manager::update() {
     robot.update(ConstVecRef(qpos), ConstVecRef(qdot));
 
     if (gaitScheduler.gait_type() == GAIT_TYPE::WALK) {
-        com_vel_des << 0.6, 0, 0;
-        com_pos_des += dt * com_vel_des;
+        com_vel_des << 0, 0, 0;
+        if ((com_pos_des - _state.floatingBaseState.pos).norm() < 3) {
+            com_pos_des += dt * com_vel_des;
+        }
     }
     tasks.desired_vel =
-            0.1 * (com_pos_des - _state.floatingBaseState.pos) + 0.1 * (com_vel_des - robot.CoM_vel()) + com_vel_des;
+            0.1 * (com_pos_des - _state.floatingBaseState.pos) + 0.1 * (com_vel_des - robot.CoM_vel()) +
+            com_vel_des;
 }
 
 void Manager::run() {
@@ -124,21 +127,27 @@ void Manager::runLCM() {
     robotMsg.data[1] = tsc.jointsCmd().tau_ff(19);*/
 
     /* swing trajectory */
-    /*robotMsg.data_size = 6;
-    robotMsg.data.resize(6);*/
-    /*robotMsg.data[0] = robot.frame_pose(tasks.rightFootTask.link_name).translation().x();
-    robotMsg.data[1] = robot.frame_pose(tasks.rightFootTask.link_name).translation().y();
-    robotMsg.data[2] = robot.frame_pose(tasks.rightFootTask.link_name).translation().z();
-    robotMsg.data[3] = tasks.rightFootTask.pos.x();
-    robotMsg.data[4] = tasks.rightFootTask.pos.y();
-    robotMsg.data[5] = tasks.rightFootTask.pos.z();*/
+    robotMsg.data_size = 12;
+    robotMsg.data.resize(12);
+    robotMsg.data[0] = robot.frame_pose(tasks.leftFootTask.link_name).translation().x();
+    robotMsg.data[1] = robot.frame_pose(tasks.leftFootTask.link_name).translation().y();
+    robotMsg.data[2] = robot.frame_pose(tasks.leftFootTask.link_name).translation().z();
+    robotMsg.data[3] = tasks.leftFootContact.pos.x();
+    robotMsg.data[4] = tasks.leftFootContact.pos.y();
+    robotMsg.data[5] = tasks.leftFootContact.pos.z();
+    robotMsg.data[6] = robot.frame_pose(tasks.rightFootTask.link_name).translation().x();
+    robotMsg.data[7] = robot.frame_pose(tasks.rightFootTask.link_name).translation().y();
+    robotMsg.data[8] = robot.frame_pose(tasks.rightFootTask.link_name).translation().z();
+    robotMsg.data[9] = tasks.rightFootContact.pos.x();
+    robotMsg.data[10] = tasks.rightFootContact.pos.y();
+    robotMsg.data[11] = tasks.rightFootContact.pos.z();
 
-    robotMsg.data[0] = _state.floatingBaseState.pos.x();
+    /*robotMsg.data[0] = _state.floatingBaseState.pos.x();
     robotMsg.data[1] = _state.floatingBaseState.pos.y();
     robotMsg.data[2] = _state.floatingBaseState.pos.z();
     robotMsg.data[3] = tasks.floatingBaseTask.pos.x();
     robotMsg.data[4] = tasks.floatingBaseTask.pos.y();
-    robotMsg.data[5] = tasks.floatingBaseTask.pos.z();
+    robotMsg.data[5] = tasks.floatingBaseTask.pos.z();*/
 
     /* gait trajectory */
     /*robotMsg.data_size = 3 * mpc_horizons;
@@ -181,7 +190,7 @@ void Manager::runLCM() {
     }*/
 
     /* com trajectory */
-    auto x_opt = floatingBasePlanner.getOptimalTraj();
+    /*auto x_opt = floatingBasePlanner.getOptimalTraj();
     auto zmpRef = floatingBasePlanner.getZMPRef();
     robotMsg.data_size = x_opt.size() + zmpRef.size();
     robotMsg.data.resize(robotMsg.data_size);
@@ -194,7 +203,7 @@ void Manager::runLCM() {
         robotMsg.data[i * 8 + 5] = x_opt(6 * i + 5);
         robotMsg.data[i * 8 + 6] = zmpRef(2 * i);
         robotMsg.data[i * 8 + 7] = zmpRef(2 * i + 1);
-    }
+    }*/
 
     if (lcm1.good()) {
         lcm1.publish("ROBOT_MESSAGE_TOPIC", &robotMsg);

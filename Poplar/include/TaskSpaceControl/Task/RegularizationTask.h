@@ -25,10 +25,12 @@ namespace TSC {
 
         MatRef qaccWeight();
 
+        MatRef torqueWeight();
+
         Scalar &constraintForceWeight();
 
     private:
-        Mat _H, _Q, _Q_qacc;
+        Mat _H, _Q, _Q_qacc, _Qa;
         Mat3 _Q_f;
         Vec _g;
         Scalar _Q_cstrf;

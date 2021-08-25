@@ -20,7 +20,7 @@ void ClosedChains::update() {
 
         _acc_fb = -robot().connectPointBiasAcc() - 0.1 * robot().constraintForceJacobia() * robot().qvel();
 
-        Mat _Q = 1e5 * Mat::Identity(robot().ncf(), robot().ncf());
+        Mat _Q = 1e4 * Mat::Identity(robot().ncf(), robot().ncf());
         A.noalias() = robot().constraintForceJacobia() * S;
         _H.noalias() = A.transpose() * _Q * A;
         _g.noalias() = -A.transpose() * _Q * _acc_fb;

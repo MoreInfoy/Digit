@@ -45,7 +45,7 @@ FloatingBasePlanner::FloatingBasePlanner(Poplar::Index horizons, Scalar mpc_dt, 
     srgbMpc.setMaxForce(500);
 
     LIPM_Parameters &param = lipmMpc.parameters();
-    param.Qx << 1, 1;
+    param.Qx << 10, 10;
     param.Qu << 1e-5, 1e-5;
     param.mpc_dt = mpc_dt;
     param.mpc_horizons = horizons;
@@ -80,9 +80,9 @@ void FloatingBasePlanner::lipm_mpc(size_t iter, const RobotState &state,
     }
     lipmMpc.setContactPoints(cp);
 
-   /* Vec3 c = robot.CoM_pos();
-    Vec3 cdot = robot.CoM_vel();
-    Vec3 cddot = robot.CoM_acc();*/
+    /* Vec3 c = robot.CoM_pos();
+     Vec3 cdot = robot.CoM_vel();
+     Vec3 cddot = robot.CoM_acc();*/
 
     Vec3 c = state.floatingBaseState.pos;
     Vec3 cdot = state.floatingBaseState.vel;
@@ -98,16 +98,16 @@ void FloatingBasePlanner::lipm_mpc(size_t iter, const RobotState &state,
             lpos = tasks.leftFootTask.pos;
             ts_l = gaitData.stanceTimeRemain[0];
         } else {
-//            lpos = tasks.leftFootTask.pos + gaitData.swingTimeRemain[0] * tasks.desired_vel;
-            lpos = tasks.leftFootContact.pos;
+            lpos = tasks.leftFootTask.pos + gaitData.swingTimeRemain[0] * tasks.desired_vel;
+//            lpos = tasks.leftFootContact.pos;
             ts_l = gaitData.swingTimeRemain[0] + gaitData.stanceTime[0];
         }
         if (gaitData.stanceTimeRemain[1] > 0) {
             rpos = tasks.rightFootTask.pos;
             ts_r = gaitData.stanceTimeRemain[1];
         } else {
-//            rpos = tasks.rightFootTask.pos + gaitData.swingTimeRemain[1] * tasks.desired_vel;
-            rpos = tasks.rightFootContact.pos;
+            rpos = tasks.rightFootTask.pos + gaitData.swingTimeRemain[1] * tasks.desired_vel;
+//            rpos = tasks.rightFootContact.pos;
             ts_r = gaitData.swingTimeRemain[1] + gaitData.stanceTime[1];
         }
         for (int i = 0; i < param.mpc_horizons; i++) {

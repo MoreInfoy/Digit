@@ -36,7 +36,7 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
     com->accRef().setZero();*/
 
     mt_waist = make_shared<SE3MotionTask>(_robot, "torso");
-    mt_waist->Kp().diagonal() << 800, 800, 400, 400, 400, 500;
+    mt_waist->Kp().diagonal() << 200, 200, 400, 400, 400, 500;
     mt_waist->Kd() = 2 * mt_waist->Kp().cwiseSqrt();
     mt_waist->weightMatrix().diagonal() << 1000, 1000, 1000, 500, 500, 500;
     mt_waist->SE3Ref() = _robot.frame_pose("torso");
@@ -79,7 +79,7 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
     cpcstr = make_shared<ContactPointsConstraints>(_robot, "cpcstr");
     cfcstr = make_shared<ContactForceConstraints>(_robot, "cfcstr");
     cfcstr->mu() = 0.6;
-    cfcstr->max() = 300;
+    cfcstr->max() = 500;
     closedChainsConstraints = make_shared<ClosedChainsConstraints>(_robot, "ClosedChainsConstraints");
     actuatorLimit = make_shared<ActuatorLimit>(_robot, "ActuatorLimit");
 
@@ -90,9 +90,9 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
     } else {
         tsc->addTask(mt_waist);
 //        tsc->addTask(com);
-        tsc->addTask(angularMomentumTask);
-        tsc->addTask(forceTask);
-//        tsc->addLinearConstraint(cpcstr);
+//        tsc->addTask(angularMomentumTask);
+//        tsc->addTask(forceTask);
+        tsc->addLinearConstraint(cpcstr);
         tsc->addLinearConstraint(cfcstr);
         tsc->addTask(lf);
         tsc->addTask(rf);
@@ -139,7 +139,35 @@ void TSC_IMPL::setContactVirtualLink(vector<string> &contact_virtual_link) {
 
 void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitData, const Tasks &tasks) {
 
+    /*Vec qpos(robot().nq());
+    Vec qvel(robot().nv());
+
+    qpos
+            << 10.4164, 0.0613067, 0.895519, 0.00133029, -0.00591213, -0.00462753, 0.999971, 0.375514, 0.0330204, 0.0124171, -0.0508007, 0.0641627, 0.117571, -0.0644452, -0.105817, 0.0254804, -0.306858, 0.96581, -0.0379381, 0.0209151, -0.356968, -0.0253625, -0.263522, 0.049312, -0.0587092, 0.094606, -0.107737, -0.115112, 0.00996371, 0.309939, -0.983794, -0.0289673, 0.0219756;
+    qvel
+            << 0.503494, 0.162463, -0.0340758, 0.0124457, -0.00742559, -0.150331, 0.12542, 0.649725, 1.99746, 2.25021, -0.99527, 6.75671, 0.452258, -4.0853, 4.97922, 0.0100622, 0.105891, -0.00233009, 0.000319363, 0.0592553, -0.245543, 0.851314, 1.69952, -0.144687, 2.18067, -1.13674, -0.440538, -1.13337, 0.00593312, 0.0761187, -0.00218185, 0.00044268;
+    robot().update(qpos, qvel);*/
+
     VecXi mask = VecXi::Ones(8);
+
+    if (gaitData.stanceTimeRemain[0] > 0) {
+        lf->Kp().diagonal() <<  10, 10, 10, 500, 500, 500;
+        lf->Kd() = 0.5 * lf->Kp().cwiseSqrt();
+        lf->weightMatrix().diagonal() << 500, 500, 1000, 20000, 20000, 25000;
+    } else {
+        lf->Kp().diagonal() << 100, 100, 100, 500, 500, 500;
+        lf->Kd() = 2 * lf->Kp().cwiseSqrt();
+        lf->weightMatrix().diagonal() << 500, 500, 1000, 2000, 2000, 2500;
+    }
+    if (gaitData.stanceTimeRemain[1] > 0) {
+        rf->Kp().diagonal() << 10, 10, 10, 500, 500, 500;
+        rf->Kd() = 0.5 * rf->Kp().cwiseSqrt();
+        rf->weightMatrix().diagonal() << 500, 500, 1000, 20000, 20000, 25000;
+    } else {
+        rf->Kp().diagonal() << 100, 100, 100, 500, 500, 500;
+        rf->Kd() = 2 * rf->Kp().cwiseSqrt();
+        rf->weightMatrix().diagonal() << 500, 500, 1000, 2000, 2000, 2500;
+    }
 
     lf->SE3Ref().translation() = tasks.leftFootTask.pos;
     lf->spatialVelRef() << tasks.leftFootTask.vel, tasks.leftFootTask.omega;
@@ -158,6 +186,20 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
     if (!tsc->existTask(rf->name())) {
         tsc->addTask(rf);
     }
+
+    /*lf->SE3Ref().translation() << 10.4637, 0.150714, 0.0611726;
+    lf->spatialVelRef().setZero();
+    lf->spatialAccRef().setZero();
+    if (!tsc->existTask(lf->name())) {
+        tsc->addTask(lf);
+    }
+
+    rf->SE3Ref().translation() << 10.2821, -0.0444303, 0.0617226;
+    rf->spatialVelRef() << -0.0492134, -0.0373673, 0.254207, 0, 0, 0;
+    rf->spatialAccRef() << -3.39086, -2.19233, 17.2868, 0, 0, 0;
+    if (!tsc->existTask(rf->name())) {
+        tsc->addTask(rf);
+    }*/
 
     if (gaitData.swingTimeRemain(0) > 0) {
         mask.head(4).setZero();
@@ -197,7 +239,18 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
         mt_waist->spatialVelRef().tail(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.omega;
         mt_waist->spatialAccRef().tail(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.omega_dot;
         forceTask->setForceRef(tasks.forceTask);
+
+        /*mt_waist->SE3Ref().translation() << 10.4403, 0.0697616, 0.892442;
+        mt_waist->spatialVelRef() << 0.490221, 0.17602, -0.0062687, 0, 0, 0;
+        mt_waist->spatialAccRef() << -0.662789, -0.423326, 0.00897869, 0, 0, 0;
+        mt_waist->SE3Ref().rotation().setIdentity();
+        Vec forceRef(24);
+        forceRef
+                << -8.81236, -4.10457, 269.759, -1.12811e-14, 1.83768e-14, -2.61583e-16, -8.15895, -7.38375, 223.965, -1.45141e-14, -4.69346e-14, -4.14198e-15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+        forceTask->setForceRef(tasks.forceTask);*/
     }
+//    mask.setZero();
+//    mask.head(4).setOnes();
     _robot.compute(mask);
 
     Timer timer;
@@ -221,7 +274,7 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
 
     cout << "optimal force: " << getOptimalContactForce().transpose() << endl;
 
-    cout << "-------------------- TSC Reference ------------------------" << endl
+    /*cout << "-------------------- TSC Reference ------------------------" << endl
          << "contact mask: " << mask.transpose() << endl
          << "base pose: \n" << mt_waist->SE3Ref() << endl
          << "base vel: \n" << mt_waist->spatialVelRef() << endl
@@ -236,10 +289,10 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
 
          << "-------------------- TSC State ------------------------" << endl
          << "qpos: " << _robot.qpos().transpose() << endl
-         << "qvel: \n" << _robot.qvel().transpose() << endl;
-         /*<< "-------------------- TSC Closed Chains ------------------------" << endl
-         << "T: \n" << T << endl
-         << "T_dot: \n" << T_dot << endl;*/
+         << "qvel: \n" << _robot.qvel().transpose() << endl;*/
+    /*<< "-------------------- TSC Closed Chains ------------------------" << endl
+    << "T: \n" << T << endl
+    << "T_dot: \n" << T_dot << endl;*/
 
 
     _iter++;

@@ -13,6 +13,8 @@ RegularizationTask::RegularizationTask(RobotWrapper &robot, string name) : Task(
     _Q_qacc.setZero();
     _Q_f.setZero();
     _Q_cstrf = 1e-12;
+    _Qa = Mat::Zero(robot.na(), robot.na());
+    _Qa.diagonal().fill(1e-12);
 }
 
 void RegularizationTask::update() {
@@ -34,7 +36,7 @@ void RegularizationTask::update() {
 
 #ifdef REGULARIZE_TORQUE
     Mat A;
-    A.resize(_robot.na(), _robot.nv() + 3 * _robot.nc()+ robot().ncf());
+    A.resize(_robot.na(), _robot.nv() + 3 * _robot.nc() + robot().ncf());
     ConstMatRef Ma = _robot.M().bottomRows(_robot.na());
     ConstVecRef ba = _robot.nonLinearEffects().tail(_robot.na());
     ConstMatRef Jca = robot().contactJacobia().rightCols(_robot.na());
@@ -42,10 +44,10 @@ void RegularizationTask::update() {
         ConstMatRef Ka = _robot.constraintForceJacobia().rightCols(_robot.na());
         A << Ma, -Jca.transpose(), -Ka.transpose();
     } else {
-       A << Ma, -Jca.transpose();
+        A << Ma, -Jca.transpose();
     }
-    _H = _Q + 1e-12 * A.transpose() * A;
-    _g = 1e-12 * A.transpose() * ba;
+    _H = _Q + A.transpose() * _Qa * A;
+    _g = A.transpose() * _Qa * ba;
 #else
     _H = _Q;
     _g.setZero();
@@ -76,6 +78,15 @@ MatRef RegularizationTask::qaccWeight() {
     _Q_isUpdated = false;
     return MatRef(_Q_qacc);
 }
+
+MatRef RegularizationTask::torqueWeight() {
+    if (_Qa.rows() != _robot.na() || _Qa.cols() != _robot.na()) {
+        _Qa.resize(_robot.na(), _robot.na());
+    }
+    _Qa.setZero();
+    return MatRef(_Qa);
+}
+
 
 
 Scalar &RegularizationTask::constraintForceWeight() {

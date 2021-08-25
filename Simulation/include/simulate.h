@@ -1875,6 +1875,8 @@ void getRobotState(void) {
      */
 }
 
+int loop_i = 0;
+
 void step() {
     if (first_run) {
         if (controllerIsDone) {
@@ -1901,36 +1903,40 @@ void step() {
             controllerIsDone = true;
             first_run = false;
             mj_step2(m, d);
-
+            loop_i = 0;
         } else {
             std::cout << "[" << glfwGetTime() << "]"
                       << "wait for user but time out" << std::endl;
         }
     } else {
         mj_step1(m, d);
-        getRobotState();
-        shared_memory().robotDone();
-        ArrayXd tau;
-        if (shared_memory().waitForUserWithTimeout(0, 1e8)) {
-            if (m->nu != ROBOT_NU) {
-                throw std::runtime_error("m->nu != ROBOT_NU");
+        if (loop_i == 1) {
+            getRobotState();
+            shared_memory().robotDone();
+            ArrayXd tau;
+            if (shared_memory().waitForUserWithTimeout(0, 1e8)) {
+                if (m->nu != ROBOT_NU) {
+                    throw std::runtime_error("m->nu != ROBOT_NU");
+                } else {
+                    std::memcpy(tau_user.data(), shared_memory().userToRobot.tau.data(),
+                                m->nu * sizeof(mjtNum));
+
+                    tau = 1 / gear * tau_user;
+                    std::memcpy(d->ctrl, tau.data(), m->nu * sizeof(mjtNum));
+                }
+
             } else {
-                std::memcpy(tau_user.data(), shared_memory().userToRobot.tau.data(),
-                            m->nu * sizeof(mjtNum));
-
-                tau = 1 / gear * tau_user;
-                std::memcpy(d->ctrl, tau.data(), m->nu * sizeof(mjtNum));
+                shared_memory().robotToUserInit();
+                std::cout << "[" << glfwGetTime() << "]"
+                          << "wait for user but time out, use last joints tau cmds" << std::endl;
             }
-
-        } else {
-            shared_memory().robotToUserInit();
-            std::cout << "[" << glfwGetTime() << "]"
-                      << "wait for user but time out, use last joints tau cmds" << std::endl;
+            loop_i = 0;
         }
         mj_step2(m, d);
-        if (d->time > 33.0) {
-            usleep(50000);
-        }
+        loop_i++;
+        /*if (d->time > 25.0) {
+            usleep(20000);
+        }*/
     }
 
     /*std::cout << "[" << glfwGetTime() << "]"
