@@ -54,8 +54,8 @@ IF( NOT CMAKE_BUILD_TYPE )
         )
 ENDIF( NOT CMAKE_BUILD_TYPE )
 
-option(BUILD_SHARED_LIBS "If ON, build shared library instead of static" OFF)
-option(QPOASES_BUILD_EXAMPLES "Build examples." ON)
+option(BUILD_SHARED_LIBS "If ON, build shared library instead of static" ON)
+option(QPOASES_BUILD_EXAMPLES "Build examples." OFF)
 option(QPOASES_AVOID_LA_NAMING_CONFLICTS "If ON, avoid to re-defined symbols that conflict with Blas/Lapack provided functions." OFF)
 
 IF(BUILD_SHARED_LIBS AND WIN32)

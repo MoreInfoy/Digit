@@ -9,14 +9,13 @@
 using namespace std;
 
 int main() {
-    LIPM_Parameters param;
+    LIPM_MPC lipmMpc;
+    LIPM_Parameters &param = lipmMpc.parameters();
     param.Qx << 1, 10, 1, 10;
     param.Qu << 1e-5, 1e-5;
     param.mpc_dt = 0.05;
     param.mpc_horizons = 100;
     param.height = 0.892442;
-    LIPM_MPC lipmMpc;
-    lipmMpc.setParameters(param);
 
     Mat C = Mat::Zero(param.mpc_horizons * 2, 2 * param.mpc_horizons);
     Vec c_lb = Vec::Zero(param.mpc_horizons * 2);
