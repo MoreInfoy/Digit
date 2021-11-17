@@ -1,11 +1,19 @@
-//--------------------------------//
-//  This file is part MuJoCo      //
-//  Copyright © 2018, Roboti LLC  //
-//--------------------------------//
+// Copyright 2021 DeepMind Technologies Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-
-#pragma once
-
+#ifndef MUJOCO_MJXMACRO_H_
+#define MUJOCO_MJXMACRO_H_
 
 //-------------------------------- mjOption ---------------------------------------------
 
@@ -16,7 +24,7 @@
     X( mjtNum,  impratio        ) \
     X( mjtNum,  tolerance       ) \
     X( mjtNum,  noslip_tolerance ) \
-    X( mjtNum,  mujocor_tolerance   ) \
+    X( mjtNum,  mpr_tolerance   ) \
     X( mjtNum,  density         ) \
     X( mjtNum,  viscosity       ) \
     X( mjtNum,  o_margin        ) \
@@ -85,6 +93,7 @@
     X( ntuple )             \
     X( ntupledata )         \
     X( nkey )               \
+    X( nmocap )             \
     X( nuser_body )         \
     X( nuser_jnt )          \
     X( nuser_geom )         \
@@ -100,9 +109,8 @@
     X( nconmax )            \
     X( nstack )             \
     X( nuserdata )          \
-    X( nmocap )             \
     X( nsensordata )        \
-    X( nbuffer )            
+    X( nbuffer )
 
 
 // pointer fields of mjModel
@@ -349,6 +357,8 @@
     X( mjtNum,  key_qpos,                nkey,      nq          ) \
     X( mjtNum,  key_qvel,                nkey,      nv          ) \
     X( mjtNum,  key_act,                 nkey,      na          ) \
+    X( mjtNum,  key_mpos,                nkey,      nmocap3     ) \
+    X( mjtNum,  key_mquat,               nkey,      nmocap4     ) \
     X( int,     name_bodyadr,            nbody,     1           ) \
     X( int,     name_jntadr,             njnt,      1           ) \
     X( int,     name_geomadr,            ngeom,     1           ) \
@@ -497,3 +507,5 @@
     X( mjSolverStat,   solver,         mjNSOLVER,   1 ) \
     X( mjtNum,         solver_fwdinv,  2,           1 ) \
     X( mjtNum,         energy,         2,           1 )
+
+#endif  // MUJOCO_MJXMACRO_H_

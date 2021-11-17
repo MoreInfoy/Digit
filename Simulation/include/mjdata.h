@@ -1,14 +1,22 @@
-//--------------------------------//
-//  This file is part MuJoCo      //
-//  Copyright © 2018, Roboti LLC  //
-//--------------------------------//
+// Copyright 2021 DeepMind Technologies Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-
-#pragma once
-
+#ifndef MUJOCO_MJDATA_H_
+#define MUJOCO_MJDATA_H_
 
 //---------------------------- primitive types (mjt) ------------------------------------
-    
+
 typedef enum _mjtWarning            // warning types
 {
     mjWARN_INERTIA      = 0,        // (near) singular inertia matrix
@@ -300,7 +308,7 @@ struct _mjData
 
     // computed by mj_inverse
     mjtNum*   qfrc_inverse;         // net external force; should equal:        (nv x 1)
-                                    //  qfrc_applied + J'*xfrc_applied + qfrc_actuator 
+                                    //  qfrc_applied + J'*xfrc_applied + qfrc_actuator
 
     // computed by mj_sensorAcc/mj_rnePostConstraint if needed; rotation:translation format
     mjtNum*   cacc;                 // com-based acceleration                   (nbody x 6)
@@ -322,11 +330,13 @@ typedef int (*mjfConFilt)(const mjModel* m, mjData* d, int geom1, int geom2);
 typedef void (*mjfSensor)(const mjModel* m, mjData* d, int stage);
 
 // timer
-typedef mjtNum (*mjfTime)(void);     
+typedef mjtNum (*mjfTime)(void);
 
 // actuator dynamics, gain, bias
 typedef mjtNum (*mjfAct)(const mjModel* m, const mjData* d, int id);
 
 // collision detection
-typedef int (*mjfCollision)(const mjModel* m, const mjData* d, 
+typedef int (*mjfCollision)(const mjModel* m, const mjData* d,
                             mjContact* con, int g1, int g2, mjtNum margin);
+
+#endif  // MUJOCO_MJDATA_H_

@@ -1,11 +1,19 @@
-//--------------------------------//
-//  This file is part MuJoCo      //
-//  Copyright © 2018, Roboti LLC  //
-//--------------------------------//
+// Copyright 2021 DeepMind Technologies Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-
-#pragma once
-
+#ifndef MUJOCO_MJVISUALIZE_H_
+#define MUJOCO_MJVISUALIZE_H_
 
 #define mjNGROUP        6           // number of geom, site, joint groups with visflags
 #define mjMAXOVERLAY    500         // maximum number of characters in overlay text
@@ -27,9 +35,9 @@ typedef enum _mjtMouse              // mouse interaction mode
 {
     mjMOUSE_NONE         = 0,       // no action
     mjMOUSE_ROTATE_V,               // rotate, vertical plane
-    mjMOUSE_ROTATE_H,               // rotate, horizonstal plane
+    mjMOUSE_ROTATE_H,               // rotate, horizontal plane
     mjMOUSE_MOVE_V,                 // move, vertical plane
-    mjMOUSE_MOVE_H,                 // move, horizonstal plane
+    mjMOUSE_MOVE_H,                 // move, horizontal plane
     mjMOUSE_ZOOM,                   // zoom
     mjMOUSE_SELECT                  // selection
 } mjtMouse;
@@ -45,7 +53,7 @@ typedef enum _mjtPertBit            // mouse perturbations
 typedef enum _mjtCamera             // abstract camera type
 {
     mjCAMERA_FREE        = 0,       // free camera
-    mjCAMERA_TRACKING,              // tracking camera; uses trackbodyid 
+    mjCAMERA_TRACKING,              // tracking camera; uses trackbodyid
     mjCAMERA_FIXED,                 // fixed camera; uses fixedcamid
     mjCAMERA_USER                   // user is responsible for setting OpenGL camera
 } mjtCamera;
@@ -142,8 +150,9 @@ typedef enum _mjtStereo             // type of stereo rendering
 struct _mjvPerturb                  // object selection and perturbation
 {
     int      select;                // selected body id; non-positive: none
-    int      skinselect;            // selected skin id; non-positive: none
+    int      skinselect;            // selected skin id; negative: none
     int      active;                // perturbation bitmask (mjtPertBit)
+    int      active2;               // secondary perturbation bitmask (mjtPertBit)
     mjtNum   refpos[3];             // desired position for selected object
     mjtNum   refquat[4];            // desired orientation for selected object
     mjtNum   localpos[3];           // selection point in object coordinates
@@ -220,17 +229,17 @@ typedef struct _mjvGeom mjvGeom;
 
 struct _mjvLight                    // OpenGL light
 {
-    float    pos[3];                // position rel. to body frame              
-    float    dir[3];                // direction rel. to body frame             
-    float    attenuation[3];        // OpenGL attenuation (quadratic model)     
-    float    cutoff;                // OpenGL cutoff                            
-    float    exponent;              // OpenGL exponent                          
-    float    ambient[3];            // ambient rgb (alpha=1)                    
-    float    diffuse[3];            // diffuse rgb (alpha=1)                    
+    float    pos[3];                // position rel. to body frame
+    float    dir[3];                // direction rel. to body frame
+    float    attenuation[3];        // OpenGL attenuation (quadratic model)
+    float    cutoff;                // OpenGL cutoff
+    float    exponent;              // OpenGL exponent
+    float    ambient[3];            // ambient rgb (alpha=1)
+    float    diffuse[3];            // diffuse rgb (alpha=1)
     float    specular[3];           // specular rgb (alpha=1)
     mjtByte  headlight;             // headlight
-    mjtByte  directional;           // directional light                        
-    mjtByte  castshadow;            // does light cast shadows                  
+    mjtByte  directional;           // directional light
+    mjtByte  castshadow;            // does light cast shadows
 };
 typedef struct _mjvLight mjvLight;
 
@@ -281,13 +290,17 @@ struct _mjvScene                    // abstract scene passed to OpenGL renderer
     // OpenGL rendering effects
     int      stereo;                // stereoscopic rendering (mjtStereo)
     mjtByte  flags[mjNRNDFLAG];     // rendering flags (indexed by mjtRndFlag)
+
+    // framing
+    int      framewidth;            // frame pixel width; 0: disable framing
+    float    framergb[3];           // frame color
 };
 typedef struct _mjvScene mjvScene;
 
 
 struct _mjvFigure                   // abstract 2D figure passed to OpenGL renderer
 {
-    // enable/disable flags
+    // enable flags
     int     flg_legend;             // show legend
     int     flg_ticklabel[2];       // show grid tick labels (x,y)
     int     flg_extend;             // automatically extend axis ranges to fit data
@@ -295,30 +308,36 @@ struct _mjvFigure                   // abstract 2D figure passed to OpenGL rende
     int     flg_selection;          // vertical selection line
     int     flg_symmetric;          // symmetric y-axis
 
-    // figure options
-    int     legendoff;              // number of lines to offset legend
-    int     gridsize[2];            // number of grid points in (x,y)
-    int     selection;              // selection line x-value
-    int     highlight[2];           // if point is in legend rect, highlight line
-    float   gridrgb[3];             // grid line rgb
+    // style settings
+    float   linewidth;              // line width
     float   gridwidth;              // grid line width
+    int     gridsize[2];            // number of grid points in (x,y)
+    float   gridrgb[3];             // grid line rgb
     float   figurergba[4];          // figure color and alpha
     float   panergba[4];            // pane color and alpha
     float   legendrgba[4];          // legend color and alpha
     float   textrgb[3];             // text color
+    float   linergb[mjMAXLINE][3];  // line colors
     float   range[2][2];            // axis ranges; (min>=max) automatic
-    char    xlabel[100];            // x-axis label
-    char    title[100];             // figure title
     char    xformat[20];            // x-tick label format for sprintf
     char    yformat[20];            // y-tick label format for sprintf
     char    minwidth[20];           // string used to determine min y-tick width
 
+    // text labels
+    char    title[1000];            // figure title; subplots separated with 2+ spaces
+    char    xlabel[100];            // x-axis label
+    char    linename[mjMAXLINE][100]; // line names for legend
+
+    // dynamic settings
+    int     legendoffset;           // number of lines to offset legend
+    int     subplot;                // selected subplot (for title rendering)
+    int     highlight[2];           // if point is in legend rect, highlight line
+    int     highlightid;            // if id>=0 and no point, highlight id
+    float   selection;              // selection line x-value
+
     // line data
-    int     linepnt[mjMAXLINE];                   // number of points in line; (0) disable
-    float   linergb[mjMAXLINE][3];                // line color
-    float   linewidth[mjMAXLINE];                 // line width
-    float   linedata[mjMAXLINE][2*mjMAXLINEPNT];  // line data (x,y)
-    char    linename[mjMAXLINE][100];             // line name for legend
+    int     linepnt[mjMAXLINE];     // number of points in line; (0) disable
+    float   linedata[mjMAXLINE][2*mjMAXLINEPNT]; // line data (x,y)
 
     // output from renderer
     int     xaxispixel[2];          // range of x-axis in pixels
@@ -327,3 +346,5 @@ struct _mjvFigure                   // abstract 2D figure passed to OpenGL rende
     float   yaxisdata[2];           // range of y-axis in data units
 };
 typedef struct _mjvFigure mjvFigure;
+
+#endif  // MUJOCO_MJVISUALIZE_H_

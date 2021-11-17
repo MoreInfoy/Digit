@@ -7,13 +7,17 @@
 
 using namespace TSC;
 
-TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
-    if (_robot.isFixedBase()) {
+TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0)
+{
+    if (_robot.isFixedBase())
+    {
         Vec qpos(_robot.nq()), qvel(_robot.nv());
         qpos = _robot.homeConfigurations().tail(_robot.na());
         qvel.setZero();
         _robot.update(qpos, qvel);
-    } else {
+    }
+    else
+    {
         Vec qpos(_robot.nq()), qvel(_robot.nv());
         qpos = _robot.homeConfigurations();
         qvel.setZero();
@@ -84,22 +88,25 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
     actuatorLimit = make_shared<ActuatorLimit>(_robot, "ActuatorLimit");
 
     tsc = make_shared<TaskSpaceControl>(_robot);
-    if (_robot.isFixedBase()) {
+    if (_robot.isFixedBase())
+    {
         tsc->addTask(lf);
         tsc->addTask(rf);
-    } else {
+    }
+    else
+    {
         tsc->addTask(mt_waist);
-//        tsc->addTask(com);
-//        tsc->addTask(angularMomentumTask);
-//        tsc->addTask(forceTask);
-        tsc->addLinearConstraint(cpcstr);
+        //        tsc->addTask(com);
+        //        tsc->addTask(angularMomentumTask);
+        tsc->addTask(forceTask);
+        // tsc->addLinearConstraint(cpcstr);
         tsc->addLinearConstraint(cfcstr);
         tsc->addTask(lf);
         tsc->addTask(rf);
     }
-    tsc->addLinearConstraint(closedChainsConstraints);
+    // tsc->addLinearConstraint(closedChainsConstraints);
     tsc->addTask(rt);
-//    tsc->addTask(closedChainsTask);
+    tsc->addTask(closedChainsTask);
     tsc->addTask(jointsNominalTask);
     tsc->addLinearConstraint(actuatorLimit);
 
@@ -130,14 +137,17 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0) {
     cout << "tau limit: " << _robot.actuatorsEffortLimit().transpose() << endl;
 }
 
-TSC_IMPL::~TSC_IMPL() {
+TSC_IMPL::~TSC_IMPL()
+{
 }
 
-void TSC_IMPL::setContactVirtualLink(vector<string> &contact_virtual_link) {
+void TSC_IMPL::setContactVirtualLink(vector<string> &contact_virtual_link)
+{
     _robot.setContactVirtualLink(contact_virtual_link);
 }
 
-void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitData, const Tasks &tasks) {
+void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitData, const Tasks &tasks)
+{
 
     /*Vec qpos(robot().nq());
     Vec qvel(robot().nv());
@@ -150,20 +160,26 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
 
     VecXi mask = VecXi::Ones(8);
 
-    if (gaitData.stanceTimeRemain[0] > 0) {
-        lf->Kp().diagonal() <<  10, 10, 10, 500, 500, 500;
+    if (gaitData.stanceTimeRemain[0] > 0)
+    {
+        lf->Kp().diagonal() << 10, 10, 10, 500, 500, 500;
         lf->Kd() = 0.5 * lf->Kp().cwiseSqrt();
         lf->weightMatrix().diagonal() << 500, 500, 1000, 20000, 20000, 25000;
-    } else {
+    }
+    else
+    {
         lf->Kp().diagonal() << 100, 100, 100, 500, 500, 500;
         lf->Kd() = 2 * lf->Kp().cwiseSqrt();
         lf->weightMatrix().diagonal() << 500, 500, 1000, 2000, 2000, 2500;
     }
-    if (gaitData.stanceTimeRemain[1] > 0) {
+    if (gaitData.stanceTimeRemain[1] > 0)
+    {
         rf->Kp().diagonal() << 10, 10, 10, 500, 500, 500;
         rf->Kd() = 0.5 * rf->Kp().cwiseSqrt();
         rf->weightMatrix().diagonal() << 500, 500, 1000, 20000, 20000, 25000;
-    } else {
+    }
+    else
+    {
         rf->Kp().diagonal() << 100, 100, 100, 500, 500, 500;
         rf->Kd() = 2 * rf->Kp().cwiseSqrt();
         rf->weightMatrix().diagonal() << 500, 500, 1000, 2000, 2000, 2500;
@@ -172,18 +188,20 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
     lf->SE3Ref().translation() = tasks.leftFootTask.pos;
     lf->spatialVelRef() << tasks.leftFootTask.vel, tasks.leftFootTask.omega;
     lf->spatialAccRef()
-            << tasks.leftFootTask.acc,
-            tasks.leftFootTask.omega_dot; // TODO: analytical acc to spatial acc
-    if (!tsc->existTask(lf->name())) {
+        << tasks.leftFootTask.acc,
+        tasks.leftFootTask.omega_dot; // TODO: analytical acc to spatial acc
+    if (!tsc->existTask(lf->name()))
+    {
         tsc->addTask(lf);
     }
 
     rf->SE3Ref().translation() = tasks.rightFootTask.pos;
     rf->spatialVelRef() << tasks.rightFootTask.vel, tasks.rightFootTask.omega;
     rf->spatialAccRef()
-            << tasks.rightFootTask.acc,
-            tasks.rightFootTask.omega_dot; // TODO: analytical acc to spatial acc
-    if (!tsc->existTask(rf->name())) {
+        << tasks.rightFootTask.acc,
+        tasks.rightFootTask.omega_dot; // TODO: analytical acc to spatial acc
+    if (!tsc->existTask(rf->name()))
+    {
         tsc->addTask(rf);
     }
 
@@ -201,15 +219,18 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
         tsc->addTask(rf);
     }*/
 
-    if (gaitData.swingTimeRemain(0) > 0) {
+    if (gaitData.swingTimeRemain(0) > 0)
+    {
         mask.head(4).setZero();
     }
 
-    if (gaitData.swingTimeRemain(1) > 0) {
+    if (gaitData.swingTimeRemain(1) > 0)
+    {
         mask.tail(4).setZero();
     }
 
-    if (_robot.isFixedBase()) {
+    if (_robot.isFixedBase())
+    {
         mask.setZero();
         _robot.setContactMask(mask);
         /*rf->SE3Ref().translation()(2) = -0.839273 + 0.10 * sin(0.004 * _iter);
@@ -225,7 +246,9 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
         lf->spatialVelRef().head(3) = robot().frame_pose(lf->name()).rotation().transpose() * lf_v;
         rf->spatialAccRef().head(3) = robot().frame_pose(rf->name()).rotation().transpose() * rf_acc;
         lf->spatialAccRef().head(3) = robot().frame_pose(lf->name()).rotation().transpose() * lf_acc;*/
-    } else {
+    }
+    else
+    {
         auto base_frame = robot().frame_pose("torso");
         //        com->posRef().y() = 0.05 * sin(0.004 * _iter);
 
@@ -249,8 +272,8 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
                 << -8.81236, -4.10457, 269.759, -1.12811e-14, 1.83768e-14, -2.61583e-16, -8.15895, -7.38375, 223.965, -1.45141e-14, -4.69346e-14, -4.14198e-15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
         forceTask->setForceRef(tasks.forceTask);*/
     }
-//    mask.setZero();
-//    mask.head(4).setOnes();
+    //    mask.setZero();
+    //    mask.head(4).setOnes();
     _robot.compute(mask);
 
     Timer timer;
@@ -259,7 +282,8 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
     T.resize(link_pairs.size() * 6, link_pairs.size());
     T.setZero();
     T_dot = T;
-    for (int i = 0; i < link_pairs.size(); i++) {
+    for (int i = 0; i < link_pairs.size(); i++)
+    {
         auto p = _robot.frame_pose(link_pairs[i].first).translation();
         auto s = _robot.frame_pose(link_pairs[i].second).translation();
         T.block<3, 1>(i * 6, i) = p - s;
@@ -294,10 +318,54 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
     << "T: \n" << T << endl
     << "T_dot: \n" << T_dot << endl;*/
 
+    ConstMatRef N = _robot.constraintForceJacobia();
+    Mat NMinvNT, NMinvNT_inv, N_Proj;
+    NMinvNT.noalias() = N * N.transpose();
+    NMinvNT_inv.noalias() = NMinvNT.inverse();
+    N_Proj = N.transpose() * NMinvNT_inv * N;
 
+    string foot_links[2] = {lf->name(), rf->name()};
+    Mat6x J(6, _robot.nv());
+    Mat Js(12, _robot.nv());
+
+    Vec p_err(12), v_err(12);
+    for (int i = 0; i < 2; i++)
+    {
+        LinkTask foot_task = tasks.leftFootTask;
+        if (i == 1)
+        {
+            foot_task = tasks.rightFootTask;
+        }
+        _robot.Jacobia_local(foot_links[i], J);
+        J.leftCols(6).setZero();
+        Js.middleRows(6 * i, 6) = J;
+
+        pin::SE3 foot, foot_des;
+        foot_des.translation() = foot_task.pos;
+        foot_des.rotation() = foot_task.R_wb;
+        foot = _robot.frame_pose(foot_links[i]);
+        p_err.segment(6 * i, 6) = log6(foot.actInv(foot_des)).toVector();
+
+        Vec6 vel_ref;
+        vel_ref << foot_task.vel, foot_task.omega;
+        v_err.segment(6 * i, 6) = vel_ref - _robot.frame_6dVel_local(foot_links[i]).toVector();
+    }
+
+    Mat JJT, JJT_inv, J_pinv, par1;
+    JJT.noalias() = Js * Js.transpose();
+    JJT_inv.noalias() = JJT.inverse();
+    J_pinv = Js.transpose() * JJT_inv;
+
+    par1.noalias() = Mat::Identity(_robot.nv(), _robot.nv()) - N_Proj;
+    Vec delta_qpos = par1 * J_pinv * p_err;
+    Vec delta_qvel = par1 * J_pinv * v_err;
+
+    Vec force_fb = 200 * delta_qpos + 28.5 * delta_qvel;
+    _jointsCmd.tau_ff += force_fb.tail(_robot.na());
     _iter++;
 }
 
-const JointsCmd &TSC_IMPL::jointsCmd() {
+const JointsCmd &TSC_IMPL::jointsCmd()
+{
     return _jointsCmd;
 }

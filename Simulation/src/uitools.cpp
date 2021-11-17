@@ -1,12 +1,16 @@
-/*  Copyright © 2018, Roboti LLC
-
-    This file is licensed under the MuJoCo Resource License (the "License").
-    You may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-        https://www.roboti.us/resourcelicense.txt
-*/
-
+// Copyright 2021 DeepMind Technologies Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "uitools.h"
 #include "stdio.h"
@@ -59,7 +63,7 @@ static void uiUpdateState(GLFWwindow* wnd)
     state->y = y;
 
     // find mouse rectangle
-    state->mouserect = mjr_findRect(mju_round(x), mju_round(y), 
+    state->mouserect = mjr_findRect(mju_round(x), mju_round(y),
                                     state->nrect-1, state->rect+1) + 1;
 }
 
@@ -215,7 +219,7 @@ static void uiResize(GLFWwindow* wnd, int width, int height)
     uiUpdateState(wnd);
 
     // set resize info
-    state->type = mjEVENT_RESIZE; 
+    state->type = mjEVENT_RESIZE;
 
     // stop dragging
     state->dragbutton = 0;
@@ -262,7 +266,7 @@ int uiFontScale(GLFWwindow* wnd)
 
 
 // Set internal and user-supplied UI callbacks in GLFW window.
-void uiSetCallback(GLFWwindow* wnd, mjuiState* state, 
+void uiSetCallback(GLFWwindow* wnd, mjuiState* state,
                    uiEventFn uiEvent, uiLayoutFn uiLayout)
 {
     // make container with user-supplied objects and set window pointer

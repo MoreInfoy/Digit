@@ -10,4 +10,4 @@ include_directories(include)
 
 link_directories(${THIS_COM}/Simulation/lib/)
 
-target_link_libraries(MuJoCoSim  mujoco200 GL glew glfw rt pthread lcm)
+target_link_libraries(MuJoCoSim  mujoco210 GL glew glfw rt pthread lcm)

@@ -1,11 +1,19 @@
-//--------------------------------//
-//  This file is part MuJoCo      //
-//  Copyright © 2018, Roboti LLC  //
-//--------------------------------//
+// Copyright 2021 DeepMind Technologies Limited
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-
-#pragma once
-
+#ifndef MUJOCO_MJMODEL_H_
+#define MUJOCO_MJMODEL_H_
 
 //---------------------------- floating-point definitions -------------------------------
 
@@ -31,8 +39,8 @@
 #define mjMINIMP        0.0001      // minimum constraint impedance
 #define mjMAXIMP        0.9999      // maximum constraint impedance
 #define mjMAXCONPAIR    50          // maximum number of contacts per geom pair
-#define mjMAXVFS        200         // maximum number of files in virtual file system
-#define mjMAXVFSNAME    100         // maximum filename size in virtual file system
+#define mjMAXVFS        2000        // maximum number of files in virtual file system
+#define mjMAXVFSNAME    1000        // maximum filename size in virtual file system
 
 
 //---------------------------- sizes ----------------------------------------------------
@@ -47,7 +55,7 @@
 
 
 //---------------------------- primitive types (mjt) ------------------------------------
-    
+
 typedef unsigned char mjtByte;      // used for true/false
 
 
@@ -392,7 +400,7 @@ struct _mjVFS                       // virtual file system for loading from memo
 {
     int   nfile;                    // number of files present
     char  filename[mjMAXVFS][mjMAXVFSNAME]; // file name without path
-    int   filesize[mjMAXVFS];       // file size in bytes   
+    int   filesize[mjMAXVFS];       // file size in bytes
     void* filedata[mjMAXVFS];       // buffer with file data
 };
 typedef struct _mjVFS mjVFS;
@@ -595,6 +603,7 @@ struct _mjModel
     int ntuple;                     // number of tuple custom fields
     int ntupledata;                 // number of objects in all tuple fields
     int nkey;                       // number of keyframes
+    int nmocap;                     // number of mocap bodies
     int nuser_body;                 // number of mjtNums in body_user
     int nuser_jnt;                  // number of mjtNums in jnt_user
     int nuser_geom;                 // number of mjtNums in geom_user
@@ -612,7 +621,6 @@ struct _mjModel
     int nconmax;                    // number of potential contacts in contact list
     int nstack;                     // number of fields in mjData stack
     int nuserdata;                  // number of extra fields in mjData
-    int nmocap;                     // number of mocap bodies
     int nsensordata;                // number of fields in sensor data vector
 
     int nbuffer;                    // number of bytes in buffer
@@ -917,6 +925,8 @@ struct _mjModel
     mjtNum*   key_qpos;             // key position                             (nkey x nq)
     mjtNum*   key_qvel;             // key velocity                             (nkey x nv)
     mjtNum*   key_act;              // key activation                           (nkey x na)
+    mjtNum*   key_mpos;             // key mocap position                       (nkey x 3*nmocap)
+    mjtNum*   key_mquat;            // key mocap quaternion                     (nkey x 4*nmocap)
 
     // names
     int*      name_bodyadr;         // body name pointers                       (nbody x 1)
@@ -943,3 +953,5 @@ struct _mjModel
     char*     names;                // names of all objects, 0-terminated       (nnames x 1)
 };
 typedef struct _mjModel mjModel;
+
+#endif  // MUJOCO_MJMODEL_H_

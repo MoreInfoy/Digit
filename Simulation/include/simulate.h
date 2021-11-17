@@ -2096,12 +2096,9 @@ void simulate(void) {
 // initalize everything
 void init() {
     // print version, check compatibility
-    printf("MuJoCo Pro version %.2lf\n", 0.01 * mj_version());
-    if (mjVERSION_HEADER != mj_version())
+    printf("MuJoCo Pro version %.2lf\n", 0.01*mj_version());
+    if( mjVERSION_HEADER!=mj_version() )
         mju_error("Headers and library have different versions");
-
-    // activate MuJoCo license
-    mj_activate(MJKEY);
 
     // init GLFW, set timer callback (milliseconds)
     if (!glfwInit())
