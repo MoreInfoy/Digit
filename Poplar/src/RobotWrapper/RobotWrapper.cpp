@@ -229,6 +229,10 @@ pin::Motion RobotWrapper::frame_6dAcc_local(string frame_name) {
     return pin::getFrameAcceleration(_model, _data, getFrameID(frame_name), pin::LOCAL);
 }
 
+pin::Motion RobotWrapper::frame_6dAcc_localWorldAligned(string frame_name) {
+    return pin::getFrameAcceleration(_model, _data, getFrameID(frame_name), pin::LOCAL_WORLD_ALIGNED);
+}
+
 pin::Motion RobotWrapper::frame_6dClassicalAcc_local(string frame_name) {
     return pin::getFrameClassicalAcceleration(_model, _data, getFrameID(frame_name), pin::LOCAL);
 }
@@ -303,7 +307,7 @@ void RobotWrapper::computeActiveContactPointBiasAcc() {
     int ci = 0;
     for (int i = 0; i < _mask.size(); i++) {
         if (_mask(i) == 1) {
-            auto acc = frame_6dClassicalAcc_world(_contactPoint_virtual_link[i]);
+            auto acc = frame_6dAcc_localWorldAligned(_contactPoint_virtual_link[i]);
             _contactPointsBiasAcc.segment(3 * ci, 3) = acc.linear()
                                                        + 0.0 * frame_6dVel_localWorldAligned(
                     _contactPoint_virtual_link[i]).linear();
@@ -370,8 +374,8 @@ void RobotWrapper::computeConnectPointBiasAcc() {
         Vec acc_ps(6 * _connect_point_pairs.size());
 
         for (int i = 0; i < _connect_point_pairs.size(); i++) {
-            auto acc_p = frame_6dClassicalAcc_world(_connect_point_pairs[i].first);
-            auto acc_s = frame_6dClassicalAcc_world(_connect_point_pairs[i].second);
+            auto acc_p = frame_6dAcc_localWorldAligned(_connect_point_pairs[i].first);
+            auto acc_s = frame_6dAcc_localWorldAligned(_connect_point_pairs[i].second);
             acc_ps.segment(6 * i, 6) = acc_p.toVector() - acc_s.toVector();
         }
         _connectPointsBiasAcc = _T.transpose() * acc_ps + _T_dot.transpose() * _Jps * _qvel;

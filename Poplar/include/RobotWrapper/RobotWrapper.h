@@ -83,6 +83,8 @@ public:
 
     pin::Motion frame_6dAcc_local(string frame_name);
 
+    pin::Motion frame_6dAcc_localWorldAligned(string frame_name);
+
     pin::Motion frame_6dClassicalAcc_local(string frame_name);
 
     pin::Motion frame_6dClassicalAcc_world(string frame_name);

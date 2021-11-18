@@ -12,7 +12,7 @@ bool fixedBase = true;
 bool fixedBase = false;
 #endif
 
-Manager::Manager(const RobotState &state) : _state(state), mpc_horizons(100), mpc_dt(0.02), dt(0.001),
+Manager::Manager(const RobotState &state) : _state(state), mpc_horizons(100), mpc_dt(0.01), dt(0.001),
                                             out_state("datasets_state.txt", std::ios::ate | std::ios::out),
                                             out_gait("datasets_gait.txt", std::ios::ate | std::ios::out),
                                             out_planning("datasets_planning.txt", std::ios::ate | std::ios::out),
@@ -82,8 +82,8 @@ void Manager::update() {
     robot.update(ConstVecRef(qpos), ConstVecRef(qdot));
 
     if (gaitScheduler.gait_type() == GAIT_TYPE::WALK) {
-        com_vel_des << 1.5, 0, 0;
-        if ((com_pos_des - _state.floatingBaseState.pos).norm() < 3) {
+        com_vel_des << 4.5, 0, 0;
+        if ((com_pos_des - _state.floatingBaseState.pos).norm() < 10) {
             com_pos_des += dt * com_vel_des;
         }
     }

@@ -4,7 +4,7 @@
 
 #include "Planner/FootPlanner.h"
 
-FootPlanner::FootPlanner() : base("torso"), lf("left_toe_roll"), rf("right_toe_roll"), swingHeight(0.08) {
+FootPlanner::FootPlanner() : base("torso"), lf("left_toe_roll"), rf("right_toe_roll"), swingHeight(0.12) {
     for (int i(0); i < 2; i++) {
         firstSwing[i] = true;
     }
@@ -52,8 +52,8 @@ FootPlanner::plan(size_t iter, const RobotState &state, RobotWrapper &robot, con
 
     if (iter != 0) {
         // double p_rel_max = 0.3f;
-        double py_rel_max = 0.3;
-        double px_rel_max = 0.3;
+        double py_rel_max = 0.6;
+        double px_rel_max = 0.6;
 
         // compute foot placement
         for (int i(0); i < 2; i++) {
@@ -66,12 +66,12 @@ FootPlanner::plan(size_t iter, const RobotState &state, RobotWrapper &robot, con
 
             // Using the estimated velocity is correct
             double pfx_rel = 0.5 * com_vel[0] * gaitData.stanceTime[i] +
-                             .03 * (com_vel[0] - vWorldDes[0]) +
+                             .06 * (com_vel[0] - vWorldDes[0]) +
                              (0.5f * com_pos[2] / 9.81f) *
                              (com_vel[1] * yawd_des);
 
             double pfy_rel = 0.5 * com_vel[1] * gaitData.stanceTime[i] +
-                             .12 * (com_vel[1] - vWorldDes[1]) +
+                             .2 * (com_vel[1] - vWorldDes[1]) +
                              (0.5f * com_pos[2] / 9.81f) *
                              (com_vel[0] * yawd_des);
 
@@ -94,7 +94,7 @@ FootPlanner::plan(size_t iter, const RobotState &state, RobotWrapper &robot, con
                 tasks.rightFootContact.pos = Pf;
             }
 
-            cout << "capture point: ["
+            /* cout << "capture point: ["
                  << robot.CoM_pos().x() + robot.CoM_vel().x() / sqrt(9.8 / robot.CoM_pos().z())
                  << ", "
                  << robot.CoM_pos().y() + robot.CoM_vel().y() / sqrt(9.8 / robot.CoM_pos().z())
@@ -103,7 +103,7 @@ FootPlanner::plan(size_t iter, const RobotState &state, RobotWrapper &robot, con
             cout << "rpf_rel: " << pHipBody[1].transpose() << endl;
             cout << "lpf: " << (lf_pose.translation() - com_pos).transpose() << endl;
             cout << "rpf: " << (rf_pose.translation() - com_pos).transpose() << endl;
-            cout << "v_des: " << vWorldDes.transpose() << endl;
+            cout << "v_des: " << vWorldDes.transpose() << endl; */
         }
     }
 

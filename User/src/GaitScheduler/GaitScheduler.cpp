@@ -6,7 +6,7 @@
 
 GaitScheduler::GaitScheduler(Scalar dt) : _dt(dt),
                                           standing(5000, Vec2i(0, 0), Vec2i(5000, 5000), "standing"),
-                                          walking(800, Vec2i(0, 400), Vec2i(400, 400), "standing") {
+                                          walking(400, Vec2i(0, 200), Vec2i(200, 200), "standing") {
     _gaitData.zero();
     gait = &standing;
     gaitType = GAIT_TYPE::STANCE;

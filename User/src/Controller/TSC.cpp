@@ -46,7 +46,7 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0)
     mt_waist->SE3Ref() = _robot.frame_pose("torso");
 
     forceTask = make_shared<ForceTask>(_robot, "ForceTask");
-    forceTask->weightMatrix().diagonal().fill(10);
+    forceTask->weightMatrix().diagonal().fill(5);
 
     closedChainsTask = make_shared<ClosedChains>(_robot, "ClosedChains");
 
@@ -56,8 +56,8 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0)
 
     jointsNominalTask = make_shared<JointsNominalTask>(_robot, "JointsNominalTask");
     jointsNominalTask->weightMatrix().setIdentity();
-    jointsNominalTask->weightMatrix().diagonal().segment(9, 4).fill(100);
-    jointsNominalTask->weightMatrix().diagonal().segment(22, 4).fill(100);
+    jointsNominalTask->weightMatrix().diagonal().segment(9, 4).fill(40);
+    jointsNominalTask->weightMatrix().diagonal().segment(22, 4).fill(40);
     jointsNominalTask->Kp().setIdentity();
     jointsNominalTask->Kp() = 50 * jointsNominalTask->Kp();
     jointsNominalTask->Kd() = 2 * jointsNominalTask->Kp().cwiseSqrt();
@@ -65,7 +65,7 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0)
 
     angularMomentumTask = make_shared<AngularMomentumTask>(_robot, "AngularMomentumTask");
     angularMomentumTask->weightMatrix().diagonal().fill(1);
-    angularMomentumTask->Kp().diagonal().fill(50);
+    angularMomentumTask->Kp().diagonal().fill(20);
     angularMomentumTask->ref().setZero();
     angularMomentumTask->ref_dot().setZero();
 
@@ -97,7 +97,7 @@ TSC_IMPL::TSC_IMPL(RobotWrapper &robot) : _robot(robot), _iter(0)
     {
         tsc->addTask(mt_waist);
         //        tsc->addTask(com);
-        //        tsc->addTask(angularMomentumTask);
+        tsc->addTask(angularMomentumTask);
         tsc->addTask(forceTask);
         // tsc->addLinearConstraint(cpcstr);
         tsc->addLinearConstraint(cfcstr);
@@ -160,7 +160,7 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
 
     VecXi mask = VecXi::Ones(8);
 
-    if (gaitData.stanceTimeRemain[0] > 0)
+    /* if (gaitData.stanceTimeRemain[0] > 0)
     {
         lf->Kp().diagonal() << 10, 10, 10, 500, 500, 500;
         lf->Kd() = 0.5 * lf->Kp().cwiseSqrt();
@@ -183,22 +183,24 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
         rf->Kp().diagonal() << 100, 100, 100, 500, 500, 500;
         rf->Kd() = 2 * rf->Kp().cwiseSqrt();
         rf->weightMatrix().diagonal() << 500, 500, 1000, 2000, 2000, 2500;
-    }
+    } */
 
+    auto lf_vel = _robot.frame_6dVel_local(lf->name());
     lf->SE3Ref().translation() = tasks.leftFootTask.pos;
     lf->spatialVelRef() << tasks.leftFootTask.vel, tasks.leftFootTask.omega;
     lf->spatialAccRef()
-        << tasks.leftFootTask.acc,
+        << tasks.leftFootTask.acc - lf_vel.angular().cross(lf_vel.linear()),
         tasks.leftFootTask.omega_dot; // TODO: analytical acc to spatial acc
     if (!tsc->existTask(lf->name()))
     {
         tsc->addTask(lf);
     }
 
+    auto rf_vel = _robot.frame_6dVel_local(rf->name());
     rf->SE3Ref().translation() = tasks.rightFootTask.pos;
     rf->spatialVelRef() << tasks.rightFootTask.vel, tasks.rightFootTask.omega;
     rf->spatialAccRef()
-        << tasks.rightFootTask.acc,
+        << tasks.rightFootTask.acc - rf_vel.angular().cross(rf_vel.linear()),
         tasks.rightFootTask.omega_dot; // TODO: analytical acc to spatial acc
     if (!tsc->existTask(rf->name()))
     {
@@ -250,6 +252,8 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
     else
     {
         auto base_frame = robot().frame_pose("torso");
+        auto base_vel = robot().frame_6dVel_local("torso");
+
         //        com->posRef().y() = 0.05 * sin(0.004 * _iter);
 
         /*com->posRef() = tasks.floatingBaseTask.pos;
@@ -257,7 +261,7 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
         com->accRef() = tasks.floatingBaseTask.acc;*/
         mt_waist->SE3Ref().translation() = tasks.floatingBaseTask.pos;
         mt_waist->spatialVelRef().head(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.vel;
-        mt_waist->spatialAccRef().head(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.acc;
+        mt_waist->spatialAccRef().head(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.acc - base_vel.angular().cross(base_vel.linear());
         mt_waist->SE3Ref().rotation() = tasks.floatingBaseTask.R_wb;
         mt_waist->spatialVelRef().tail(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.omega;
         mt_waist->spatialAccRef().tail(3) = base_frame.rotation().transpose() * tasks.floatingBaseTask.omega_dot;
