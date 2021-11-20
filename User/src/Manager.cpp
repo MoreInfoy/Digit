@@ -82,13 +82,13 @@ void Manager::update() {
     robot.update(ConstVecRef(qpos), ConstVecRef(qdot));
 
     if (gaitScheduler.gait_type() == GAIT_TYPE::WALK) {
-        com_vel_des << 4.5, 0, 0;
-        if ((com_pos_des - _state.floatingBaseState.pos).norm() < 10) {
+        com_vel_des << 6.5, 0, 0;
+        if ((com_pos_des - _state.floatingBaseState.pos).norm() < 20) {
             com_pos_des += dt * com_vel_des;
         }
     }
     tasks.desired_vel =
-            0.1 * (com_pos_des - _state.floatingBaseState.pos) + 0.1 * (com_vel_des - robot.CoM_vel()) +
+            0.5 * (com_pos_des - _state.floatingBaseState.pos) + 0.2 * (com_vel_des - robot.CoM_vel()) +
             com_vel_des;
 }
 
