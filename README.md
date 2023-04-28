@@ -1,1 +1,1 @@
-# Digit
+# Digit Simulation and Motion Control
