@@ -176,7 +176,7 @@ void TaskSpaceControl::solve() {
     cin << -c_lb, c_ub;
     ce0 = -ce;
     solver_state = eiquadprog_solver.solve_quadprog(H, g, Ce, ce0, Cin, cin, optimal_u);
-    printf("solver state: %d\n", solver_state);
+    // printf("solver state: %d\n", solver_state);
     if (solver_state != eiquadprog::solvers::EIQUADPROG_FAST_OPTIMAL) {
         saveAllData("qp_failed.txt");
         throw runtime_error("TaskSpaceControl::solve() qp failed, related data has been saved in qp_failed.txt");

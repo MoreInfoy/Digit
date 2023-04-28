@@ -6,7 +6,7 @@
 
 GaitScheduler::GaitScheduler(Scalar dt) : _dt(dt),
                                           standing(5000, Vec2i(0, 0), Vec2i(5000, 5000), "standing"),
-                                          walking(300, Vec2i(0, 150), Vec2i(150, 150), "standing") {
+                                          walking(300, Vec2i(0, 150), Vec2i(150, 150), "walking") {
     _gaitData.zero();
     gait = &standing;
     gaitType = GAIT_TYPE::STANCE;
@@ -88,8 +88,8 @@ void GaitScheduler::updateContactTable(size_t n_pre, size_t n_per) {
     nextGait->run(fsm.iterations() + start);
     _gaitData.contactTable.middleCols(start / n_per, (gaitArray.size() - start) / n_per)
             = nextGait->getContactTable((gaitArray.size() - start) / n_per, n_per);
-    cout << "---------------contact table-----------------" << endl
-         << _gaitData.contactTable << endl;
+    /* cout << "---------------contact table-----------------" << endl
+         << _gaitData.contactTable << endl; */
 //    getchar();
 }
 

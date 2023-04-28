@@ -9,9 +9,6 @@
 #include "GaitScheduler/GaitScheduler.h"
 #include "Planner/FootPlanner.h"
 #include "Planner/FloatingBasePlanner.h"
-#include "RobotMessage.hpp"
-#include "Trajectory_LCM.hpp"
-#include <lcm/lcm-cpp.hpp>
 #include <ostream>
 
 class Manager {
@@ -31,8 +28,6 @@ public:
 private:
     void update();
 
-    void runLCM();
-
     void saveAllData();
 
     const RobotState &_state;
@@ -47,8 +42,6 @@ private:
     TSC_IMPL tsc;
     Tasks tasks;
     size_t _iter;
-
-    lcm::LCM lcm1, lcm2;
 
     Poplar::Vec qpos, qdot;
     Poplar::Vec3 com_pos_des, com_vel_des;

@@ -220,7 +220,7 @@ void SRGB_MPC_IMPL::solve(Scalar t_now) {
     cin << -_lb, _ub;
     solver_state = eiquadprog_solver.solve_quadprog(_H, _g, Mat(0, 3 * _n_contact), Vec(0), Cin, cin,
                                                     _optimalContactForce);
-    printf("solver state: %d\n", solver_state);
+    // printf("solver state: %d\n", solver_state);
     if (solver_state != eiquadprog::solvers::EIQUADPROG_FAST_OPTIMAL) {
         //      throw runtime_error("TaskSpaceControl::solve() qp failed, related data has been saved in qp_failed.txt");
         std::cerr << "SRGB_MPC::solve() qp failed" << endl;

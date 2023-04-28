@@ -297,10 +297,10 @@ void TSC_IMPL::run(size_t iter, const RobotState &state, const GaitData &gaitDat
     _robot.setConstraintForceSubspace(T, T_dot);
     _robot.computeClosedChainTerm();
     tsc->solve();
-    cout << "time cost: " << timer.getMs() << " ms" << endl;
+    // cout << "time cost: " << timer.getMs() << " ms" << endl;
     _jointsCmd.tau_ff = getOptimalTorque();
 
-    cout << "optimal force: " << getOptimalContactForce().transpose() << endl;
+    // cout << "optimal force: " << getOptimalContactForce().transpose() << endl;
 
     /*cout << "-------------------- TSC Reference ------------------------" << endl
          << "contact mask: " << mask.transpose() << endl

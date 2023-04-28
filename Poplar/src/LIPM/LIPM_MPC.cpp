@@ -141,7 +141,7 @@ void LIPM_MPC::run() {
     cin << -_c_lb, _c_ub;
     solver_state = eiquadprog_solver.solve_quadprog(_H, _g, Mat(0, _C.cols()), Vec(0), Cin, cin,
                                                     _uOptimal);
-    printf("solver state: %d\n", solver_state);
+    // printf("solver state: %d\n", solver_state);
     if (solver_state != eiquadprog::solvers::EIQUADPROG_FAST_OPTIMAL) {
         //      throw runtime_error("TaskSpaceControl::solve() qp failed, related data has been saved in qp_failed.txt");
         std::cerr << "LIPM_MPC::solve() qp failed" << endl;
@@ -296,7 +296,7 @@ Vec LIPM_MPC::forceDistribute(Poplar::Index ith_horizon, Vec3 pos, Vec3 linear_v
 //    solver_state = eiquadprog_solver_fd.solve_quadprog(H, g, Ce, -ce, CI, cI, force_optimal);
     solver_state = eiquadprog_solver_fd.solve_quadprog(H, g, Mat::Zero(0, 3 * n_dims), Vec::Zero(0), CI, cI,
                                                        force_optimal);
-    printf("solver state: %d\n", solver_state);
+    // printf("solver state: %d\n", solver_state);
     if (solver_state != eiquadprog::solvers::EIQUADPROG_FAST_OPTIMAL) {
         throw runtime_error("LIPM_MPC::forceDistribute() qp failed, related data has been saved in qp_failed.txt");
         std::cerr << "LIPM_MPC::forceDistribute() qp failed" << endl;

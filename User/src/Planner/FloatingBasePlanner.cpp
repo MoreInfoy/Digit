@@ -177,7 +177,7 @@ void FloatingBasePlanner::lipm_mpc(size_t iter, const RobotState &state,
 
         Timer timer;
         lipmMpc.run();
-        printf("LIPM MPC solve time: %f\n", timer.getMs());
+        // printf("LIPM MPC solve time: %f\n", timer.getMs());
 
         _appliedIndex = 0;
     }
@@ -198,7 +198,7 @@ void FloatingBasePlanner::lipm_mpc(size_t iter, const RobotState &state,
     tasks.floatingBaseTask.R_wb.setIdentity();
     tasks.floatingBaseTask.omega.setZero();
 
-    cout << "acc_des: " << tasks.floatingBaseTask.acc.transpose() << endl;
+    // cout << "acc_des: " << tasks.floatingBaseTask.acc.transpose() << endl;
 
 
     VecXi mask = VecXi::Zero(8);
@@ -211,7 +211,7 @@ void FloatingBasePlanner::lipm_mpc(size_t iter, const RobotState &state,
     Vec force = lipmMpc.forceDistribute(_appliedIndex, c, cdot, robot.angularMomentum(), mask);
     tasks.forceTask = force;
 
-    cout << "distributed force: " << force.transpose() << endl;
+    // cout << "distributed force: " << force.transpose() << endl;
 
     if (iter % Poplar::Index(param.mpc_dt / _dt) == 0) {
         _appliedIndex++;
@@ -269,7 +269,7 @@ void FloatingBasePlanner::srgb_mpc(size_t iter, const RobotState &state, RobotWr
         srgbMpc.setContactPointPos(cp);
         Timer timer;
         srgbMpc.solve(0.0);
-        printf("mpc solve time: %f\n", timer.getMs());
+        // printf("mpc solve time: %f\n", timer.getMs());
         /*std::cout << "contact force: " << srgbMpc.getCurrentDesiredContactForce().transpose() << std::endl;
         std::cout << "optimal traj: " << srgbMpc.getDiscreteOptimizedTrajectory().transpose() << std::endl;*/
     }
