@@ -1,4 +1,4 @@
-# Closed-Chain Robot Digit Simulation and Motion Control
+# Closed-Chain Digit Simulation and Motion Control
 
 ## Introduction
 
